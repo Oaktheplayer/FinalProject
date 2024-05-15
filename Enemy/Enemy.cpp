@@ -61,7 +61,7 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int num = mapDistance[y][x];
 	if (num == -1) {
 		num = 0;
-		Engine::LOG(Engine::ERROR) << "Enemy path finding error";
+		Engine::LOG(Engine::ERROR) << "Enemy path finding error at "<<x<<','<<y<<": "<<-1;
 	}
 	path = std::vector<Engine::Point>(num + 1);
 	while (num != 0) {

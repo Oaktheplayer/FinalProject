@@ -39,9 +39,9 @@ Engine::Point PlayScene::GetClientSize() {
 	return Engine::Point(MapWidth * BlockSize, MapHeight * BlockSize);
 }
 void PlayScene::Initialize() {
-	// TODO: [HACKATHON-3-BUG] (1/5): There's a bug in this file, which crashes the game when you lose. Try to find it.
-	// TODO: [HACKATHON-3-BUG] (2/5): Find out the cheat code to test.
-    // TODO: [HACKATHON-3-BUG] (2/5): It should generate a Plane, and add 10000 to the money, but it doesn't work now.
+	// DONE: [HACKATHON-3-BUG] (1/5): There's a bug in this file, which crashes the game when you lose. Try to find it.
+	// DONE: [HACKATHON-3-BUG] (2/5): Find out the cheat code to test.
+    // DONE: [HACKATHON-3-BUG] (2/5): It should generate a Plane, and add 10000 to the money, but it doesn't work now.
 	mapState.clear();
 	keyStrokes.clear();
 	ticks = 0;
@@ -334,16 +334,18 @@ void PlayScene::ReadMap() {
 		for (int j = 0; j < MapWidth; j++) {
 			const int num = mapData[i * MapWidth + j];
 			mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
+			//fprintf(stderr,"%d ",mapState[i][j]);
 			if (num)
 				TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
 			else
 				TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
 		}
+		//fprintf(stderr,"\n");
 	}
 }
 void PlayScene::ReadEnemyWave() {
-    // TODO: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
-    // TODO: [HACKATHON-3-BUG] (3/5): There is a bug in these files, which let the game only spawn the first enemy, try to fix it.
+    // DONE: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
+    // DONE: [HACKATHON-3-BUG] (3/5): There is a bug in these files, which let the game only spawn the first enemy, try to fix it.
     std::string filename = std::string("Resource/enemy") + std::to_string(MapId) + ".txt";
 	// Read enemy file.
 	float type, wait, repeat;
@@ -454,9 +456,18 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
 	while (!que.empty()) {
 		Engine::Point p = que.front();
 		que.pop();
-		// TODO: [BFS PathFinding] (1/1): Implement a BFS starting from the most right-bottom block in the map.
+		// DONE: [BFS PathFinding] (1/1): Implement a BFS starting from the most right-bottom block in the map.
 		//               For each step you should assign the corresponding distance to the most right-bottom block.
 		//               mapState[y][x] is TILE_DIRT if it is empty.
+		for(auto& dir : PlayScene::directions){
+			int x = p.x + dir.x;
+			int y = p.y + dir.y;
+			if (x < 0 || x >= PlayScene::MapWidth || y < 0 || y >= PlayScene::MapHeight
+			|| 	mapState[y][x] != TILE_DIRT || map[y][x] != -1)
+				continue;
+			map[y][x]	=	map[p.y][p.x] + 1;
+			que.push(Engine::Point(x,y));
+		}
 	}
 	return map;
 }

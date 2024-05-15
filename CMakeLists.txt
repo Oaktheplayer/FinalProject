@@ -87,11 +87,13 @@ add_executable(2024_I2P2_TowerDefense_with_answer
         Scene/WinScene.cpp
         Scene/WinScene.hpp
 
-        # TODO: [HACKATHON-1-SCENE] (2/4) Add the new scene source files here
+        # DONE: [HACKATHON-1-SCENE] (2/4) Add the new scene source files here
         Scene/StartScene.cpp
         Scene/StartScene.h
         Scene/SettingsScene.cpp
         Scene/SettingsScene.hpp
+        Scene/ScoreboardScene.cpp
+        Scene/ScoreboardScene.hpp
 #        UI/Component/TextInput.cpp
 #        UI/Component/TextInput.hpp
 )
