@@ -30,6 +30,7 @@ protected:
 	int lives;
 	int money;
 	int SpeedMult;
+	
 public:
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
@@ -42,6 +43,8 @@ public:
 	int MapId;
 	float ticks;
 	float deathCountDown;
+
+	
 	// Map tiles.
 	Group* TileMapGroup;
 	Group* GroundEffectGroup;
@@ -53,6 +56,7 @@ public:
 	Group* UIGroup;
 	Engine::Label* UIMoney;
 	Engine::Label* UILives;
+	Engine::Label* UIScore;
 	Engine::Image* imgTarget;
 	Engine::Sprite* dangerIndicator;
 	Turret* preview;
@@ -79,6 +83,9 @@ public:
 	void UIBtnClicked(int id);
 	bool CheckSpaceValid(int x, int y);
 	std::vector<std::vector<int>> CalculateBFSDistance();
+	int score;
+	void 	ScorePoint(int x);
+	void 	RecordScore();
 	// void ModifyReadMapTiles();
 };
 #endif // PLAYSCENE_HPP

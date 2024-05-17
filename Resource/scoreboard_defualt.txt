@@ -8,3 +8,9 @@ DaHua 30
 DaMei 40
 DaWang 50
 XiaoWang 60
+Pomni 25
+Jax 22
+Ragatha 30
+Zooble 22
+Gangle 26
+Kinger 48

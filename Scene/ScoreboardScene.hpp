@@ -23,8 +23,9 @@ private:
     int maxPage;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> bgmInstance;
     std::vector<Record> record;
-    Engine::Label*          usernames[10];
-    Engine::Label*          scores[10];
+    int                 currentLength;
+    Engine::Label*      usernames[10];
+    Engine::Label*      scores[10];
     // Engine::ImageButton*    nextPageBtn;
     // Engine::ImageButton*    prevPageBtn;    
 public:
@@ -38,9 +39,11 @@ public:
 
     void LoadScoreBoard(int page);
 
-    void ToPage(int page);
+    void ToPage(bool isToNext);
 
     void BackOnClick(int stage);
+
+    void ClearScoreBoard();
 };
 
 

@@ -17,13 +17,16 @@ protected:
 	float speed;
 	float hp;
 	int money;
+
+	int point;
+
 	PlayScene* getPlayScene();
 	virtual void OnExplode();
 public:
 	float reachEndTime;
 	std::list<Turret*> lockedTurrets;
 	std::list<Bullet*> lockedBullets;
-	Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money);
+	Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage);
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
