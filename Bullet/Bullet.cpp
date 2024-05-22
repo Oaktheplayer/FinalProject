@@ -14,6 +14,20 @@ PlayScene* Bullet::getPlayScene() {
 }
 void Bullet::OnExplode(Enemy* enemy) {
 }
+void Bullet::GiveEffect(Enemy* enemy){
+	//TODO: make custom effect time. For now it's always 6 seconds
+	int i=0;
+	int len =	effectOnEnemy.size();
+	for(int i=0;i<len;i++){
+		enemy->GetEffect(effectOnEnemy[i], 6.0);
+	}
+}
+Bullet::Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret *parent, std::vector<StatusEffect> effects) : 
+	Sprite(img, position.x, position.y), speed(speed), damage(damage), parent(parent), effectOnEnemy(effects){
+    Velocity = forwardDirection.Normalize() * speed;
+	Rotation = rotation;
+	CollisionRadius = 4;
+}
 Bullet::Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent) :
 	Sprite(img, position.x, position.y), speed(speed), damage(damage), parent(parent) {
 	Velocity = forwardDirection.Normalize() * speed;
@@ -32,6 +46,7 @@ void Bullet::Update(float deltaTime) {
 		if (Engine::Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {
 			OnExplode(enemy);
 			enemy->Hit(damage);
+			GiveEffect(enemy);
 			getPlayScene()->BulletGroup->RemoveObject(objectIterator);
 			return;
 		}

@@ -49,6 +49,7 @@ namespace Engine {
 		/// </summary>
 		/// <returns>Height of the text.</returns>
 		int GetTextHeight() const;
+		// void	Move(const int& x, const int& y) const;
 	};
 }
 

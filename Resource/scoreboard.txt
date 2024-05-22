@@ -1,16 +1,17 @@
-XiaoMin 10
-DaNiu 30
-KaiJie 20
-XiaoMei 10
-XiaoHua 15
-MeiHua 20
-DaHua 30
-DaMei 40
-DaWang 50
-XiaoWang 60
-Pomni 25
-Jax 22
-Ragatha 30
-Zooble 22
-Gangle 26
-Kinger 48
+XiaoMin 10  N/A
+DaNiu 30    N/A
+KaiJie 20   N/A
+XiaoMei 10  N/A
+XiaoHua 15  N/A
+MeiHua 20   N/A
+DaHua 30    N/A
+DaMei 40    N/A
+DaWang 50   N/A
+XiaoWang 60 N/A
+Pomni 25 OCT13_2023
+Jax 22  N/A
+Ragatha 30  N/A
+Zooble 22   N/A
+Gangle 26   N/A
+Kinger 48   N/A
+Gummigoo 233 MAY3_2024

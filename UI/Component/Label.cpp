@@ -19,4 +19,7 @@ namespace Engine {
 	int Label::GetTextHeight() const {
 		return al_get_font_line_height(font.get());
 	}
+	// void Label::Move(const int& x, const int& y) const{
+	// 	Position.x = x; Position.y = y;
+	// }
 }

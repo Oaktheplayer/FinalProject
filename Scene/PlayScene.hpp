@@ -17,6 +17,11 @@ namespace Engine {
 	class Sprite;
 }  // namespace Engine
 
+typedef enum effects{
+	BURN,
+	STATUS_EFFECT_LENGTH
+}StatusEffect;
+
 class PlayScene final : public Engine::IScene {
 private:
 	enum TileType {

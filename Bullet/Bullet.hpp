@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Engine/Sprite.hpp"
+#include "Scene/PlayScene.hpp"
 
 class Enemy;
 class PlayScene;
@@ -16,11 +17,15 @@ protected:
 	float speed;
 	float damage;
 	Turret* parent;
+	std::vector<StatusEffect> effectOnEnemy;
 	PlayScene* getPlayScene();
 	virtual void OnExplode(Enemy* enemy);
+	void GiveEffect(Enemy* enemy);
 public:
 	Enemy* Target = nullptr;
 	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent);
+	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent, std::vector<StatusEffect> effects);
 	void Update(float deltaTime) override;
 };
+
 #endif // BULLET_HPP

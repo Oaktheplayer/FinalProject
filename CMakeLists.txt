@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 include_directories(Resource)
+include_directories(PlayerData)
 
 file(COPY Resource/audios DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY Resource/fonts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -49,6 +50,10 @@ add_executable(2024_I2P2_TowerDefense_with_answer
         Bullet/LaserBullet.hpp
         Turret/LaserTurret.cpp
         Turret/LaserTurret.hpp
+        Turret/Flamethrower.cpp
+        Turret/Flamethrower.hpp
+        Bullet/Flame.cpp
+        Bullet/Flame.hpp
         Engine/LOG.cpp
         Engine/LOG.hpp
         Scene/LoseScene.cpp

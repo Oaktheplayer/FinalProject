@@ -7,13 +7,16 @@
 class   Record{
     public:
         std::string username;
-        int         score;
+        std::string score;
+        std::string date;
     public:
         explicit    Record(){
             username    =   "";
-            score       =   0;
+            score       =   "";
+            date        =   "";
         }
-        Record(std::string, int);
+        Record(std::string, std::string, std::string);
+        Record(std::string, std::string);
         // friend  std::istream &operator>>(std::istream,Record);
 };
 
@@ -26,6 +29,7 @@ private:
     int                 currentLength;
     Engine::Label*      usernames[10];
     Engine::Label*      scores[10];
+    Engine::Label*      dates[10];
     // Engine::ImageButton*    nextPageBtn;
     // Engine::ImageButton*    prevPageBtn;    
 public:

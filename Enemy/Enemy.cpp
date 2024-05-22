@@ -4,6 +4,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <allegro5/allegro_font.h>
 
 #include "Engine/AudioHelper.hpp"
 #include "Bullet/Bullet.hpp"
@@ -16,9 +17,11 @@
 #include "Engine/LOG.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Turret/Turret.hpp"
+#include "Engine/Resources.hpp"
 
-PlayScene* Enemy::getPlayScene() {
-	return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
+PlayScene *Enemy::getPlayScene()
+{
+    return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
 void Enemy::OnExplode() {
 	getPlayScene()->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y));
@@ -32,23 +35,27 @@ void Enemy::OnExplode() {
 	}
 }
 Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point) :
-	Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money), point(point) {
+	Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money), point(point), font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
 	CollisionRadius = radius;
 	reachEndTime = 0;
-	
+	ClearEffect();
 }
 void Enemy::Hit(float damage) {
 	hp -= damage;
 	if (hp <= 0) {
 		OnExplode();
+		
 		// Remove all turret's reference to target.
 		for (auto& it: lockedTurrets)
 			it->Target = nullptr;
 		for (auto& it: lockedBullets)
 			it->Target = nullptr;
 		getPlayScene()->EarnMoney(money);
+
 		if(!path.empty())
 			getPlayScene()->ScorePoint(point);
+		
+		ClearEffect();
 		getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
 		AudioHelper::PlayAudio("explosion.wav");
 	}
@@ -89,6 +96,8 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 void Enemy::Update(float deltaTime) {
 	// Pre-calculate the velocity.
 	float remainSpeed = speed * deltaTime;
+	//Deal with effects
+	
 	while (remainSpeed != 0) {
 		if (path.empty()) {
 			// Reach end point.
@@ -116,15 +125,75 @@ void Enemy::Update(float deltaTime) {
 			remainSpeed = 0;
 		}
 	}
+	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
+		if(hasStatusEffect[i]){
+			effectTimer[i]-=deltaTime;
+			if(effectTimer[i] <= 0.0){
+				effectTimer[i]		=	0.0;
+				hasStatusEffect[i] 	=	false;
+				std::cout<<"It's fine"<<std::endl;
+			}
+			else{
+				DoEffect((StatusEffect)i,deltaTime);
+			}
+		}
+	}
 	Rotation = atan2(Velocity.y, Velocity.x);
 	Sprite::Update(deltaTime);
 }
 void Enemy::Draw() const {
+	if(hasStatusEffect[BURN]){
+		
+	}
 	Sprite::Draw();
 	if (PlayScene::DebugMode) {
 		// Draw collision radius.
 		al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
+		// DebugHp.Move(Position.x,Position.y);
+		// DebugHp.Draw();
+		std::string text = std::to_string((int)hp);
+		al_draw_text(font.get(),al_map_rgba(255, 255, 255, 127),Position.x,Position.y,0,text.c_str());
 	}
 }
 
+void Enemy::GetEffect(StatusEffect newEffect, float timer){
+	if(!hasStatusEffect[(int)newEffect]){
+		effects.push_back(newEffect);
+		hasStatusEffect[newEffect] = true;
+		//std::cerr<<"I'm burning alive"<<std::endl;
+	}
+	effectTimer[newEffect]	=	timer;
+}
+
+
+void Enemy::DoEffect(StatusEffect effect, float delta){
+	switch(effect){
+		case BURN:
+			Hit(1.0f*delta);
+			//std::cerr<<"deal fire damage\n";
+			break;
+		default:
+			break;
+	}
+}
+//clear all effect
+void Enemy::ClearEffect(){
+	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
+		ClearEffect((StatusEffect)i);
+	}
+}
+//clear certain effect
+void Enemy::ClearEffect(StatusEffect effect){
+	hasStatusEffect[effect] = false;
+	effectTimer[effect]	=	0.0;
+}
+
+
+
+// bool Enemy::HasEffect(StatusEffect effect){
+// 	for(int i=0;i<effects.size();i++)
+// 		if(effects[i] == effect)
+// 			return	true;
+//     return false;
+// }
 

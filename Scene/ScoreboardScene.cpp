@@ -74,14 +74,15 @@ void ScoreboardScene::BackOnClick(int stage) {
 }
 
 void ScoreboardScene::ReadScoreboard(){
-    std::string     filename    =   "Resource/scoreboard.txt";
+    std::string     filename    =   "PlayerData/Scoreboards/test.txt";
     std::ifstream   fin(filename);
+    std::string n;
     std::string s;
-    int n;
-    Record  r;
-    while(fin>>s){
-        fin>>n;
-        record.push_back(Record(s,n));
+    std::string d;
+    while(fin>>n){
+        fin>>s;
+        fin>>d;
+        record.push_back(Record(n,s,d));
     } 
     fprintf(stderr,"%d records in total\n",record.size());
     maxPage =   record.size()/10 + 1;
@@ -91,6 +92,7 @@ void ScoreboardScene::ClearScoreBoard(){
     for(int i=0;i<currentLength;i++){
         if(usernames[i])    RemoveObject(usernames[i]->GetObjectIterator());
         if(scores[i])       RemoveObject(scores[i]->GetObjectIterator());
+        if(dates[i])       RemoveObject(scores[i]->GetObjectIterator());
     }
 }
 
@@ -100,17 +102,16 @@ void ScoreboardScene::LoadScoreBoard(int page){
     int start   =   page*10;
     currentLength   =   0;
     for(int i=0;i<10;i++){
-        //TODO: it won't fucking work
+        //DONE: it won't fucking work (it works now, you need to remove thing.getObjectIterator())
         if(start+i>=record.size()) break;
             currentLength++;
-        // AddNewObject(new Engine::Label(record[i+start].username, "pirulen.ttf", 32, w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5));
-        // usernames[i]    =   objects.size() - 1;
-        // scores[i]       =   new Engine::Label(std::to_string(record[i+start].score), "pirulen.ttf", 32, 3*w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
-        // AddNewObject(scores[i]);
+        
         usernames[i]    =   new Engine::Label(record[i+start].username, "pirulen.ttf", 32, w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
         AddNewObject(usernames[i]);
-        scores[i]       =   new Engine::Label(std::to_string(record[i+start].score), "pirulen.ttf", 32, 3*w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
+        scores[i]       =   new Engine::Label(record[i+start].score, "pirulen.ttf", 32, 2*w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
         AddNewObject(scores[i]);
+        dates[i]       =   new Engine::Label(record[i+start].date, "pirulen.ttf", 32, 3*w/4, h / 8 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
+        AddNewObject(dates[i]);
     }
     fprintf(stderr,"current length: %d)\n",currentLength);
     //AddNewObject(usernames)
@@ -131,7 +132,9 @@ void ScoreboardScene::ToPage(bool isToNext){
     LoadScoreBoard(page);
 }
 
-Record::Record(std::string s, int n):username(s),score(n){};
+Record::Record(std::string  n,  std::string s,  std::string d):     username(n),score(s),date(d) {}
+
+Record::Record(std::string  n, std::string  s) : username(n), score(s), date("N/A") {};
 // std::istream &operator>>(std::istream    is, Record  r){
 //     std::string s;
 //     int n;
