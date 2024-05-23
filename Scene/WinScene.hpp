@@ -13,7 +13,13 @@ private:
 	struct	tm	*current_time;
 	int date, month, year;
 	std::string	username;
+	std::string nameInput;
+	Engine::Label*	nameLabel;
+	void PutName();
+	int cursor;
+	bool	recordKey;
 	std::string	to_month[12]	=	{"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
+
 public:
 	explicit WinScene() = default;
 	void Initialize() override;
@@ -22,6 +28,8 @@ public:
 	void BackOnClick(int stage);
 	void ReadCurrentData();
 	void RecordScore();
+	void ChangeName();
+	void OnKeyDown(int keyCode) override;
 };
 
 #endif // WINSCENE_HPP

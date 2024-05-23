@@ -92,7 +92,7 @@ void ScoreboardScene::ClearScoreBoard(){
     for(int i=0;i<currentLength;i++){
         if(usernames[i])    RemoveObject(usernames[i]->GetObjectIterator());
         if(scores[i])       RemoveObject(scores[i]->GetObjectIterator());
-        if(dates[i])       RemoveObject(scores[i]->GetObjectIterator());
+        if(dates[i])       RemoveObject(dates[i]->GetObjectIterator());
     }
 }
 
