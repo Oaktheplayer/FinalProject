@@ -36,6 +36,8 @@ public:
 	std::list<Bullet*> lockedBullets;
 	Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage);
+	virtual void Kill();
+	virtual	void UponDeath();
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
 	void Draw() const override;

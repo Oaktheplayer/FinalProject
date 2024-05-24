@@ -24,9 +24,10 @@
 #include "Engine/Resources.hpp"
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
+#include	"Enemy/TruckEnemy.hpp"
 #include "Turret/TurretButton.hpp"
 
-
+#include	<iostream>
 
 
 bool PlayScene::DebugMode = false;
@@ -157,32 +158,64 @@ void PlayScene::Update(float deltaTime) {
 		ticks -= current.second;
 		enemyWaveData.pop_front();
 		const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
-		Enemy* enemy;
-		switch (current.first) {
-		case 1:
-			EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-			break;
-		case 2:
-			EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-			break;
-		case 3:
-			EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-			break;
-        // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
-        //         The format is "[EnemyId] [TimeDelay] [Repeat]".
-        // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
-		default:
-			continue;
-		}
-		enemy->UpdatePath(mapDistance);
-		// Compensate the time lost.
-		enemy->Update(ticks);
+		// Enemy* enemy;
+		// switch (current.first) {
+		// case 1:
+		// 	EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+		// 	break;
+		// case 2:
+		// 	EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+		// 	break;
+		// case 3:
+		// 	EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+		// 	break;
+		// case 4:
+		// 	EnemyGroup->AddNewObject(enemy = new TruckEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+		// 	break;
+        // // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
+        // //         The format is "[EnemyId] [TimeDelay] [Repeat]".
+        // // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
+		// default:
+		// 	continue;
+		// }
+		// enemy->UpdatePath(mapDistance);
+		// // Compensate the time lost.
+		// enemy->Update(ticks);
+		if( !SpawnEnemy(current.first,SpawnCoordinate.x,SpawnCoordinate.y, ticks)) continue;
 	}
 	if (preview) {
 		preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
 		// To keep responding when paused.
 		preview->Update(deltaTime);
 	}
+}
+bool PlayScene::SpawnEnemy(int type, float x, float y, float delta){
+	Enemy* enemy;
+	switch (type) {
+	case 1:
+		EnemyGroup->AddNewObject(enemy = new SoldierEnemy(x, y));
+		break;
+	case 2:
+		EnemyGroup->AddNewObject(enemy = new PlaneEnemy(x, y));
+		break;
+	case 3:
+		EnemyGroup->AddNewObject(enemy = new TankEnemy(x, y));
+		break;
+	case 4:
+		EnemyGroup->AddNewObject(enemy = new TruckEnemy(x, y));
+		break;
+    // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
+    //         The format is "[EnemyId] [TimeDelay] [Repeat]".
+    // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
+	default:
+		return false;
+	}	
+	enemy->UpdatePath(mapDistance);
+	// Compensate the time lost.
+	if(delta)
+		enemy->Update(delta);
+	// enemy->UpdatePath(mapDistance);
+	return true;
 }
 void PlayScene::Draw() const {
 	IScene::Draw();

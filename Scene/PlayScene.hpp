@@ -74,6 +74,7 @@ public:
 	void Initialize() override;
 	void Terminate() override;
 	void Update(float deltaTime) override;
+	bool SpawnEnemy(int type, float x, float y, float delta);
 	void Draw() const override;
 	void OnMouseDown(int button, int mx, int my) override;
 	void OnMouseMove(int mx, int my) override;

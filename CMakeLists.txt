@@ -85,6 +85,8 @@ add_executable(2024_I2P2_TowerDefense_with_answer
         Scene/StageSelectScene.hpp
         Enemy/TankEnemy.cpp
         Enemy/TankEnemy.hpp
+        Enemy/TruckEnemy.cpp
+        Enemy/TruckEnemy.hpp
         Turret/Turret.cpp
         Turret/Turret.hpp
         Turret/TurretButton.cpp

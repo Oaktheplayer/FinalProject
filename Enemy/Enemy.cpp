@@ -43,22 +43,23 @@ Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float
 void Enemy::Hit(float damage) {
 	hp -= damage;
 	if (hp <= 0) {
-		OnExplode();
-		
-		// Remove all turret's reference to target.
-		for (auto& it: lockedTurrets)
-			it->Target = nullptr;
-		for (auto& it: lockedBullets)
-			it->Target = nullptr;
+		getPlayScene()->ScorePoint(point);
 		getPlayScene()->EarnMoney(money);
-
-		if(!path.empty())
-			getPlayScene()->ScorePoint(point);
-		
-		ClearEffect();
-		getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
-		AudioHelper::PlayAudio("explosion.wav");
+		UponDeath();
+		Kill();
 	}
+}
+void Enemy::UponDeath(){};
+void Enemy::Kill(){
+	OnExplode();
+	// Remove all turret's reference to target.
+	for (auto& it: lockedTurrets)
+		it->Target = nullptr;
+	for (auto& it: lockedBullets)
+		it->Target = nullptr;
+	ClearEffect();
+	getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
+	AudioHelper::PlayAudio("explosion.wav");
 }
 void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
@@ -101,7 +102,8 @@ void Enemy::Update(float deltaTime) {
 	while (remainSpeed != 0) {
 		if (path.empty()) {
 			// Reach end point.
-			Hit(hp);
+			//Hit(hp);
+			Kill();
 			getPlayScene()->Hit();
 			reachEndTime = 0;
 			return;
