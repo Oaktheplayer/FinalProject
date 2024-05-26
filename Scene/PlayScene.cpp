@@ -137,17 +137,19 @@ void PlayScene::Update(float deltaTime) {
 		ticks += deltaTime;
 		if (enemyWaveData.empty()) {
 			if (EnemyGroup->GetObjects().empty()) {
-				// Free resources.
-				/*delete TileMapGroup;
-				delete GroundEffectGroup;
-				delete DebugIndicatorGroup;
-				delete TowerGroup;
-				delete EnemyGroup;
-				delete BulletGroup;
-				delete EffectGroup;
-				delete UIGroup;
-				delete imgTarget;*/
+				ScorePoint(lives^2);
 				RecordScore();
+				// Free resources.
+				//delete TileMapGroup;
+				//delete GroundEffectGroup;
+				//delete DebugIndicatorGroup;
+				//delete TowerGroup;
+				//delete EnemyGroup;
+				//delete BulletGroup;
+				//delete EffectGroup;
+				//delete UIGroup;
+				//delete imgTarget;
+				
 				Engine::GameEngine::GetInstance().ChangeScene("win");
 			}
 			continue;

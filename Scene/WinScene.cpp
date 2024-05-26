@@ -60,9 +60,6 @@ void WinScene::Update(float deltaTime) {
 		ticks = 100;
 		bgmId = AudioHelper::PlayBGM("happy.ogg");
 	}
-	if(recordKey){
-		
-	}
 }
 void WinScene::BackOnClick(int stage) {
 	// Change to select scene.
@@ -79,7 +76,7 @@ void WinScene::ReadCurrentData(){
 void WinScene::RecordScore(){
 	//DONE: scoreboard isn't saved
 	//DONE: sort score
-	//TODO: custom name
+	//DONE: custom name
 	std::string filename 	=	"PlayerData/Scoreboards/test.txt";
 
 	std::ifstream	scrbdin(filename,std::ifstream::in);
@@ -97,7 +94,14 @@ void WinScene::RecordScore(){
 		if(scr<score && !recorded){
 			ssout	<<	username<<	' ';
 			ssout	<<	score<< ' ';
-			ssout	<<	to_month[current_time->tm_mon]<<current_time->tm_mday	<<'_'<<	current_time->tm_year + 1900;
+			if(current_time->tm_hour<10)	ssout<<0;
+			ssout	<<	current_time->tm_hour	<<	':';
+			if(current_time->tm_min<10)		ssout<<0;
+			ssout	<<	current_time->tm_min	<<	'_';
+			ssout	<<	to_month[current_time->tm_mon];
+			if(current_time->tm_mday<10) ssout<<0;
+			ssout	<<current_time->tm_mday;
+			ssout	<<'_'<<	current_time->tm_year + 1900;
 			ssout	<<	std::endl;
 			recorded	=	true;
 		}
@@ -106,7 +110,15 @@ void WinScene::RecordScore(){
 	if(!recorded){
 		ssout	<<	username<<	' ';
 		ssout	<<	score<< ' ';
-		ssout	<<	to_month[current_time->tm_mon]<<current_time->tm_mday	<<'_'<<	current_time->tm_year + 1900;
+
+		if(current_time->tm_hour<10)	ssout<<0;
+		ssout	<<	current_time->tm_hour	<<	':';
+		if(current_time->tm_min<10)		ssout<<0;
+		ssout	<<	current_time->tm_min	<<	'_';
+		ssout	<<	to_month[current_time->tm_mon];
+		if(current_time->tm_mday<10) ssout<<0;
+		ssout	<<current_time->tm_mday;
+		ssout	<<'_'<<	current_time->tm_year + 1900;
 		ssout	<<	std::endl;
 	}
 
@@ -168,10 +180,13 @@ void WinScene::OnKeyDown(int keyCode){
 				}
 				break;
 			default:
-				if(	nameInput.length()<=12
-				&&	(	(keyCode>=ALLEGRO_KEY_A && keyCode<=ALLEGRO_KEY_Z) 
-					|| 	(keyCode>=ALLEGRO_KEY_0 && keyCode<=ALLEGRO_KEY_9)))
-					nameInput.insert(cursor++, al_keycode_to_name(keyCode));
+				if(	nameInput.length()<=12){
+					if(	(keyCode>=ALLEGRO_KEY_A && keyCode<=ALLEGRO_KEY_Z) 
+					|| 	(keyCode>=ALLEGRO_KEY_0 && keyCode<=ALLEGRO_KEY_9))
+						nameInput.insert(cursor++, al_keycode_to_name(keyCode));
+					if(	keyCode==ALLEGRO_KEY_SPACE)
+						nameInput.insert(cursor++, "_");
+				}				
 		}
 		std::cerr<<"Key:"<<keyCode<<std::endl<<nameInput<<std::endl;
 		PutName();

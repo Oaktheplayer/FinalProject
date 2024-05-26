@@ -21,6 +21,7 @@ protected:
 	int money;
 	int point;
 	std::vector<StatusEffect>	effects;
+	Engine::Sprite*	visualEffect[STATUS_EFFECT_LENGTH];
 	bool	hasStatusEffect[STATUS_EFFECT_LENGTH];
 	float	effectTimer[STATUS_EFFECT_LENGTH];
 	void	DoEffect(StatusEffect effect,float delta);

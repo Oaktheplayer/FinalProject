@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(2024_I2P2_TowerDefense_with_answer)
-
+include(CTest)
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
@@ -24,10 +24,14 @@ add_executable(2024_I2P2_TowerDefense_with_answer
         Engine/Collider.hpp
         UI/Animation/DirtyEffect.cpp
         UI/Animation/DirtyEffect.hpp
+        UI/Animation/FireEffect.cpp
+        UI/Animation/FireEffect.hpp
         Enemy/Enemy.cpp
         Enemy/Enemy.hpp
         UI/Animation/ExplosionEffect.cpp
         UI/Animation/ExplosionEffect.hpp
+        UI/Animation/FireParticle.cpp
+        UI/Animation/FireParticle.hpp
         Bullet/FireBullet.cpp
         Bullet/FireBullet.hpp
         Engine/GameEngine.cpp

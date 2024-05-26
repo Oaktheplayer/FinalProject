@@ -11,6 +11,8 @@
 #include "UI/Animation/DirtyEffect.hpp"
 #include "Enemy.hpp"
 #include "UI/Animation/ExplosionEffect.hpp"
+#include "UI/Animation/FireParticle.hpp"
+#include "UI/Animation/FireEffect.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
 #include "Engine/IScene.hpp"
@@ -133,7 +135,6 @@ void Enemy::Update(float deltaTime) {
 			if(effectTimer[i] <= 0.0){
 				effectTimer[i]		=	0.0;
 				hasStatusEffect[i] 	=	false;
-				std::cout<<"It's fine"<<std::endl;
 			}
 			else{
 				DoEffect((StatusEffect)i,deltaTime);
@@ -162,9 +163,17 @@ void Enemy::GetEffect(StatusEffect newEffect, float timer){
 	if(!hasStatusEffect[(int)newEffect]){
 		effects.push_back(newEffect);
 		hasStatusEffect[newEffect] = true;
-		//std::cerr<<"I'm burning alive"<<std::endl;
+		switch (newEffect){
+			case BURN:
+				getPlayScene()->EffectGroup->AddNewObject(
+					visualEffect[BURN]	=	new FireEffect(Position.x, Position.y, this, timer));
+				break;
+			default:
+				break;
+		}	
 	}
 	effectTimer[newEffect]	=	timer;
+	
 }
 
 
@@ -172,7 +181,8 @@ void Enemy::DoEffect(StatusEffect effect, float delta){
 	switch(effect){
 		case BURN:
 			Hit(1.0f*delta);
-			//std::cerr<<"deal fire damage\n";
+			// if(effectTimer[BURN]-floor(effectTimer[BURN]) <= delta)
+			// 	getPlayScene()->EffectGroup->AddNewObject(new FireParticle(Position.x, Position.y, Velocity.x, Velocity.y));
 			break;
 		default:
 			break;
@@ -188,6 +198,16 @@ void Enemy::ClearEffect(){
 void Enemy::ClearEffect(StatusEffect effect){
 	hasStatusEffect[effect] = false;
 	effectTimer[effect]	=	0.0;
+	switch (effect){
+	case BURN:
+		if(hasStatusEffect[BURN]){
+			getPlayScene()->RemoveObject(visualEffect[BURN]->GetObjectIterator());
+			delete	visualEffect[BURN];
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 
