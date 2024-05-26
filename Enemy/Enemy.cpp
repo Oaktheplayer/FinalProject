@@ -180,9 +180,10 @@ void Enemy::GetEffect(StatusEffect newEffect, float timer){
 void Enemy::DoEffect(StatusEffect effect, float delta){
 	switch(effect){
 		case BURN:
-			Hit(1.0f*delta);
-			// if(effectTimer[BURN]-floor(effectTimer[BURN]) <= delta)
-			// 	getPlayScene()->EffectGroup->AddNewObject(new FireParticle(Position.x, Position.y, Velocity.x, Velocity.y));
+			if(effectTimer[BURN] > delta)
+				Hit(1.0f*delta);
+			else
+				Hit(effectTimer[BURN] * delta);
 			break;
 		default:
 			break;
@@ -201,8 +202,8 @@ void Enemy::ClearEffect(StatusEffect effect){
 	switch (effect){
 	case BURN:
 		if(hasStatusEffect[BURN]){
-			getPlayScene()->RemoveObject(visualEffect[BURN]->GetObjectIterator());
-			delete	visualEffect[BURN];
+			getPlayScene()->EffectGroup->RemoveObject(visualEffect[BURN]->GetObjectIterator());
+			//delete	visualEffect[BURN];
 		}
 		break;
 	default:

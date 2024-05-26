@@ -20,6 +20,7 @@ FireEffect::FireEffect(float x, float y, Engine::Sprite* target, float duration)
     for (int i = 1; i <= 15; i++) {
 		bmps.push_back(Engine::Resources::GetInstance().GetBitmap("play/fire_particle-" + std::to_string(i) + ".png"));
 	}
+    std::cerr<<"burn at "<<x<<','<<y<<'\n';
 }
 
 PlayScene* FireEffect::getPlayScene() {
@@ -58,11 +59,12 @@ void FireEffect::Update(float deltaTime)
     // }
     // bmp = bmps[phase];
     if(timeTicks>=timeSpan || !target){
+        std::cerr<<"removed at "<<Position.x<<','<<Position.y<<'\n';
         getPlayScene()->EffectGroup->RemoveObject(objectIterator);return;
-        delete this;
+    }else{
+        Position    =   target->Position;
     }
-    Position    =   target->Position;
-    phase = ((int)floor(timeTicks *4)) % 4 +4;
+    phase = ((int)floor(timeTicks /0.25f)) % 4 +4;
     bmp = bmps[phase];
     Sprite::Update(deltaTime);
 }
