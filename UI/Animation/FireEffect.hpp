@@ -16,7 +16,7 @@ protected:
 	float extinguishTimer = 7.0/4.0;
 	std::vector<std::shared_ptr<ALLEGRO_BITMAP>> bmps;
 	float timeSpan;
-    Engine::Sprite *target;
+    Engine::Sprite *target = nullptr;
 	bool extingushed = 0;
 	std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> fireSound;
 public:
