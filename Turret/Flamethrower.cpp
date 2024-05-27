@@ -22,5 +22,5 @@ void Flamethrower::CreateBullet() {
 	Engine::Point normalized = diff.Normalize();
 	// Change bullet position to the front of the gun barrel.
 	getPlayScene()->BulletGroup->AddNewObject(new Flame(Position + normalized * 36, diff, rotation, this, this->effectOnEnemy));
-	AudioHelper::PlayAudio("gun.wav");
+	AudioHelper::PlayAudio("flame_thrower.mp3");
 }

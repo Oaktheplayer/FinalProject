@@ -13,6 +13,7 @@ class Turret;
 
 Flame::Flame(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent, std::vector<StatusEffect> effects) :
 	Bullet("play/fire_particle-10.png", 100, 0, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent, effects) {
+		explosionRadius	=	24;
 }
 void Flame::OnExplode(Enemy* enemy) {
 	std::random_device dev;

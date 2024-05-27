@@ -7,6 +7,7 @@
 #include "Engine/Point.hpp"
 #include "Engine/Sprite.hpp"
 #include	"UI/Component/Label.hpp"
+#include	"UI/Animation/VisualEffect.hpp"
 #include "Scene/PlayScene.hpp"
 
 class Bullet;
@@ -21,7 +22,7 @@ protected:
 	int money;
 	int point;
 	std::vector<StatusEffect>	effects;
-	Engine::Sprite*	visualEffect[STATUS_EFFECT_LENGTH];
+	VisualEffect*	visualEffect[STATUS_EFFECT_LENGTH];
 	bool	hasStatusEffect[STATUS_EFFECT_LENGTH];
 	float	effectTimer[STATUS_EFFECT_LENGTH];
 	void	DoEffect(StatusEffect effect,float delta);

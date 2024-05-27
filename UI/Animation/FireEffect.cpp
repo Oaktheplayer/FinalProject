@@ -11,23 +11,25 @@
 #include "Scene/PlayScene.hpp"
 #include "Engine/Resources.hpp"
 #include "FireEffect.hpp"
+#include "UI/Animation/VisualEffect.hpp"
+#include "Engine/AudioHelper.hpp"
 
-FireEffect::FireEffect(float x, float y, Engine::Sprite* target, float duration) :
-    Sprite("play/fire_particle-1.png", x, y), target(target),timeTicks(0), timeSpan(duration) {
+FireEffect::FireEffect(float x, float y, Engine::Sprite* parent, float duration) :
+    VisualEffect::VisualEffect("play/fire_particle-1.png", x, y,parent,duration) {
 	extingushed =   0;
-    
     extinguishTimer =   1.75f;
     for (int i = 1; i <= 15; i++) {
 		bmps.push_back(Engine::Resources::GetInstance().GetBitmap("play/fire_particle-" + std::to_string(i) + ".png"));
 	}
-    std::cerr<<"burn at "<<x<<','<<y<<'\n';
+    //fireSound   =   AudioHelper::PlaySample("burning.mp3");
 }
 
-PlayScene* FireEffect::getPlayScene() {
-	return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
+FireEffect::~FireEffect(){
+    std::cerr<<"removed at\t"<<Position.x<<','<<Position.y<<'\n';
+    //AudioHelper::StopSample(fireSound);
 }
 
-void FireEffect::Update(float deltaTime)
+void    FireEffect::Update(float deltaTime)
 {
     timeTicks += deltaTime;
     int phase;
@@ -58,11 +60,13 @@ void FireEffect::Update(float deltaTime)
     //     getPlayScene()->EffectGroup->RemoveObject(objectIterator);return;
     // }
     // bmp = bmps[phase];
-    if(timeTicks>=timeSpan || !target){
-        std::cerr<<"removed at "<<Position.x<<','<<Position.y<<'\n';
-        getPlayScene()->EffectGroup->RemoveObject(objectIterator);return;
+    if(timeTicks>=timeSpan || !Parent){
+        //std::cerr<<"removed at\t"<<Position.x<<','<<Position.y<<'\n';
+        getPlayScene()->EffectGroup->RemoveObject(objectIterator);
+        return;
     }else{
-        Position    =   target->Position;
+        Position    =   Parent->Position;
+        
     }
     phase = ((int)floor(timeTicks /0.25f)) % 4 +4;
     bmp = bmps[phase];

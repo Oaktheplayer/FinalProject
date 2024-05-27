@@ -40,6 +40,9 @@ Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float
 	Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money), point(point), font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
 	CollisionRadius = radius;
 	reachEndTime = 0;
+	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
+		visualEffect[i]	=	nullptr;
+	}
 	ClearEffect();
 }
 void Enemy::Hit(float damage) {
@@ -167,6 +170,7 @@ void Enemy::GetEffect(StatusEffect newEffect, float timer){
 			case BURN:
 				getPlayScene()->EffectGroup->AddNewObject(
 					visualEffect[BURN]	=	new FireEffect(Position.x, Position.y, this, timer));
+					
 				break;
 			default:
 				break;
@@ -197,18 +201,20 @@ void Enemy::ClearEffect(){
 }
 //clear certain effect
 void Enemy::ClearEffect(StatusEffect effect){
-	hasStatusEffect[effect] = false;
-	effectTimer[effect]	=	0.0;
 	switch (effect){
 	case BURN:
-		if(hasStatusEffect[BURN]){
-			getPlayScene()->EffectGroup->RemoveObject(visualEffect[BURN]->GetObjectIterator());
-			//delete	visualEffect[BURN];
+		if(visualEffect[BURN]){
+			visualEffect[BURN]->Parent	=	nullptr;
+			// std::cerr<<"remove fire effect at "<<Position.x<<','<<Position.y<<'\n';
+			// getPlayScene()->EffectGroup->RemoveObject(visualEffect[BURN]->GetObjectIterator());
+			// //delete	visualEffect[BURN];
 		}
 		break;
 	default:
 		break;
 	}
+	hasStatusEffect[effect] = false;
+	effectTimer[effect]	=	0.0;
 }
 
 

@@ -5,22 +5,19 @@
 #include <vector>
 
 #include "Engine/Sprite.hpp"
+#include	"UI/Animation/VisualEffect.hpp"
 
 
-class PlayScene;
+//class PlayScene;
 
-class FireEffect : public Engine::Sprite {
+class FireEffect : public VisualEffect {
 protected:
-	PlayScene* getPlayScene();
-	float timeTicks;
 	float extinguishTimer = 7.0/4.0;
-	std::vector<std::shared_ptr<ALLEGRO_BITMAP>> bmps;
-	float timeSpan;
-    Engine::Sprite *target = nullptr;
 	bool extingushed = 0;
 	std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> fireSound;
 public:
-	FireEffect(float x, float y, Engine::Sprite *target, float duratioin);
+	FireEffect(float x, float y, Engine::Sprite *parent, float duratioin);
+	~FireEffect();
 	void Update(float deltaTime) override;
 };
 #endif // FIREEFFECT_HPP

@@ -21,6 +21,7 @@ protected:
 	PlayScene* getPlayScene();
 	virtual void OnExplode(Enemy* enemy);
 	void GiveEffect(Enemy* enemy);
+	float explosionRadius = 0;
 public:
 	Enemy* Target = nullptr;
 	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent);

@@ -44,9 +44,23 @@ void Bullet::Update(float deltaTime) {
 		if (!enemy->Visible)
 			continue;
 		if (Engine::Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {
-			OnExplode(enemy);
-			enemy->Hit(damage);
-			GiveEffect(enemy);
+			// if(!explosionRadius){
+				OnExplode(enemy);
+				GiveEffect(enemy);
+				enemy->Hit(damage);
+			// }else
+			// {
+			// 	for (auto& that : scene->EnemyGroup->GetObjects()){
+			// 		Enemy* enemy2 = dynamic_cast<Enemy*>(that);
+			// 		if (!enemy2->Visible)
+			// 			continue;
+			// 		if (Engine::Collider::IsCircleOverlap(Position, explosionRadius, enemy2->Position, enemy2->CollisionRadius))	{
+			// 			OnExplode(enemy2);
+			// 			GiveEffect(enemy2);
+			// 			enemy2->Hit(damage);
+			// 		}
+			// 	}
+			// }
 			getPlayScene()->BulletGroup->RemoveObject(objectIterator);
 			return;
 		}
