@@ -77,7 +77,7 @@ void WinScene::RecordScore(){
 	//DONE: scoreboard isn't saved
 	//DONE: sort score
 	//DONE: custom name
-	std::string filename 	=	"PlayerData/Scoreboards/test.txt";
+	std::string filename 	=	"../PlayerData/Scoreboards/scoreboard.txt";
 
 	std::ifstream	scrbdin(filename,std::ifstream::in);
 	std::stringstream	ssin;

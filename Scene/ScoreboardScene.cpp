@@ -74,7 +74,7 @@ void ScoreboardScene::BackOnClick(int stage) {
 }
 
 void ScoreboardScene::ReadScoreboard(){
-    std::string     filename    =   "PlayerData/Scoreboards/test.txt";
+    std::string     filename    =   "../PlayerData/Scoreboards/scoreboard.txt";
     std::ifstream   fin(filename);
     std::string n;
     std::string s;
