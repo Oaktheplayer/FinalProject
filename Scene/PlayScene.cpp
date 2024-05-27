@@ -183,7 +183,10 @@ void PlayScene::Update(float deltaTime) {
 		// enemy->UpdatePath(mapDistance);
 		// // Compensate the time lost.
 		// enemy->Update(ticks);
-		if( !SpawnEnemy(current.first,SpawnCoordinate.x,SpawnCoordinate.y, ticks)) continue;
+		Enemy* enemy	=	SpawnEnemy(current.first,SpawnCoordinate.x,SpawnCoordinate.y, ticks);
+		if( !enemy) continue;
+		// Compensate the time lost.
+		enemy->Update(ticks);
 	}
 	if (preview) {
 		preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
@@ -191,7 +194,7 @@ void PlayScene::Update(float deltaTime) {
 		preview->Update(deltaTime);
 	}
 }
-bool PlayScene::SpawnEnemy(int type, float x, float y, float delta){
+Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 	Enemy* enemy;
 	switch (type) {
 	case 1:
@@ -210,14 +213,11 @@ bool PlayScene::SpawnEnemy(int type, float x, float y, float delta){
     //         The format is "[EnemyId] [TimeDelay] [Repeat]".
     // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
 	default:
-		return false;
+		return nullptr;
 	}	
 	enemy->UpdatePath(mapDistance);
-	// Compensate the time lost.
-	if(delta)
-		enemy->Update(delta);
 	// enemy->UpdatePath(mapDistance);
-	return true;
+	return enemy;
 }
 void PlayScene::Draw() const {
 	IScene::Draw();

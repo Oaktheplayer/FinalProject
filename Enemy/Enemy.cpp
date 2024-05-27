@@ -136,8 +136,7 @@ void Enemy::Update(float deltaTime) {
 		if(hasStatusEffect[i]){
 			effectTimer[i]-=deltaTime;
 			if(effectTimer[i] <= 0.0){
-				effectTimer[i]		=	0.0;
-				hasStatusEffect[i] 	=	false;
+				ClearEffect((StatusEffect)i);
 			}
 			else{
 				DoEffect((StatusEffect)i,deltaTime);
@@ -204,6 +203,7 @@ void Enemy::ClearEffect(StatusEffect effect){
 	switch (effect){
 	case BURN:
 		if(visualEffect[BURN]){
+			std::cerr<<"remove visual effect at "<<Position.x<<','<<Position.y<<'\n';
 			visualEffect[BURN]->Parent	=	nullptr;
 			// std::cerr<<"remove fire effect at "<<Position.x<<','<<Position.y<<'\n';
 			// getPlayScene()->EffectGroup->RemoveObject(visualEffect[BURN]->GetObjectIterator());
@@ -214,7 +214,8 @@ void Enemy::ClearEffect(StatusEffect effect){
 		break;
 	}
 	hasStatusEffect[effect] = false;
-	effectTimer[effect]	=	0.0;
+	effectTimer[effect]		=	0.0;
+	visualEffect[effect]	=	nullptr;
 }
 
 

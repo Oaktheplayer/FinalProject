@@ -14,7 +14,8 @@ TruckEnemy::TruckEnemy(int x, int y) : Enemy("play/enemy-4.png", x, y, 20, 20, 1
 void TruckEnemy::Kill(){
 	Enemy* enemy;
 	for(int i=0;i<4;i++){
-		getPlayScene()->SpawnEnemy(1,Position.x + Velocity.x * i,Position.y + Velocity.y * i,0.1f*(float)i);
+		enemy = getPlayScene()->SpawnEnemy(1,Position.x,Position.y);
+		enemy->Update(0.4f*i);
 	}
 	Enemy::Kill();
 }

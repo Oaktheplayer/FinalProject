@@ -60,7 +60,7 @@ void    FireEffect::Update(float deltaTime)
     //     getPlayScene()->EffectGroup->RemoveObject(objectIterator);return;
     // }
     // bmp = bmps[phase];
-    if(timeTicks>=timeSpan || !Parent){
+    if(!Parent){//timeTicks>=timeSpan || 
         //std::cerr<<"removed at\t"<<Position.x<<','<<Position.y<<'\n';
         getPlayScene()->EffectGroup->RemoveObject(objectIterator);
         return;

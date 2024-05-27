@@ -8,7 +8,8 @@
 
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
-
+// #include "Enemy/Enemy.hpp"
+class Enemy;
 class Turret;
 namespace Engine {
 	class Group;
@@ -74,7 +75,7 @@ public:
 	void Initialize() override;
 	void Terminate() override;
 	void Update(float deltaTime) override;
-	bool SpawnEnemy(int type, float x, float y, float delta);
+	Enemy* SpawnEnemy(int type, float x, float y, float delta=0);
 	void Draw() const override;
 	void OnMouseDown(int button, int mx, int my) override;
 	void OnMouseMove(int mx, int my) override;
