@@ -5,11 +5,12 @@
 #include <string>
 
 #include "Engine/Sprite.hpp"
+#include "Engine/Unit.hpp"
 
 class Enemy;
 class PlayScene;
 
-class Turret: public Engine::Sprite {
+class Turret: public Unit {
 protected:
     int price;
     int point;

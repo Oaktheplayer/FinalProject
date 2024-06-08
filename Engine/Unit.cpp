@@ -48,6 +48,7 @@ Unit::Unit(std::string img, float x, float y, float radius, float hp):
 		visualEffect[i]	=	nullptr;
 	}
 	ClearEffect();
+	//std::cerr<<scale<<'\n';
 }
 
 //Reduce hp. THAT'S ALL IT DOES.
@@ -58,9 +59,10 @@ void Unit::Hit(float damage) {
 //TODO: How to kill?
 //Q1: Remove from where? Enemy? Turret? Do we make two lists or multiple list for each team?
 
+
 void Unit::Draw() const {
 	al_draw_tinted_scaled_rotated_bitmap(bmp.get(), Tint, Anchor.x * GetBitmapWidth(), Anchor.y * GetBitmapHeight(),
-			Position.x, Position.y, Size.x / GetBitmapWidth(), Size.y / GetBitmapHeight(), Rotation, 0);
+			Position.x, Position.y, Size.x / GetBitmapWidth()*scale, Size.y / GetBitmapHeight()*scale, Rotation, 0);
 	if (PlayScene::DebugMode) {
 		// Draw collision radius.
 		al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
@@ -69,6 +71,8 @@ void Unit::Draw() const {
 		al_draw_text(font.get(),al_map_rgba(255, 255, 255, 127),Position.x,Position.y,0,text.c_str());
 	}
 }
+
+void Unit::Kill(){};
 
 void Unit::GetEffect(StatusEffect newEffect, float timer){
 	if(!hasStatusEffect[(int)newEffect]){

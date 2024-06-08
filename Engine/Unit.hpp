@@ -14,6 +14,7 @@
 
 using namespace Engine;
 
+//extern float scale;
 
 class Bullet;
 class PlayScene;
@@ -34,8 +35,10 @@ protected:
 	std::shared_ptr<ALLEGRO_FONT> 	font;
 public:
     Unit(std::string img, float x, float y, float radius, float hp);
-    void Hit(float damage);
-	//virtual void Kill();
+    virtual void Hit(float damage);
+    std::list<Unit*> lockedUnits;
+	std::list<Bullet*> lockedBullets;
+	virtual void Kill();
 	//void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	//void Update(float deltaTime) override;
 	void Draw() const override;
