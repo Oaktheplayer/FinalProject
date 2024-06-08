@@ -14,6 +14,8 @@ class Bullet;
 class PlayScene;
 class Turret;
 
+extern float scale;
+
 class Enemy : public Engine::Sprite {
 protected:
  	std::vector<Engine::Point> path;
@@ -21,7 +23,7 @@ protected:
 	float hp;
 	int money;
 	int point;
-	std::vector<StatusEffect>	effects;
+	//std::vector<StatusEffect>	effects;
 	VisualEffect*	visualEffect[STATUS_EFFECT_LENGTH];
 	bool	hasStatusEffect[STATUS_EFFECT_LENGTH];
 	float	effectTimer[STATUS_EFFECT_LENGTH];
@@ -39,7 +41,6 @@ public:
 	Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage);
 	virtual void Kill();
-	virtual	void UponDeath();
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
 	void Draw() const override;

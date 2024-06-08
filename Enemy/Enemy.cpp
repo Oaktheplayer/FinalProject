@@ -44,17 +44,16 @@ Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float
 		visualEffect[i]	=	nullptr;
 	}
 	ClearEffect();
+	std::cerr<<scale<<'\n';
 }
 void Enemy::Hit(float damage) {
 	hp -= damage;
 	if (hp <= 0) {
 		getPlayScene()->ScorePoint(point);
 		getPlayScene()->EarnMoney(money);
-		UponDeath();
 		Kill();
 	}
 }
-void Enemy::UponDeath(){};
 void Enemy::Kill(){
 	OnExplode();
 	// Remove all turret's reference to target.
@@ -147,15 +146,11 @@ void Enemy::Update(float deltaTime) {
 	Sprite::Update(deltaTime);
 }
 void Enemy::Draw() const {
-	if(hasStatusEffect[BURN]){
-		
-	}
 	Sprite::Draw();
 	if (PlayScene::DebugMode) {
 		// Draw collision radius.
 		al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
-		// DebugHp.Move(Position.x,Position.y);
-		// DebugHp.Draw();
+		//Display health
 		std::string text = std::to_string((int)hp);
 		al_draw_text(font.get(),al_map_rgba(255, 255, 255, 127),Position.x,Position.y,0,text.c_str());
 	}
@@ -163,7 +158,7 @@ void Enemy::Draw() const {
 
 void Enemy::GetEffect(StatusEffect newEffect, float timer){
 	if(!hasStatusEffect[(int)newEffect]){
-		effects.push_back(newEffect);
+		//effects.push_back(newEffect);
 		hasStatusEffect[newEffect] = true;
 		switch (newEffect){
 			case BURN:
@@ -217,13 +212,3 @@ void Enemy::ClearEffect(StatusEffect effect){
 	effectTimer[effect]		=	0.0;
 	visualEffect[effect]	=	nullptr;
 }
-
-
-
-// bool Enemy::HasEffect(StatusEffect effect){
-// 	for(int i=0;i<effects.size();i++)
-// 		if(effects[i] == effect)
-// 			return	true;
-//     return false;
-// }
-

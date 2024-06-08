@@ -26,9 +26,11 @@
 #include "Enemy/TankEnemy.hpp"
 #include	"Enemy/TruckEnemy.hpp"
 #include "Turret/TurretButton.hpp"
+//#include "Engine/Unit.hpp"
 
 #include	<iostream>
 
+float scale;
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
@@ -44,6 +46,7 @@ Engine::Point PlayScene::GetClientSize() {
 	return Engine::Point(MapWidth * BlockSize, MapHeight * BlockSize);
 }
 void PlayScene::Initialize() {
+	scale=1;
 	// DONE: [HACKATHON-3-BUG] (1/5): There's a bug in this file, which crashes the game when you lose. Try to find it.
 	// DONE: [HACKATHON-3-BUG] (2/5): Find out the cheat code to test.
     // DONE: [HACKATHON-3-BUG] (2/5): It should generate a Plane, and add 10000 to the money, but it doesn't work now.
@@ -294,6 +297,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 		}
 	}
 }
+
 void PlayScene::OnKeyDown(int keyCode) {
 	IScene::OnKeyDown(keyCode);
 	if (keyCode == ALLEGRO_KEY_TAB) {
@@ -336,6 +340,12 @@ void PlayScene::OnKeyDown(int keyCode) {
 	else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
 		// Hotkey for Speed up.
 		SpeedMult = keyCode - ALLEGRO_KEY_0;
+	}
+	else if(keyCode == ALLEGRO_KEY_Z){
+		scale*=2;
+	}
+	else if(keyCode == ALLEGRO_KEY_X){
+		scale/=2;
 	}
 }
 void PlayScene::Hit() {

@@ -87,6 +87,8 @@ add_executable(FinalProject
         Enemy/SoldierEnemy.hpp
         Engine/Sprite.cpp
         Engine/Sprite.hpp
+        Engine/Unit.cpp
+        Engine/Unit.hpp
         Scene/StageSelectScene.cpp
         Scene/StageSelectScene.hpp
         Enemy/TankEnemy.cpp

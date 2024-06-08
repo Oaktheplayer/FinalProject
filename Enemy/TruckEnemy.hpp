@@ -5,7 +5,6 @@
 class TruckEnemy : public Enemy {
 public:
 	TruckEnemy(int x, int y);
-	//void UponDeath() override;
 	void Kill() override;
 };
 #endif // TRUCKENEMY_HPP
