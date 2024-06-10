@@ -59,14 +59,20 @@ void PlayScene::Initialize() {
 	SpeedMult = 1;
 
 	score = 0;
+
+	scale 	= 	1;
+	center	=	Point(Engine::GameEngine::GetInstance().GetScreenWidth()/2,Engine::GameEngine::GetInstance().GetScreenHeight()/2);
+	sight	=	center;
+	// Add Map
+	AddNewObject(MapComponent = new Group());
 	// Add groups from bottom to top.
-	AddNewObject(TileMapGroup = new Group());
-	AddNewObject(GroundEffectGroup = new Group());
-	AddNewObject(DebugIndicatorGroup = new Group());
-	AddNewObject(TowerGroup = new Group());
-	AddNewObject(EnemyGroup = new Group());
-	AddNewObject(BulletGroup = new Group());
-	AddNewObject(EffectGroup = new Group());
+	MapComponent->AddNewObject(TileMapGroup = new Group());
+	MapComponent->AddNewObject(GroundEffectGroup = new Group());
+	MapComponent->AddNewObject(DebugIndicatorGroup = new Group());
+	MapComponent->AddNewObject(TowerGroup = new Group());
+	MapComponent->AddNewObject(EnemyGroup = new Group());
+	MapComponent->AddNewObject(BulletGroup = new Group());
+	MapComponent->AddNewObject(EffectGroup = new Group());
 	// Should support buttons.
 	AddNewControlObject(UIGroup = new Group());
 	ReadMap();
@@ -163,29 +169,6 @@ void PlayScene::Update(float deltaTime) {
 		ticks -= current.second;
 		enemyWaveData.pop_front();
 		const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
-		// Enemy* enemy;
-		// switch (current.first) {
-		// case 1:
-		// 	EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-		// 	break;
-		// case 2:
-		// 	EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-		// 	break;
-		// case 3:
-		// 	EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-		// 	break;
-		// case 4:
-		// 	EnemyGroup->AddNewObject(enemy = new TruckEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-		// 	break;
-        // // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
-        // //         The format is "[EnemyId] [TimeDelay] [Repeat]".
-        // // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
-		// default:
-		// 	continue;
-		// }
-		// enemy->UpdatePath(mapDistance);
-		// // Compensate the time lost.
-		// enemy->Update(ticks);
 		Enemy* enemy	=	SpawnEnemy(current.first,SpawnCoordinate.x,SpawnCoordinate.y, ticks);
 		if( !enemy) continue;
 		// Compensate the time lost.
@@ -222,8 +205,11 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 	// enemy->UpdatePath(mapDistance);
 	return enemy;
 }
-void PlayScene::Draw() const {
-	IScene::Draw();
+void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const {
+	//IScene::Draw();
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	MapComponent->Draw((*this).scale, center.x, center.y, sight.x, sight.y);
+	UIGroup->Draw();
 	if (DebugMode) {
 		// Draw reverse BFS distance on all reachable blocks.
 		for (int i = 0; i < MapHeight; i++) {
@@ -232,12 +218,19 @@ void PlayScene::Draw() const {
 					// Not elegant nor efficient, but it's quite enough for debugging.
 					Engine::Label label(std::to_string(mapDistance[i][j]), "pirulen.ttf", 32, (j + 0.5) * BlockSize, (i + 0.5) * BlockSize);
 					label.Anchor = Engine::Point(0.5, 0.5);
-					label.Draw();
+					label.Draw(scale, cx, cy, sx, sy);
 				}
 			}
 		}
 	}
 }
+void PlayScene::OnMouseScroll(int mx, int my, int delta){
+	scale+= (float)delta /4;
+	if(scale>4)		scale=4;
+	else
+	if(scale<0.25)	scale=0.25;
+}
+
 void PlayScene::OnMouseDown(int button, int mx, int my) {
 	if ((button & 1) && !imgTarget->Visible && preview) {
 		// Cancel turret construct.
@@ -258,6 +251,7 @@ void PlayScene::OnMouseMove(int mx, int my) {
 	imgTarget->Position.x = x * BlockSize;
 	imgTarget->Position.y = y * BlockSize;
 }
+//TODO: make preview appear with write scale and places turrets on the correct position
 void PlayScene::OnMouseUp(int button, int mx, int my) {
 	IScene::OnMouseUp(button, mx, my);
 	if (!imgTarget->Visible)
@@ -341,11 +335,8 @@ void PlayScene::OnKeyDown(int keyCode) {
 		// Hotkey for Speed up.
 		SpeedMult = keyCode - ALLEGRO_KEY_0;
 	}
-	else if(keyCode == ALLEGRO_KEY_Z){
-		scale*=2;
-	}
 	else if(keyCode == ALLEGRO_KEY_X){
-		scale/=2;
+		scale=1;
 	}
 }
 void PlayScene::Hit() {

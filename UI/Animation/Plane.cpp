@@ -81,7 +81,7 @@ void Plane::Update(float deltaTime) {
 	}
 	Sprite::Update(deltaTime);
 }
-void Plane::Draw() const {
+void Plane::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	unsigned int phase = floor(timeTicks / timeSpanLight * bmps.size());
 	float phaseRatio = timeTicks / timeSpanLight * bmps.size() - phase;
 	if (stage == 1 || stage == 2) {
@@ -119,6 +119,6 @@ void Plane::Draw() const {
 		al_draw_tinted_scaled_rotated_bitmap(bmp.get(), al_map_rgba(255, 255, 255, 255 - phaseRatio * 64), Anchor.x * GetBitmapWidth(), Anchor.y * GetBitmapHeight(),
 			Position.x, Position.y, Size.x / GetBitmapWidth(), Size.y / GetBitmapHeight(), Rotation, 0);
 	else {
-		Sprite::Draw();
+		Sprite::Draw(scale, cx, cy, sx, sy);
 	}
 }

@@ -7,6 +7,6 @@ namespace Engine {
 	std::list<std::pair<bool, IObject*>>::iterator IObject::GetObjectIterator() const {
 		return objectIterator;
 	}
-	void IObject::Draw() const {}
+	void IObject::Draw(float scale, float cx, float cy, float sx, float sy) const {}
 	void IObject::Update(float deltaTime) {}
 }

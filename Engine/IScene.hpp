@@ -41,7 +41,7 @@ namespace Engine {
 		/// This is called when the game should redraw the window.
 		/// Delegate the draw event to all visible objects.
 		/// </summary>
-		void Draw() const override;
+		void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	};
 }
 #endif // ISCENE_HPP

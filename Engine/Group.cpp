@@ -38,10 +38,10 @@ namespace Engine {
 				preIt->second->Update(deltaTime);
 		}
 	}
-	void Group::Draw() const {
+	void Group::Draw(float scale, float cx, float cy, float sx, float sy) const {
 		for (auto& it : objects) {
 			if (it.second->Visible)
-				it.second->Draw();
+				it.second->Draw(scale, cx, cy, sx, sy);
 		}
 	}
 	void Group::OnKeyDown(int keyCode) {

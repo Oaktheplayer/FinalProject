@@ -13,7 +13,7 @@ Slider::Slider(float x, float y, float w, float h) :
 	Position.y += h / 2;
 	Anchor = Engine::Point(0.5, 0.5);
 }
-void Slider::Draw() const {
+void Slider::Draw(float scale, float cx, float cy, float sx, float sy) const {
     // DONE: [HACKATHON-3-BUG] (4/5): Draw the nested components here, so they are displayed correctly
 	Bar.Draw();
 	End1.Draw();

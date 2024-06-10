@@ -29,7 +29,7 @@ public:
     Enemy* Target = nullptr;
     Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown, int point);
     void Update(float deltaTime) override;
-    void Draw() const override;
+    void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	int GetPrice() const;
 };
 #endif // TURRET_HPP

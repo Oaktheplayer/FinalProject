@@ -41,7 +41,7 @@ public:
 	virtual void Kill();
 	//void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	//void Update(float deltaTime) override;
-	void Draw() const override;
+	//void Draw() const override;
 	void GetEffect(StatusEffect effect, float timer);
 };
 

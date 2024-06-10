@@ -26,10 +26,17 @@ namespace Engine {
 			bmp = Resources::GetInstance().GetBitmap(img, Size.x, Size.y);
 		}
 	}
-	void Image::Draw() const {
+	// void Image::Draw() const {
+	// 	al_draw_scaled_bitmap(bmp.get(), 0, 0, GetBitmapWidth(), GetBitmapHeight(),
+	// 		Position.x - Anchor.x * GetBitmapWidth(),
+	// 		Position.y - Anchor.y * GetBitmapHeight(),
+	// 		Size.x, Size.y, 0);
+	// }
+	void Image::Draw(float scale, float cx, float cy, float sx, float sy) const {
 		al_draw_scaled_bitmap(bmp.get(), 0, 0, GetBitmapWidth(), GetBitmapHeight(),
-			Position.x - Anchor.x * GetBitmapWidth(), Position.y - Anchor.y * GetBitmapHeight(),
-			Size.x, Size.y, 0);
+			(Position.x - Anchor.x * GetBitmapWidth() 	- sx)*scale + cx,
+			(Position.y - Anchor.y * GetBitmapHeight()	- sy)*scale + cy,
+			Size.x * scale, Size.y * scale, 0);
 	}
 	int Image::GetBitmapWidth() const {
 		return al_get_bitmap_width(bmp.get());

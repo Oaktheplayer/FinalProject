@@ -43,7 +43,7 @@ namespace Engine {
 		/// Draw to window display.
 		/// This is called when the game should redraw the window.
 		/// </summary>
-		void Draw() const override;
+		void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 		/// <summary>
 		/// Run game logic such as updating the world, checking for collision, and so on.
 		/// This is called when the game should update its logic, usually 'fps' times per second.

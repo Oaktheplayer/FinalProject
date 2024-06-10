@@ -24,6 +24,6 @@ protected:
 public:
 	Plane();
 	void Update(float deltaTime) override;
-	void Draw() const override;
+	void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 };
 #endif // PLANE_HPP

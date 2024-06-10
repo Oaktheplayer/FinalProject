@@ -8,9 +8,9 @@
 TankEnemy::TankEnemy(int x, int y) : Enemy("play/enemy-3.png", x, y, 20, 20, 100, 50, 5),
 head("play/enemy-3-head.png", x, y), targetRotation(0) {
 }
-void TankEnemy::Draw() const {
-	Enemy::Draw();
-	head.Draw();
+void TankEnemy::Draw(float scale, float cx, float cy, float sx, float sy) const {
+	Enemy::Draw(scale, cx, cy, sx, sy);
+	head.Draw(scale, cx, cy, sx, sy);
 }
 void TankEnemy::Update(float deltaTime) {
 	Enemy::Update(deltaTime);

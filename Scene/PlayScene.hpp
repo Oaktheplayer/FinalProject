@@ -50,7 +50,12 @@ public:
 	float ticks;
 	float deathCountDown;
 
-	
+	float	scale;
+	Engine::Point sight;
+	Engine::Point center;
+
+	// For everything on the map (non-UI)
+	Group* MapComponent;
 	// Map tiles.
 	Group* TileMapGroup;
 	Group* GroundEffectGroup;
@@ -76,7 +81,8 @@ public:
 	void Terminate() override;
 	void Update(float deltaTime) override;
 	Enemy* SpawnEnemy(int type, float x, float y, float delta=0);
-	void Draw() const override;
+	void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
+	void OnMouseScroll(int mx, int my, int delta) override;
 	void OnMouseDown(int button, int mx, int my) override;
 	void OnMouseMove(int mx, int my) override;
 	void OnMouseUp(int button, int mx, int my) override;

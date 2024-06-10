@@ -21,7 +21,7 @@ void TurretButton::Update(float deltaTime) {
 		Base.Tint = Turret.Tint = al_map_rgba(0, 0, 0, 160);
 	}
 }
-void TurretButton::Draw() const {
+void TurretButton::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	ImageButton::Draw();
 	Base.Draw();
 	Turret.Draw();
