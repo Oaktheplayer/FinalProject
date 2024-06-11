@@ -51,8 +51,11 @@ public:
 	float deathCountDown;
 
 	float	scale;
-	Engine::Point sight;
 	Engine::Point center;
+	Engine::Point sight;
+	Engine::Point sight0;
+	Engine::Point sight_dir;
+	float	sight_speed;
 
 	// For everything on the map (non-UI)
 	Group* MapComponent;
@@ -87,6 +90,7 @@ public:
 	void OnMouseMove(int mx, int my) override;
 	void OnMouseUp(int button, int mx, int my) override;
 	void OnKeyDown(int keyCode) override;
+	void OnKeyUp(int keyCode) override;
 	void Hit();
 	int GetMoney() const;
 	void EarnMoney(int money);

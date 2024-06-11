@@ -63,6 +63,9 @@ void PlayScene::Initialize() {
 	scale 	= 	1;
 	center	=	Point(Engine::GameEngine::GetInstance().GetScreenWidth()/2,Engine::GameEngine::GetInstance().GetScreenHeight()/2);
 	sight	=	center;
+	sight0	=	center;
+	sight_dir	=	Point(0,0);
+	sight_speed	=	16;
 	// Add Map
 	AddNewObject(MapComponent = new Group());
 	// Add groups from bottom to top.
@@ -82,7 +85,7 @@ void PlayScene::Initialize() {
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
 	preview = nullptr;
-	UIGroup->AddNewObject(imgTarget);
+	AddNewObject(imgTarget);
 	// Preload Lose Scene
 	deathBGMInstance = Engine::Resources::GetInstance().GetSampleInstance("astronomia.ogg");
 	Engine::Resources::GetInstance().GetBitmap("lose/benjamin-happy.png");
@@ -98,6 +101,7 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
 	// If we use deltaTime directly, then we might have Bullet-through-paper problem.
 	// Reference: Bullet-Through-Paper
+	sight = sight + sight_dir*sight_speed;
 	if (SpeedMult == 0)
 		deathCountDown = -1;
 	else if (deathCountDown != -1)
@@ -208,8 +212,10 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	//IScene::Draw();
 	al_clear_to_color(al_map_rgb(0, 0, 0));
-	MapComponent->Draw((*this).scale, center.x, center.y, sight.x, sight.y);
+	MapComponent->Draw(this->scale, center.x, center.y, sight.x, sight.y);
 	UIGroup->Draw();
+	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
+	if(preview)				preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
 	if (DebugMode) {
 		// Draw reverse BFS distance on all reachable blocks.
 		for (int i = 0; i < MapHeight; i++) {
@@ -225,24 +231,28 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	}
 }
 void PlayScene::OnMouseScroll(int mx, int my, int delta){
+	float	pre_s	=	scale;
 	scale+= (float)delta /4;
 	if(scale>4)		scale=4;
 	else
 	if(scale<0.25)	scale=0.25;
+
+	Point	mouse(mx,my);
+	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
 }
 
 void PlayScene::OnMouseDown(int button, int mx, int my) {
 	if ((button & 1) && !imgTarget->Visible && preview) {
 		// Cancel turret construct.
-		UIGroup->RemoveObject(preview->GetObjectIterator());
+		RemoveObject(preview->GetObjectIterator());
 		preview = nullptr;
 	}
 	IScene::OnMouseDown(button, mx, my);
 }
 void PlayScene::OnMouseMove(int mx, int my) {
 	IScene::OnMouseMove(mx, my);
-	const int x = mx / BlockSize;
-	const int y = my / BlockSize;
+	const int x = ((float)(mx-center.x)/scale + sight.x)	/BlockSize;
+	const int y = ((float)(my-center.y)/scale + sight.y)	/BlockSize;
 	if (!preview || x < 0 || x >= MapWidth || y < 0 || y >= MapHeight) {
 		imgTarget->Visible = false;
 		return;
@@ -256,10 +266,10 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 	IScene::OnMouseUp(button, mx, my);
 	if (!imgTarget->Visible)
 		return;
-	const int x = mx / BlockSize;
-	const int y = my / BlockSize;
+	const int x = ((float)(mx-center.x)/scale + sight.x) 	/	BlockSize;
+	const int y = ((float)(my-center.y)/scale + sight.y)	/	BlockSize;
 	if (button & 1) {
-		if (mapState[y][x] != TILE_OCCUPIED) {
+		if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && mapState[y][x] != TILE_OCCUPIED) {
 			if (!preview)
 				return;
 			// Check if valid.
@@ -273,7 +283,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			EarnMoney(-preview->GetPrice());
 			// Remove Preview.
 			preview->GetObjectIterator()->first = false;
-			UIGroup->RemoveObject(preview->GetObjectIterator());
+			RemoveObject(preview->GetObjectIterator());
 			// Construct real turret.
 			preview->Position.x = x * BlockSize + BlockSize / 2;
 			preview->Position.y = y * BlockSize + BlockSize / 2;
@@ -314,31 +324,63 @@ void PlayScene::OnKeyDown(int keyCode) {
 			money+=10000;
 		}
 	}
-	if (keyCode == ALLEGRO_KEY_Q) {
+	if (keyCode == ALLEGRO_KEY_1) {
 		// Hotkey for MachineGunTurret.
 		UIBtnClicked(0);
 	}
-	else if (keyCode == ALLEGRO_KEY_W) {
+	else if (keyCode == ALLEGRO_KEY_2) {
 		// Hotkey for LaserTurret.
 		UIBtnClicked(1);
 	}
-	else if (keyCode == ALLEGRO_KEY_E) {
+	else if (keyCode == ALLEGRO_KEY_3) {
 		// Hotkey for MissileTurret.
 		UIBtnClicked(2);
 	}
-	else if (keyCode == ALLEGRO_KEY_R) {
+	else if (keyCode == ALLEGRO_KEY_4) {
 		// Hotkey for Flamethrower.
 		UIBtnClicked(3);
 	}
-	// TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
-	else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
-		// Hotkey for Speed up.
-		SpeedMult = keyCode - ALLEGRO_KEY_0;
+	else if (keyCode == ALLEGRO_KEY_W) {
+		sight_dir.y=1;
+	}
+	else if (keyCode == ALLEGRO_KEY_S) {
+		sight_dir.y=-1;
+	}
+	else if (keyCode == ALLEGRO_KEY_A) {
+		sight_dir.x=1;
+	}
+	else if (keyCode == ALLEGRO_KEY_D) {
+		sight_dir.x=-1;
+	}
+	
+	// // TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
+	// else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
+	// 	// Hotkey for Speed up.
+	// 	SpeedMult = keyCode - ALLEGRO_KEY_0;
+	// }
+	else if(keyCode	==	ALLEGRO_KEY_UP){
+		SpeedMult++;
+		if(SpeedMult>10)SpeedMult=10;
+	}
+	else if(keyCode	==	ALLEGRO_KEY_DOWN){
+		SpeedMult--;
+		if(SpeedMult<0)SpeedMult=0;
 	}
 	else if(keyCode == ALLEGRO_KEY_X){
 		scale=1;
+		sight	=	sight0;
 	}
 }
+
+void PlayScene::OnKeyUp(int keyCode){
+	if(keyCode	==	ALLEGRO_KEY_W || keyCode	==	ALLEGRO_KEY_S){
+		sight_dir.y=0;
+	}
+	if(keyCode	==	ALLEGRO_KEY_A || keyCode	==	ALLEGRO_KEY_D){
+		sight_dir.x=0;
+	}
+}
+
 void PlayScene::Hit() {
 	lives--;
 	UILives->Text = std::string("Life ") + std::to_string(lives);
@@ -464,7 +506,7 @@ void PlayScene::ConstructUI() {
 
 void PlayScene::UIBtnClicked(int id) {
 	if (preview)
-		UIGroup->RemoveObject(preview->GetObjectIterator());
+		RemoveObject(preview->GetObjectIterator());
     // TODO: [CUSTOM-TURRET]: On callback, create the turret.
 	if (id == 0 && money >= MachineGunTurret::Price)
 		preview = new MachineGunTurret(0, 0);
@@ -480,7 +522,7 @@ void PlayScene::UIBtnClicked(int id) {
 	preview->Tint = al_map_rgba(255, 255, 255, 200);
 	preview->Enabled = false;
 	preview->Preview = true;
-	UIGroup->AddNewObject(preview);
+	AddNewObject(preview);
 	OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
 
