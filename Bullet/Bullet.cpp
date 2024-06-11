@@ -31,17 +31,14 @@ Bullet::Bullet(std::string img, float speed, float damage, Engine::Point positio
 	Rotation = rotation;
 	team	 = parent->getTeam();
 	CollisionRadius = 4;
-	std::cerr<<"Bullet:\tstill good\n";
 }
-Bullet::Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent) :
-	Sprite(img, position.x, position.y), speed(speed), damage(damage), parent(parent) {
-	Velocity = forwardDirection.Normalize() * speed;
-	Rotation = rotation;
-	team	 = parent->getTeam();
-	CollisionRadius = 4;
-	std::cerr<<"Bullet:\tstill good\n";
-	
-}
+// Bullet::Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent) :
+// 	Sprite(img, position.x, position.y), speed(speed), damage(damage), parent(parent) {
+// 	Velocity = forwardDirection.Normalize() * speed;
+// 	Rotation = rotation;
+// 	team	 = parent->getTeam();
+// 	CollisionRadius = 4;
+// }
 void Bullet::Update(float deltaTime) {
 	Sprite::Update(deltaTime);
 	PlayScene* scene = getPlayScene();

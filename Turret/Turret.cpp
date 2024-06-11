@@ -3,8 +3,6 @@
 #include <cmath>
 #include <utility>
 
-#include <iostream>
-
 #include "Enemy/Enemy.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
@@ -51,7 +49,6 @@ void Turret::Update(float deltaTime) {
 					Target = dynamic_cast<Enemy*>(it);
 					Target->lockedTurrets.push_back(this);
 					lockedTurretIterator = std::prev(Target->lockedTurrets.end());
-					std::cerr<<"Turret:\tstill good\n";
 					break;
 				}
 			}
