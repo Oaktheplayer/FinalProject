@@ -35,8 +35,6 @@ protected:
 	// virtual void OnExplode();
 public:
 	float reachEndTime;
-	std::list<Turret*> lockedTurrets;
-	std::list<Bullet*> lockedBullets;
 	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage) override;
 	virtual void Kill() override;

@@ -54,10 +54,11 @@ void Enemy::Hit(float damage) {
 		Kill();
 	}
 }
+
 void Enemy::Kill(){
 	OnExplode();
 	// Remove all turret's reference to target.
-	for (auto& it: lockedTurrets)
+	for (auto& it: lockedUnits)
 		it->Target = nullptr;
 	for (auto& it: lockedBullets)
 		it->Target = nullptr;

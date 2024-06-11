@@ -16,7 +16,7 @@ Flame::Flame(Engine::Point position, Engine::Point forwardDirection, float rotat
 	Bullet("play/fire_particle-10.png", 100, 0, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent, effects) {
 		explosionRadius	=	24;
 }
-void Flame::OnExplode(Enemy* enemy) {
+void Flame::OnExplode(Unit* enemy) {
 	std::random_device dev;
 	std::mt19937 rng(dev());
 	std::uniform_int_distribution<std::mt19937::result_type> dist(2, 5);

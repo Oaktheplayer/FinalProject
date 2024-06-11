@@ -12,6 +12,6 @@ struct Point;
 class FireBullet : public Bullet {
 public:
 	explicit FireBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent);
-	void OnExplode(Enemy* enemy) override;
+	void OnExplode(Unit* enemy) override;
 };
 #endif // FIREBULLET_HPP

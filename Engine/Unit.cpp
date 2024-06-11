@@ -81,6 +81,71 @@ void Unit::Draw(float scale, float cx, float cy, float sx, float sy) const {
 void Unit::Kill(){};
 void Unit::CreateBullet(){}
 
+void Unit::RemoveTarget(){
+	Engine::Point diff = Target->Position - Position;
+	if (diff.Magnitude() > range) {
+		Target->lockedUnits.erase(lockedUnitIterator);
+		Target = nullptr;
+		lockedUnitIterator = std::list<Unit*>::iterator();
+	}
+}
+void Unit::FindTarget(){
+	PlayScene* scene = getPlayScene();
+	for (int i=0;i<TEAM_COUNT;i++){
+		if(i==team)	continue;
+		Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
+		for (auto& it : enemyGroup->GetObjects()) {
+			Engine::Point diff = it->Position - Position;
+			if (diff.Magnitude() <= range) {
+				Target = dynamic_cast<Unit*>(it);
+				Target->lockedUnits.push_back(this);
+				lockedUnitIterator = std::prev(Target->lockedUnits.end());
+				break;
+			}
+		}
+	}
+}
+
+void Unit::ShootTarget(float deltaTime){
+	PlayScene* scene = getPlayScene();
+	if (Target) {
+		Engine::Point diff = Target->Position - Position;
+		if (diff.Magnitude() > range) {
+			Target->lockedUnits.erase(lockedUnitIterator);
+			Target = nullptr;
+			lockedUnitIterator = std::list<Unit*>::iterator();
+		}
+	}
+	if (!Target) {
+		// Lock first seen target.
+		// Can be improved by Spatial Hash, Quad Tree, ...
+		// However simply loop through all enemies is enough for this program.
+		for (int i=0;i<TEAM_COUNT;i++){
+			if(i==team)	continue;
+			Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
+			for (auto& it : enemyGroup->GetObjects()) {
+				Engine::Point diff = it->Position - Position;
+				if (diff.Magnitude() <= range) {
+					Target = dynamic_cast<Unit*>(it);
+					Target->lockedUnits.push_back(this);
+					lockedUnitIterator = std::prev(Target->lockedUnits.end());
+					break;
+				}
+			}
+		}
+	}
+	if (Target) {
+		RotateHead(deltaTime);
+		// if (reload <= 0) {
+		// 	// shoot.
+		// 	reload = coolDown;
+		// 	CreateBullet();
+		// }
+	}
+};
+
+void Unit::RotateHead(float deltaTime){};
+//TODO: write "Kill()" so that turrets can die
 void Unit::GetEffect(StatusEffect newEffect, float timer){
 	if(!hasStatusEffect[(int)newEffect]){
 		//effects.push_back(newEffect);

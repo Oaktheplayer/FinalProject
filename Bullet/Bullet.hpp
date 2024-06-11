@@ -21,11 +21,11 @@ protected:
 	Team  team;
 	std::vector<StatusEffect> effectOnEnemy;
 	PlayScene* getPlayScene();
-	virtual void OnExplode(Enemy* enemy);
-	void GiveEffect(Enemy* enemy);
+	virtual void OnExplode(Unit* enemy);
+	void GiveEffect(Unit* enemy);
 	float explosionRadius = 0;
 public:
-	Enemy* Target = nullptr;
+	Unit* Target = nullptr;
 	//explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent);
 	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent, std::vector<StatusEffect> effects = std::vector<StatusEffect>());
 	void Update(float deltaTime) override;

@@ -19,6 +19,6 @@ protected:
 public:
 	explicit MissileBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent);
 	void Update(float deltaTime) override;
-	void OnExplode(Enemy* enemy) override;
+	void OnExplode(Unit* enemy) override;
 };
 #endif // MISSILEBULLET_HPP

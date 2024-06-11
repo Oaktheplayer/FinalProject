@@ -15,9 +15,9 @@
 PlayScene* Bullet::getPlayScene() {
 	return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
-void Bullet::OnExplode(Enemy* enemy) {
+void Bullet::OnExplode(Unit* enemy) {
 }
-void Bullet::GiveEffect(Enemy* enemy){
+void Bullet::GiveEffect(Unit* enemy){
 	//TODO: make custom effect time. For now it's always 6 seconds
 	int i=0;
 	int len =	effectOnEnemy.size();
@@ -48,7 +48,7 @@ void Bullet::Update(float deltaTime) {
 		if(i==team)	continue;
 		Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
 		for (auto& it : enemyGroup->GetObjects()) {
-			Enemy* enemy = dynamic_cast<Enemy*>(it);
+			Unit* enemy = dynamic_cast<Unit*>(it);
 			if (!enemy->Visible)
 				continue;
 			if (Engine::Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {

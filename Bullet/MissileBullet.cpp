@@ -21,13 +21,13 @@ MissileBullet::MissileBullet(Engine::Point position, Engine::Point forwardDirect
 void MissileBullet::Update(float deltaTime) {
 	if (!Target) {
 		float minDistance = INFINITY;
-		Enemy* enemy = nullptr;
+		Unit* enemy = nullptr;
 		PlayScene* scene = getPlayScene();		
 		for (int i=0;i<TEAM_COUNT;i++){
 			if(i==team)	continue;
 			Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
 			for (auto& it : enemyGroup->GetObjects()) {
-				Enemy* e = dynamic_cast<Enemy*>(it);
+				Unit* e = dynamic_cast<Unit*>(it);
 				float distance = (e->Position - Position).Magnitude();
 				if (distance < minDistance) {
 					minDistance = distance;
@@ -59,7 +59,7 @@ void MissileBullet::Update(float deltaTime) {
 	Rotation = atan2(Velocity.y, Velocity.x) + ALLEGRO_PI / 2;
 	Bullet::Update(deltaTime);
 }
-void MissileBullet::OnExplode(Enemy* enemy) {
+void MissileBullet::OnExplode(Unit* enemy) {
 	Target->lockedBullets.erase(lockedBulletIterator);
 	std::random_device dev;
 	std::mt19937 rng(dev());

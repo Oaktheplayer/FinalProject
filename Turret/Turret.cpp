@@ -17,12 +17,14 @@ PlayScene* Turret::getPlayScene() {
 }
 Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y,Team team, float radius, int price, float coolDown, int point) :
 	//Sprite(imgTurret, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
-	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,50), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
+	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,25), price(price), imgBase(imgBase, x, y) {
+	Unit::coolDown	=	coolDown;
 	range = radius;
-	getPlayScene()->ScorePoint(point);
+	if(team==BLUE)
+		getPlayScene()->ScorePoint(point);
 }
 void Turret::Update(float deltaTime) {
-	Sprite::Update(deltaTime);
+	Unit::Update(deltaTime);
 	PlayScene* scene = getPlayScene();
 	imgBase.Position = Position;
 	imgBase.Tint = Tint;
@@ -31,9 +33,9 @@ void Turret::Update(float deltaTime) {
 	if (Target) {
 		Engine::Point diff = Target->Position - Position;
 		if (diff.Magnitude() > range) {
-			Target->lockedTurrets.erase(lockedTurretIterator);
+			Target->lockedUnits.erase(lockedUnitIterator);
 			Target = nullptr;
-			lockedTurretIterator = std::list<Turret*>::iterator();
+			lockedUnitIterator = std::list<Unit*>::iterator();
 		}
 	}
 	if (!Target) {
@@ -47,8 +49,8 @@ void Turret::Update(float deltaTime) {
 				Engine::Point diff = it->Position - Position;
 				if (diff.Magnitude() <= range) {
 					Target = dynamic_cast<Enemy*>(it);
-					Target->lockedTurrets.push_back(this);
-					lockedTurretIterator = std::prev(Target->lockedTurrets.end());
+					Target->lockedUnits.push_back(this);
+					lockedUnitIterator = std::prev(Target->lockedUnits.end());
 					break;
 				}
 			}

@@ -13,6 +13,6 @@ struct Point;
 class Flame : public Bullet {
 public:
 	explicit Flame(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent, std::vector<StatusEffect> effects);
-	void OnExplode(Enemy* enemy) override;
+	void OnExplode(Unit* enemy) override;
 };
 #endif // FLAME_HPP

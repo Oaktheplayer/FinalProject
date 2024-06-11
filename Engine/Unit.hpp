@@ -24,6 +24,12 @@ protected:
 	float hp;
 	Team team;
 
+	float range = 0;
+    float reload = 0;
+    float coolDown=0;
+    float rotateRadian = 2 * ALLEGRO_PI;
+	std::list<Unit*>::iterator lockedUnitIterator;
+
 	PlayScene* getPlayScene();
 	virtual void OnExplode();
     VisualEffect*	visualEffect[STATUS_EFFECT_LENGTH];
@@ -34,10 +40,15 @@ protected:
 	void	ClearEffect();
     
 	std::shared_ptr<ALLEGRO_FONT> 	font;
+	void FindTarget();
+	void RemoveTarget();
+	void ShootTarget(float deltaTime);
+	virtual void RotateHead(float deltaTime);
     virtual void CreateBullet();
 public:
     Unit(std::string img, float x, float y,Team team, float radius, float hp);
 	Team	getTeam();
+    Unit* 	Target = nullptr;
     virtual void Hit(float damage);
     std::list<Unit*> lockedUnits;
 	std::list<Bullet*> lockedBullets;
