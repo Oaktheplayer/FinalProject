@@ -10,8 +10,8 @@
 #include "Engine/Point.hpp"
 
 const int Flamethrower::Price = 150;
-Flamethrower::Flamethrower(float x, float y) :
-	Turret("play/tower-base.png", "play/turret-6.png", x, y, 75, Price, 0.1, 20) {
+Flamethrower::Flamethrower(float x, float y, Team team) :
+	Turret("play/tower-base.png", "play/turret-6.png", x, y, team, 75, Price, 0.1, 20) {
 	// Move center downward, since we the turret head is slightly biased upward.
 	effectOnEnemy.push_back(BURN);
 	Anchor.y += 8.0f / GetBitmapHeight();

@@ -8,10 +8,11 @@
 #include "Engine/Group.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/Point.hpp"
+#include "Engine/Unit.hpp"
 
 class Turret;
 
-Flame::Flame(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent, std::vector<StatusEffect> effects) :
+Flame::Flame(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent, std::vector<StatusEffect> effects) :
 	Bullet("play/fire_particle-10.png", 100, 0, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent, effects) {
 		explosionRadius	=	24;
 }

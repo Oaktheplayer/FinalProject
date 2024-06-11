@@ -8,10 +8,11 @@
 #include "LaserBullet.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/Point.hpp"
+#include "Engine/Unit.hpp"
 
 class Turret;
 
-LaserBullet::LaserBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent) :
+LaserBullet::LaserBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent) :
 	Bullet("play/bullet-2.png", 800, 2, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent) {
 }
 void LaserBullet::OnExplode(Enemy* enemy) {

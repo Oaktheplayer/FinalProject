@@ -37,7 +37,7 @@ public:
 	float reachEndTime;
 	std::list<Turret*> lockedTurrets;
 	std::list<Bullet*> lockedBullets;
-	Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point);
+	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage) override;
 	virtual void Kill() override;
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);

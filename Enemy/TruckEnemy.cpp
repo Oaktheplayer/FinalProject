@@ -9,7 +9,7 @@
 #include	"Enemy/TankEnemy.hpp"
 #include 	"TruckEnemy.hpp"
 
-TruckEnemy::TruckEnemy(int x, int y) : Enemy("play/enemy-4.png", x, y, 20, 20, 150, 75, 8) {}
+TruckEnemy::TruckEnemy(int x, int y,Team team) : Enemy("play/enemy-4.png", x, y,team, 20, 20, 150, 75, 8) {}
 //TODO: Make it spawn soldier repeatedly
 void TruckEnemy::Kill(){
 	Enemy* enemy;

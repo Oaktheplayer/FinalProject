@@ -4,6 +4,7 @@
 #include <list>
 
 #include "Bullet.hpp"
+#include "Engine/Unit.hpp"
 
 class Enemy;
 class Turret;
@@ -16,7 +17,7 @@ protected:
 	const float rotateRadian = 2 * ALLEGRO_PI;
 	std::list<Bullet*>::iterator lockedBulletIterator;
 public:
-	explicit MissileBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent);
+	explicit MissileBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent);
 	void Update(float deltaTime) override;
 	void OnExplode(Enemy* enemy) override;
 };

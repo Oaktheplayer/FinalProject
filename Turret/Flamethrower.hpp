@@ -5,7 +5,7 @@
 class Flamethrower: public Turret {
 public:
 	static const int Price;
-    Flamethrower(float x, float y);
+    Flamethrower(float x, float y,Team team);
 	void CreateBullet() override;
 };
 #endif // FLAMETHROWER_HPP

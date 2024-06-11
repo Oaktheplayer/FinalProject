@@ -10,10 +10,11 @@
 #include "MissileBullet.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/Point.hpp"
+#include "Engine/Unit.hpp"
 
 class Turret;
 
-MissileBullet::MissileBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent) :
+MissileBullet::MissileBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent) :
 	Bullet("play/bullet-3.png", 100, 4, position, forwardDirection, rotation + ALLEGRO_PI / 2, parent) {
 		explosionRadius	=	12;
 }
@@ -21,12 +22,17 @@ void MissileBullet::Update(float deltaTime) {
 	if (!Target) {
 		float minDistance = INFINITY;
 		Enemy* enemy = nullptr;
-		for (auto& it : getPlayScene()->EnemyGroup->GetObjects()) {
-			Enemy* e = dynamic_cast<Enemy*>(it);
-			float distance = (e->Position - Position).Magnitude();
-			if (distance < minDistance) {
-				minDistance = distance;
-				enemy = e;
+		PlayScene* scene = getPlayScene();		
+		for (int i=0;i<TEAM_COUNT;i++){
+			if(i==team)	continue;
+			Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
+			for (auto& it : enemyGroup->GetObjects()) {
+				Enemy* e = dynamic_cast<Enemy*>(it);
+				float distance = (e->Position - Position).Magnitude();
+				if (distance < minDistance) {
+					minDistance = distance;
+					enemy = e;
+				}
 			}
 		}
 		if (!enemy) {

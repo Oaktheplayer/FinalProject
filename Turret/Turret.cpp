@@ -3,6 +3,8 @@
 #include <cmath>
 #include <utility>
 
+#include <iostream>
+
 #include "Enemy/Enemy.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
@@ -15,10 +17,10 @@
 PlayScene* Turret::getPlayScene() {
 	return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
-Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown, int point) :
+Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y,Team team, float radius, int price, float coolDown, int point) :
 	//Sprite(imgTurret, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
-	Unit(imgTurret, x, y,radius,1), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
-	CollisionRadius = radius;
+	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,50), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
+	range = radius;
 	getPlayScene()->ScorePoint(point);
 }
 void Turret::Update(float deltaTime) {
@@ -30,7 +32,7 @@ void Turret::Update(float deltaTime) {
 		return;
 	if (Target) {
 		Engine::Point diff = Target->Position - Position;
-		if (diff.Magnitude() > CollisionRadius) {
+		if (diff.Magnitude() > range) {
 			Target->lockedTurrets.erase(lockedTurretIterator);
 			Target = nullptr;
 			lockedTurretIterator = std::list<Turret*>::iterator();
@@ -40,13 +42,18 @@ void Turret::Update(float deltaTime) {
 		// Lock first seen target.
 		// Can be improved by Spatial Hash, Quad Tree, ...
 		// However simply loop through all enemies is enough for this program.
-		for (auto& it : scene->EnemyGroup->GetObjects()) {
-			Engine::Point diff = it->Position - Position;
-			if (diff.Magnitude() <= CollisionRadius) {
-				Target = dynamic_cast<Enemy*>(it);
-				Target->lockedTurrets.push_back(this);
-				lockedTurretIterator = std::prev(Target->lockedTurrets.end());
-				break;
+		for (int i=0;i<TEAM_COUNT;i++){
+			if(i==team)	continue;
+			Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
+			for (auto& it : enemyGroup->GetObjects()) {
+				Engine::Point diff = it->Position - Position;
+				if (diff.Magnitude() <= range) {
+					Target = dynamic_cast<Enemy*>(it);
+					Target->lockedTurrets.push_back(this);
+					lockedTurretIterator = std::prev(Target->lockedTurrets.end());
+					std::cerr<<"Turret:\tstill good\n";
+					break;
+				}
 			}
 		}
 	}
@@ -80,14 +87,14 @@ void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 		al_draw_filled_circle(
 			(Position.x-sx)*scale	+ 	cx,
 			(Position.y-sy)*scale 	+	cy,
-			CollisionRadius*scale,
+			range*scale,
 			al_map_rgba(0, 255, 0, 50));
 	}
 	imgBase.Draw(scale, cx, cy, sx, sy);
 	Unit::Draw(scale, cx, cy, sx, sy);
 	if (PlayScene::DebugMode) {
 		// Draw target radius.
-		al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, CollisionRadius*scale, al_map_rgb(0, 0, 255), 2);
+		al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
 	}
 }
 int Turret::GetPrice() const {

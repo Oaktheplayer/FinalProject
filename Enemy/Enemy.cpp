@@ -36,9 +36,9 @@
 // 		getPlayScene()->GroundEffectGroup->AddNewObject(new DirtyEffect("play/dirty-" + std::to_string(distId(rng)) + ".png", dist(rng), Position.x, Position.y));
 // 	}
 // }
-Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money, int point) :
+Enemy::Enemy(std::string img, float x, float y,Team team, float radius, float speed, float hp, int money, int point) :
 	// Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money), point(point), font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
-	Unit(img, x, y,radius,hp), speed(speed), money(money), point(point){
+	Unit(img, x, y,team,radius,hp), speed(speed), money(money), point(point){
 	// CollisionRadius = radius;
 	reachEndTime = 0;
 	// for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
@@ -62,7 +62,7 @@ void Enemy::Kill(){
 	for (auto& it: lockedBullets)
 		it->Target = nullptr;
 	ClearEffect();
-	getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
+	getPlayScene()->UnitGroups[team]->RemoveObject(objectIterator);
 	AudioHelper::PlayAudio("explosion.wav");
 }
 void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
@@ -143,7 +143,7 @@ void Enemy::Update(float deltaTime) {
 		}
 	}
 	Rotation = atan2(Velocity.y, Velocity.x);
-	Sprite::Update(deltaTime);
+	Unit::Update(deltaTime);
 }
 // void Enemy::Draw() const {
 // 	Sprite::Draw();

@@ -24,10 +24,10 @@ FireEffect::FireEffect(float x, float y, Engine::Sprite* parent, float duration)
     //fireSound   =   AudioHelper::PlaySample("burning.mp3");
 }
 
-FireEffect::~FireEffect(){
-    std::cerr<<"removed at\t"<<Position.x<<','<<Position.y<<'\n';
-    //AudioHelper::StopSample(fireSound);
-}
+// FireEffect::~FireEffect(){
+//     //std::cerr<<"removed at\t"<<Position.x<<','<<Position.y<<'\n';
+//     //AudioHelper::StopSample(fireSound);
+// }
 
 void    FireEffect::Update(float deltaTime)
 {

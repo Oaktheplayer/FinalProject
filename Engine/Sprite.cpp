@@ -5,6 +5,7 @@
 #include "Engine/Point.hpp"
 #include "Sprite.hpp"
 
+#include <iostream>
 
 namespace Engine {
 	Sprite::Sprite(std::string img, float x, float y, float w, float h, float anchorX, float anchorY,
@@ -20,6 +21,8 @@ namespace Engine {
 	}
     void Sprite::Update(float deltaTime)
     {
+		
+		std::cerr<<"Update:\tstill good\n";
         Position.x += Velocity.x * deltaTime;
 		Position.y += Velocity.y * deltaTime;
     }

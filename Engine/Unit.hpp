@@ -22,6 +22,7 @@ class PlayScene;
 class Unit: public Sprite{
 protected:    
 	float hp;
+	Team team;
 
 	PlayScene* getPlayScene();
 	virtual void OnExplode();
@@ -33,8 +34,10 @@ protected:
 	void	ClearEffect();
     
 	std::shared_ptr<ALLEGRO_FONT> 	font;
+    virtual void CreateBullet();
 public:
-    Unit(std::string img, float x, float y, float radius, float hp);
+    Unit(std::string img, float x, float y,Team team, float radius, float hp);
+	Team	getTeam();
     virtual void Hit(float damage);
     std::list<Unit*> lockedUnits;
 	std::list<Bullet*> lockedBullets;

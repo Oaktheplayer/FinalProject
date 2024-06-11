@@ -4,7 +4,7 @@
 
 class TruckEnemy : public Enemy {
 public:
-	TruckEnemy(int x, int y);
+	TruckEnemy(int x, int y,Team team);
 	void Kill() override;
 };
 #endif // TRUCKENEMY_HPP

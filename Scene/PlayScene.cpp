@@ -72,9 +72,13 @@ void PlayScene::Initialize() {
 	MapComponent->AddNewObject(TileMapGroup = new Group());
 	MapComponent->AddNewObject(GroundEffectGroup = new Group());
 	MapComponent->AddNewObject(DebugIndicatorGroup = new Group());
-	MapComponent->AddNewObject(TowerGroup = new Group());
-	MapComponent->AddNewObject(EnemyGroup = new Group());
+	// MapComponent->AddNewObject(TowerGroup = new Group());
+	// MapComponent->AddNewObject(EnemyGroup = new Group());
 	MapComponent->AddNewObject(BulletGroup = new Group());
+	for(int i=0;i<TEAM_COUNT;i++){
+		MapComponent->AddNewObject(UnitGroups[i] = new Group());
+	}
+	
 	MapComponent->AddNewObject(EffectGroup = new Group());
 	// Should support buttons.
 	AddNewControlObject(UIGroup = new Group());
@@ -108,7 +112,7 @@ void PlayScene::Update(float deltaTime) {
 		SpeedMult = 1;
 	// Calculate danger zone.
 	std::vector<float> reachEndTimes;
-	for (auto& it : EnemyGroup->GetObjects()) {
+	for (auto& it : UnitGroups[RED]->GetObjects()) {
 		reachEndTimes.push_back(dynamic_cast<Enemy*>(it)->reachEndTime);
 	}
 	// Can use Heap / Priority-Queue instead. But since we won't have too many enemies, sorting is fast enough.
@@ -149,7 +153,7 @@ void PlayScene::Update(float deltaTime) {
 		// Check if we should create new enemy.
 		ticks += deltaTime;
 		if (enemyWaveData.empty()) {
-			if (EnemyGroup->GetObjects().empty()) {
+			if (UnitGroups[RED]->GetObjects().empty()) {
 				ScorePoint(lives^2);
 				RecordScore();
 				// Free resources.
@@ -188,16 +192,16 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 	Enemy* enemy;
 	switch (type) {
 	case 1:
-		EnemyGroup->AddNewObject(enemy = new SoldierEnemy(x, y));
+		UnitGroups[RED]->AddNewObject(enemy = new SoldierEnemy(x, y,RED));
 		break;
 	case 2:
-		EnemyGroup->AddNewObject(enemy = new PlaneEnemy(x, y));
+		UnitGroups[RED]->AddNewObject(enemy = new PlaneEnemy(x, y,RED));
 		break;
 	case 3:
-		EnemyGroup->AddNewObject(enemy = new TankEnemy(x, y));
+		UnitGroups[RED]->AddNewObject(enemy = new TankEnemy(x, y,RED));
 		break;
 	case 4:
-		EnemyGroup->AddNewObject(enemy = new TruckEnemy(x, y));
+		UnitGroups[RED]->AddNewObject(enemy = new TruckEnemy(x, y,RED));
 		break;
     // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
     //         The format is "[EnemyId] [TimeDelay] [Repeat]".
@@ -294,7 +298,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			preview->Enabled = true;
 			preview->Preview = false;
 			preview->Tint = al_map_rgba(255, 255, 255, 255);
-			TowerGroup->AddNewObject(preview);
+			UnitGroups[BLUE]->AddNewObject(preview);
 			// To keep responding when paused.
 			preview->Update(0);
 			// Remove Preview.
@@ -514,13 +518,13 @@ void PlayScene::UIBtnClicked(int id) {
 	}
     // TODO: [CUSTOM-TURRET]: On callback, create the turret.
 	if (id == 0 && money >= MachineGunTurret::Price)
-		preview = new MachineGunTurret(0, 0);
+		preview = new MachineGunTurret(0, 0,BLUE);
 	else if (id == 1 && money >= LaserTurret::Price)
-		preview = new LaserTurret(0, 0);
+		preview = new LaserTurret(0, 0,BLUE);
 	else if (id == 2 && money >= MissileTurret::Price)
-		preview = new MissileTurret(0, 0);
+		preview = new MissileTurret(0, 0,BLUE);
 	else if (id == 3 && money >= Flamethrower::Price)
-		preview = new Flamethrower(0, 0);
+		preview = new Flamethrower(0, 0,BLUE);
 	else preview=nullptr;
 	if (!preview){
 		imgTarget->Visible=false;
@@ -543,7 +547,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
 	mapState[y][x] = map00;
 	if (map[0][0] == -1)
 		return false;
-	for (auto& it : EnemyGroup->GetObjects()) {
+	for (auto& it : UnitGroups[RED]->GetObjects()) {
 		Engine::Point pnt;
 		pnt.x = floor(it->Position.x / BlockSize);
 		pnt.y = floor(it->Position.y / BlockSize);
@@ -557,7 +561,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
 	// All enemy have path to exit.
 	mapState[y][x] = TILE_OCCUPIED;
 	mapDistance = map;
-	for (auto& it : EnemyGroup->GetObjects())
+	for (auto& it : UnitGroups[RED]->GetObjects())
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
 }

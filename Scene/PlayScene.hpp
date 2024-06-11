@@ -22,6 +22,11 @@ typedef enum effects{
 	BURN,
 	STATUS_EFFECT_LENGTH
 }StatusEffect;
+enum Team{
+	BLUE,
+	RED,
+	TEAM_COUNT
+};
 
 class PlayScene final : public Engine::IScene {
 private:
@@ -63,9 +68,10 @@ public:
 	Group* TileMapGroup;
 	Group* GroundEffectGroup;
 	Group* DebugIndicatorGroup;
+	Group* UnitGroups[TEAM_COUNT];
 	Group* BulletGroup;
-	Group* TowerGroup;
-	Group* EnemyGroup;
+	// Group* TowerGroup;
+	// Group* EnemyGroup;
 	Group* EffectGroup;
 	Group* UIGroup;
 	Engine::Label* UIMoney;

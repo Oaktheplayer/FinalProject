@@ -4,6 +4,7 @@
 
 #include "Engine/Sprite.hpp"
 #include "Scene/PlayScene.hpp"
+#include "Engine/Unit.hpp"
 
 class Enemy;
 class PlayScene;
@@ -16,7 +17,8 @@ class Bullet : public Engine::Sprite {
 protected:
 	float speed;
 	float damage;
-	Turret* parent;
+	Unit* parent;
+	Team  team;
 	std::vector<StatusEffect> effectOnEnemy;
 	PlayScene* getPlayScene();
 	virtual void OnExplode(Enemy* enemy);
@@ -24,8 +26,8 @@ protected:
 	float explosionRadius = 0;
 public:
 	Enemy* Target = nullptr;
-	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent);
-	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Turret* parent, std::vector<StatusEffect> effects);
+	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent);
+	explicit Bullet(std::string img, float speed, float damage, Engine::Point position, Engine::Point forwardDirection, float rotation, Unit* parent, std::vector<StatusEffect> effects);
 	void Update(float deltaTime) override;
 };
 

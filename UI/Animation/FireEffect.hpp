@@ -17,7 +17,7 @@ protected:
 	std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> fireSound;
 public:
 	FireEffect(float x, float y, Engine::Sprite *parent, float duratioin);
-	~FireEffect();
+	// ~FireEffect();
 	void Update(float deltaTime) override;
 };
 #endif // FIREEFFECT_HPP

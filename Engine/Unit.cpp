@@ -41,8 +41,8 @@ void Unit::OnExplode() {
 	}
 }
 
-Unit::Unit(std::string img, float x, float y, float radius, float hp):
-    Engine::Sprite(img, x, y), hp(hp),font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
+Unit::Unit(std::string img, float x, float y,Team team, float radius, float hp):
+    Engine::Sprite(img, x, y), hp(hp),team(team),font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
     CollisionRadius = radius;
 	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
 		visualEffect[i]	=	nullptr;
@@ -79,6 +79,7 @@ void Unit::Draw(float scale, float cx, float cy, float sx, float sy) const {
 }
 
 void Unit::Kill(){};
+void Unit::CreateBullet(){}
 
 void Unit::GetEffect(StatusEffect newEffect, float timer){
 	if(!hasStatusEffect[(int)newEffect]){
@@ -102,10 +103,7 @@ void Unit::GetEffect(StatusEffect newEffect, float timer){
 void Unit::DoEffect(StatusEffect effect, float delta){
 	switch(effect){
 		case BURN:
-			if(effectTimer[BURN] > delta)
-				Hit(1.0f*delta);
-			else
-				Hit(effectTimer[BURN] * delta);
+			Hit(1.0f*delta);
 			break;
 		default:
 			break;
@@ -137,3 +135,4 @@ void Unit::ClearEffect(StatusEffect effect){
 	visualEffect[effect]	=	nullptr;
 }
 
+Team Unit::getTeam(){return	team;}

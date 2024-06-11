@@ -4,6 +4,6 @@
 
 class SoldierEnemy : public Enemy {
 public:
-	SoldierEnemy(int x, int y);
+	SoldierEnemy(int x, int y,Team team);
 };
 #endif // SOLDIERENEMY_HPP
