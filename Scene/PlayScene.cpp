@@ -222,9 +222,13 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 			for (int j = 0; j < MapWidth; j++) {
 				if (mapDistance[i][j] != -1) {
 					// Not elegant nor efficient, but it's quite enough for debugging.
-					Engine::Label label(std::to_string(mapDistance[i][j]), "pirulen.ttf", 32, (j + 0.5) * BlockSize, (i + 0.5) * BlockSize);
+					int x = (j + 0.5) * BlockSize;
+					int y = (i + 0.5) * BlockSize;
+					Engine::Label label(std::to_string(mapDistance[i][j]), "pirulen.ttf", 32,
+					(j + 0.5) * BlockSize,
+					(i + 0.5) * BlockSize);
 					label.Anchor = Engine::Point(0.5, 0.5);
-					label.Draw(scale, cx, cy, sx, sy);
+					label.Draw(this->scale, center.x, center.y, sight.x, sight.y);
 				}
 			}
 		}
@@ -341,16 +345,16 @@ void PlayScene::OnKeyDown(int keyCode) {
 		UIBtnClicked(3);
 	}
 	else if (keyCode == ALLEGRO_KEY_W) {
-		sight_dir.y=1;
-	}
-	else if (keyCode == ALLEGRO_KEY_S) {
 		sight_dir.y=-1;
 	}
+	else if (keyCode == ALLEGRO_KEY_S) {
+		sight_dir.y=1;
+	}
 	else if (keyCode == ALLEGRO_KEY_A) {
-		sight_dir.x=1;
+		sight_dir.x=-1;
 	}
 	else if (keyCode == ALLEGRO_KEY_D) {
-		sight_dir.x=-1;
+		sight_dir.x=1;
 	}
 	
 	// // TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
@@ -505,8 +509,9 @@ void PlayScene::ConstructUI() {
 }
 
 void PlayScene::UIBtnClicked(int id) {
-	if (preview)
+	if (preview){
 		RemoveObject(preview->GetObjectIterator());
+	}
     // TODO: [CUSTOM-TURRET]: On callback, create the turret.
 	if (id == 0 && money >= MachineGunTurret::Price)
 		preview = new MachineGunTurret(0, 0);
@@ -516,8 +521,11 @@ void PlayScene::UIBtnClicked(int id) {
 		preview = new MissileTurret(0, 0);
 	else if (id == 3 && money >= Flamethrower::Price)
 		preview = new Flamethrower(0, 0);
-	if (!preview)
+	else preview=nullptr;
+	if (!preview){
+		imgTarget->Visible=false;
 		return;
+	}
 	preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
 	preview->Tint = al_map_rgba(255, 255, 255, 200);
 	preview->Enabled = false;

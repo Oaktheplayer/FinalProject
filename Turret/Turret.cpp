@@ -77,10 +77,14 @@ void Turret::Update(float deltaTime) {
 }
 void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	if (Preview) {
-		al_draw_filled_circle(Position.x, Position.y, CollisionRadius, al_map_rgba(0, 255, 0, 50));
+		al_draw_filled_circle(
+			(Position.x-sx)*scale	+ 	cx,
+			(Position.y-sy)*scale 	+	cy,
+			CollisionRadius*scale,
+			al_map_rgba(0, 255, 0, 50));
 	}
 	imgBase.Draw(scale, cx, cy, sx, sy);
-	Sprite::Draw(scale, cx, cy, sx, sy);
+	Unit::Draw(scale, cx, cy, sx, sy);
 	if (PlayScene::DebugMode) {
 		// Draw target radius.
 		al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, CollisionRadius*scale, al_map_rgb(0, 0, 255), 2);
