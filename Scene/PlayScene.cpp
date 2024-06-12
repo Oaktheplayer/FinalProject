@@ -15,6 +15,7 @@
 #include "Engine/Group.hpp"
 #include "UI/Component/Label.hpp"
 #include "Turret/LaserTurret.hpp"
+#include "Turret/wall.h"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/MissileTurret.hpp"
 #include "Turret/Flamethrower.hpp"
@@ -24,7 +25,7 @@
 #include "Engine/Resources.hpp"
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
-#include	"Enemy/TruckEnemy.hpp"
+#include "Enemy/TruckEnemy.hpp"
 #include "Turret/TurretButton.hpp"
 //#include "Engine/Unit.hpp"
 
@@ -466,6 +467,7 @@ void PlayScene::ConstructUI() {
 	int y = 176;
 	int x = 1294;
 	int dx = 1370-1294;
+    //int dy = 1370-1294;
 	int i = 0;
 	// Button 1
 	btn = new TurretButton("play/floor.png", "play/dirt.png",
@@ -501,6 +503,13 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewControlObject(btn);
 	i++;
 
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx - 8, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, wall::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
+    UIGroup->AddNewControlObject(btn);
+    i++;
 	// TODO: [CUSTOM-TURRET]: Create a button to support constructing the turret.
 	
 	int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
@@ -524,6 +533,8 @@ void PlayScene::UIBtnClicked(int id) {
 		preview = new MissileTurret(0, 0,BLUE);
 	else if (id == 3 && money >= Flamethrower::Price)
 		preview = new Flamethrower(0, 0,BLUE);
+    else if (id == 4 && money >= wall::Price)
+        preview = new wall(0, 0,BLUE);
 	else preview=nullptr;
 	if (!preview){
 		imgTarget->Visible=false;
