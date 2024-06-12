@@ -72,12 +72,10 @@ void PlayScene::Initialize() {
 	MapComponent->AddNewObject(TileMapGroup = new Group());
 	MapComponent->AddNewObject(GroundEffectGroup = new Group());
 	MapComponent->AddNewObject(DebugIndicatorGroup = new Group());
-	// MapComponent->AddNewObject(TowerGroup = new Group());
-	// MapComponent->AddNewObject(EnemyGroup = new Group());
-	MapComponent->AddNewObject(BulletGroup = new Group());
 	for(int i=0;i<TEAM_COUNT;i++){
 		MapComponent->AddNewObject(UnitGroups[i] = new Group());
 	}
+	MapComponent->AddNewObject(BulletGroup = new Group());
 	
 	MapComponent->AddNewObject(EffectGroup = new Group());
 	// Should support buttons.
@@ -426,19 +424,20 @@ void PlayScene::ReadMap() {
 	if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
 		throw std::ios_base::failure("Map data is corrupted.");
 	// Store map in 2d array.
-	mapState = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
+	mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
 	for (int i = 0; i < MapHeight; i++) {
 		for (int j = 0; j < MapWidth; j++) {
 			const int num = mapData[i * MapWidth + j];
-			mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
-			//fprintf(stderr,"%d ",mapState[i][j]);
+			mapTerrain[i][j] = num ? TILE_FLOOR : TILE_DIRT;
+			std::cerr<<mapTerrain[i][j]<<' ';
 			if (num)
 				TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
 			else
 				TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
 		}
-		//fprintf(stderr,"\n");
+		std::cerr<<'\n';
 	}
+	mapState	=	std::vector<std::vector<TileType>>(mapTerrain);
 }
 void PlayScene::ReadEnemyWave() {
     // DONE: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
@@ -592,6 +591,16 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
 		}
 	}
 	return map;
+}
+
+void PlayScene::RemoveTurret(int x, int y){
+	std::cerr<<"still fine\n";
+	//std::cerr<<(int)mapState[y][x];
+	std::cerr<<','<<(int)(mapTerrain[y][x]);
+	mapState[y][x]=mapTerrain[y][x];
+	mapDistance = CalculateBFSDistance();
+	for (auto& it : UnitGroups[RED]->GetObjects())
+		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 }
 
 void PlayScene::ScorePoint(int point){

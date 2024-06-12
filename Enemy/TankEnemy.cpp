@@ -22,7 +22,6 @@ void TankEnemy::Update(float deltaTime) {
 	Enemy::Update(deltaTime);
 	//head.Update(deltaTime);
 	head.Position = Position;
-	std::cerr<<head.Rotation<<std::endl;
 	// Choose arbitrary one.
 	// std::random_device dev;
 	// std::mt19937 rng(dev());

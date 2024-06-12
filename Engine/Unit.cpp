@@ -54,11 +54,24 @@ Unit::Unit(std::string img, float x, float y,Team team, float radius, float hp):
 //Reduce hp. THAT'S ALL IT DOES.
 void Unit::Hit(float damage) {
 	hp -= damage;
+	if(hp<=0){
+		Kill();
+	}
 }
 
 //TODO: How to kill?
 //Q1: Remove from where? Enemy? Turret? Do we make two lists or multiple list for each team?
-
+void Unit::Kill(){
+	OnExplode();
+	// Remove all turret's reference to target.
+	for (auto& it: lockedUnits)
+		it->Target = nullptr;
+	for (auto& it: lockedBullets)
+		it->Target = nullptr;
+	ClearEffect();
+	getPlayScene()->UnitGroups[team]->RemoveObject(objectIterator);
+	AudioHelper::PlayAudio("explosion.wav");
+}
 
 void Unit::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	Sprite::Draw(scale,cx,cy,sx,sy);
@@ -78,7 +91,6 @@ void Unit::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	}
 }
 
-void Unit::Kill(){};
 void Unit::CreateBullet(){}
 
 void Unit::RemoveTarget(){

@@ -51,21 +51,21 @@ void Enemy::Hit(float damage) {
 	if (hp <= 0) {
 		getPlayScene()->ScorePoint(point);
 		getPlayScene()->EarnMoney(money);
-		Kill();
+		// Kill();
 	}
 }
 
-void Enemy::Kill(){
-	OnExplode();
-	// Remove all turret's reference to target.
-	for (auto& it: lockedUnits)
-		it->Target = nullptr;
-	for (auto& it: lockedBullets)
-		it->Target = nullptr;
-	ClearEffect();
-	getPlayScene()->UnitGroups[team]->RemoveObject(objectIterator);
-	AudioHelper::PlayAudio("explosion.wav");
-}
+// void Enemy::Kill(){
+// 	OnExplode();
+// 	// Remove all turret's reference to target.
+// 	for (auto& it: lockedUnits)
+// 		it->Target = nullptr;
+// 	for (auto& it: lockedBullets)
+// 		it->Target = nullptr;
+// 	ClearEffect();
+// 	getPlayScene()->UnitGroups[team]->RemoveObject(objectIterator);
+// 	AudioHelper::PlayAudio("explosion.wav");
+// }
 void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
 	int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));

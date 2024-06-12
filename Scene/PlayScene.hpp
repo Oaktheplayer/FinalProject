@@ -81,6 +81,7 @@ public:
 	Engine::Sprite* dangerIndicator;
 	Turret* preview;
 	std::vector<std::vector<TileType>> mapState;
+	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
 	std::list<std::pair<int, float>> enemyWaveData;
 	std::list<int> keyStrokes;
@@ -106,6 +107,7 @@ public:
 	void UIBtnClicked(int id);
 	bool CheckSpaceValid(int x, int y);
 	std::vector<std::vector<int>> CalculateBFSDistance();
+	void RemoveTurret(int x,int y);
 	int score;
 	void 	ScorePoint(int x);
 	void 	RecordScore();

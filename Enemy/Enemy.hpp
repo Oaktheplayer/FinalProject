@@ -37,7 +37,7 @@ public:
 	float reachEndTime;
 	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point);
  	void Hit(float damage) override;
-	virtual void Kill() override;
+	// virtual void Kill() override;
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
 	// void Draw() const override;

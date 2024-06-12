@@ -17,7 +17,7 @@ PlayScene* Turret::getPlayScene() {
 }
 Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y,Team team, float radius, int price, float coolDown, int point) :
 	//Sprite(imgTurret, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
-	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,25), price(price), imgBase(imgBase, x, y) {
+	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,100), price(price), imgBase(imgBase, x, y) {
 	Unit::coolDown	=	coolDown;
 	range = radius;
 	if(team==BLUE)
@@ -42,19 +42,20 @@ void Turret::Update(float deltaTime) {
 		// Lock first seen target.
 		// Can be improved by Spatial Hash, Quad Tree, ...
 		// However simply loop through all enemies is enough for this program.
-		for (int i=0;i<TEAM_COUNT;i++){
-			if(i==team)	continue;
-			Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
-			for (auto& it : enemyGroup->GetObjects()) {
-				Engine::Point diff = it->Position - Position;
-				if (diff.Magnitude() <= range) {
-					Target = dynamic_cast<Enemy*>(it);
-					Target->lockedUnits.push_back(this);
-					lockedUnitIterator = std::prev(Target->lockedUnits.end());
-					break;
-				}
-			}
-		}
+		FindTarget();
+		// for (int i=0;i<TEAM_COUNT;i++){
+		// 	if(i==team)	continue;
+		// 	Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
+		// 	for (auto& it : enemyGroup->GetObjects()) {
+		// 		Engine::Point diff = it->Position - Position;
+		// 		if (diff.Magnitude() <= range) {
+		// 			Target = dynamic_cast<Enemy*>(it);
+		// 			Target->lockedUnits.push_back(this);
+		// 			lockedUnitIterator = std::prev(Target->lockedUnits.end());
+		// 			break;
+		// 		}
+		// 	}
+		// }
 	}
 	if (Target) {
 		Engine::Point originRotation = Engine::Point(cos(Rotation - ALLEGRO_PI / 2), sin(Rotation - ALLEGRO_PI / 2));
@@ -98,4 +99,8 @@ void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 }
 int Turret::GetPrice() const {
 	return price;
+}
+void Turret::Kill(){
+	getPlayScene()->RemoveTurret(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);
+	Unit::Kill();
 }
