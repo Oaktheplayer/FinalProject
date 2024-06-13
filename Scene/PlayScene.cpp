@@ -26,6 +26,7 @@
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
 #include "Enemy/TruckEnemy.hpp"
+#include "Enemy/SonicEnemy.h"
 #include "Turret/TurretButton.hpp"
 //#include "Engine/Unit.hpp"
 
@@ -202,6 +203,10 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 	case 4:
 		UnitGroups[RED]->AddNewObject(enemy = new TruckEnemy(x, y,RED));
 		break;
+
+        case 5:
+            UnitGroups[RED]->AddNewObject(enemy = new SonicEnemy(x, y,RED));
+            break;
     // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
     //         The format is "[EnemyId] [TimeDelay] [Repeat]".
     // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
