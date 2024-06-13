@@ -35,7 +35,7 @@ float scale;
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
+const int PlayScene::MapWidth = 80, PlayScene::MapHeight = 52;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
@@ -58,7 +58,7 @@ void PlayScene::Initialize() {
 	lives = 10;
 	money = 150;
 	SpeedMult = 1;
-
+    noPath=0;
 	score = 0;
 
 	scale 	= 	1;
@@ -83,7 +83,7 @@ void PlayScene::Initialize() {
 	AddNewControlObject(UIGroup = new Group());
 	ReadMap();
 	ReadEnemyWave();
-	mapDistance = CalculateBFSDistance();
+	mapDistance = CalculateBFSDistance(0);
 	ConstructUI();
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
@@ -551,23 +551,39 @@ void PlayScene::UIBtnClicked(int id) {
 bool PlayScene::CheckSpaceValid(int x, int y) {
 	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)
 		return false;
+    noPath=0;
 	auto map00 = mapState[y][x];
 	mapState[y][x] = TILE_OCCUPIED;
-	std::vector<std::vector<int>> map = CalculateBFSDistance();
+	std::vector<std::vector<int>> map = CalculateBFSDistance(0);
 	mapState[y][x] = map00;
-	if (map[0][0] == -1)
-		return false;
+	if (map[0][0] == -1) {
+        mapState[y][x] = TILE_OCCUPIED;
+        mapDistance =  CalculateBFSDistance(1);
+        for (auto& it : UnitGroups[RED]->GetObjects()) {
+            Engine::Point pnt;
+            pnt.x = floor(it->Position.x / BlockSize);
+            pnt.y = floor(it->Position.y / BlockSize);
+            if (pnt.x < 0) pnt.x = 0;
+            if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
+            if (pnt.y < 0) pnt.y = 0;
+            if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
+            if (pnt.y==y&&pnt.x==x)
+                return false;
+        }
+        noPath=1;
+        return true;
+    }
 	for (auto& it : UnitGroups[RED]->GetObjects()) {
-		Engine::Point pnt;
-		pnt.x = floor(it->Position.x / BlockSize);
-		pnt.y = floor(it->Position.y / BlockSize);
-		if (pnt.x < 0) pnt.x = 0;
-		if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
-		if (pnt.y < 0) pnt.y = 0;
-		if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
-		if (map[pnt.y][pnt.x] == -1)
-			return false;
-	}
+        Engine::Point pnt;
+        pnt.x = floor(it->Position.x / BlockSize);
+        pnt.y = floor(it->Position.y / BlockSize);
+        if (pnt.x < 0) pnt.x = 0;
+        if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
+        if (pnt.y < 0) pnt.y = 0;
+        if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
+        if (map[pnt.y][pnt.x] == -1)
+            return false;
+    }
 	// All enemy have path to exit.
 	mapState[y][x] = TILE_OCCUPIED;
 	mapDistance = map;
@@ -575,7 +591,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
 }
-std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
+std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(int flag) {
 	// Reverse BFS to find path.
 	std::vector<std::vector<int>> map(MapHeight, std::vector<int>(std::vector<int>(MapWidth, -1)));
 	std::queue<Engine::Point> que;
@@ -591,16 +607,26 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
 		// DONE: [BFS PathFinding] (1/1): Implement a BFS starting from the most right-bottom block in the map.
 		//               For each step you should assign the corresponding distance to the most right-bottom block.
 		//               mapState[y][x] is TILE_DIRT if it is empty.
+
 		for(auto& dir : PlayScene::directions){
 			int x = p.x + dir.x;
 			int y = p.y + dir.y;
 			if (x < 0 || x >= PlayScene::MapWidth || y < 0 || y >= PlayScene::MapHeight
-			|| 	mapState[y][x] != TILE_DIRT || map[y][x] != -1)
-				continue;
+			|| 	mapState[y][x] == TILE_FLOOR || map[y][x] != -1)continue;
+            if(flag==0){
+                if(mapState[y][x] != TILE_DIRT)continue;
+            }
 			map[y][x]	=	map[p.y][p.x] + 1;
 			que.push(Engine::Point(x,y));
 		}
 	}
+//    if(flag==1) {
+//        for (int i = 0; i < MapWidth; i++) {
+//            for (int j = 0; j < MapHeight; j++) {
+//                if (mapState[j][i] == TILE_OCCUPIED)map[j][i] = -2;
+//            }
+//        }
+//    }
 	return map;
 }
 
@@ -609,7 +635,7 @@ void PlayScene::RemoveTurret(int x, int y){
 	//std::cerr<<(int)mapState[y][x];
 	std::cerr<<','<<(int)(mapTerrain[y][x]);
 	mapState[y][x]=mapTerrain[y][x];
-	mapDistance = CalculateBFSDistance();
+	mapDistance = CalculateBFSDistance(0);
 	for (auto& it : UnitGroups[RED]->GetObjects())
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 }
