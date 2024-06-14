@@ -2,8 +2,8 @@
 // Created by user on 2024/6/12.
 //
 
-#ifndef FINALPROJECT_WALL_H
-#define FINALPROJECT_WALL_H
+#ifndef WALL_HPP
+#define WALL_HPP
 #include "Turret.hpp"
 
 
@@ -16,4 +16,4 @@ public:
 };
 
 
-#endif //FINALPROJECT_WALL_H
+#endif //FINALPROJECT_WALL_HPP

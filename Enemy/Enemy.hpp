@@ -20,6 +20,7 @@ class Turret;
 class Enemy : public Unit {
 protected:
  	std::vector<Engine::Point> path;
+	Turret* pathBlock=nullptr;
 	float speed;
 	// float hp;
 	int money;

@@ -20,6 +20,7 @@
 #include "Scene/PlayScene.hpp"
 #include "Turret/Turret.hpp"
 #include "Engine/Resources.hpp"
+#include "Engine/Collider.hpp"
 
 // PlayScene *Enemy::getPlayScene()
 // {
@@ -113,8 +114,38 @@ void Enemy::Update(float deltaTime) {
 			reachEndTime = 0;
 			return;
 		}
-		Engine::Point target = path.back() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
-		Engine::Point vec = target - Position;
+		
+		Engine::Point nextp = path.back() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
+		Engine::Point vec = nextp - Position;
+		
+		pathBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
+			
+		if(pathBlock){
+			Target=pathBlock;
+			std::cerr<<"path blocked\n";
+			//Point	halfsize	=	Point(PlayScene::BlockSize/2,PlayScene::BlockSize/2);
+			//if(Collider::IsCircleNRectOverlap(Position,CollisionRadius,pathBlock->Position-halfsize,pathBlock->Position+halfsize)){
+			bool contacted	=	Collider::IsCircleOverlap(Position,CollisionRadius,pathBlock->Position,pathBlock->CollisionRadius);
+			if(contacted){
+				//Velocity	=	Point(0,0);
+				doSpriteUpdate	=	false;
+				if(!range){
+					if(reload<=0){
+						Target->Hit(1);
+						reload	=	coolDown;
+					}
+					reload-=deltaTime;
+					std::cerr<<"attacking path blocked\n";
+				}
+			}
+			// if(range && Collider::IsCircleOverlap(Position,CollisionRadius,pathBlock->Position,pathBlock->CollisionRadius)){
+
+			// }
+
+			break;
+		}
+		else if(!pathBlock) doSpriteUpdate	=	true;
+
 		// Add up the distances:
 		// 1. to path.back()
 		// 2. path.back() to border
@@ -123,7 +154,7 @@ void Enemy::Update(float deltaTime) {
 		reachEndTime = (vec.Magnitude() + (path.size() - 1) * PlayScene::BlockSize - remainSpeed) / speed;
 		Engine::Point normalized = vec.Normalize();
 		if (remainSpeed - vec.Magnitude() > 0) {
-			Position = target;
+			Position = nextp;
 			path.pop_back();
 			remainSpeed -= vec.Magnitude();
 		}
@@ -132,17 +163,7 @@ void Enemy::Update(float deltaTime) {
 			remainSpeed = 0;
 		}
 	}
-	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
-		if(hasStatusEffect[i]){
-			effectTimer[i]-=deltaTime;
-			if(effectTimer[i] <= 0.0){
-				ClearEffect((StatusEffect)i);
-			}
-			else{
-				DoEffect((StatusEffect)i,deltaTime);
-			}
-		}
-	}
+
 	Rotation = atan2(Velocity.y, Velocity.x);
 	Unit::Update(deltaTime);
 }

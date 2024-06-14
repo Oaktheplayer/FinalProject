@@ -15,7 +15,7 @@
 #include "Engine/Group.hpp"
 #include "UI/Component/Label.hpp"
 #include "Turret/LaserTurret.hpp"
-#include "Turret/wall.h"
+#include "Turret/Wall.hpp"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/MissileTurret.hpp"
 #include "Turret/Flamethrower.hpp"
@@ -36,7 +36,8 @@ float scale;
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 80, PlayScene::MapHeight = 52;
+//const int PlayScene::MapWidth = 80, PlayScene::MapHeight = 52;
+const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
@@ -303,6 +304,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			preview->Preview = false;
 			preview->Tint = al_map_rgba(255, 255, 255, 255);
 			UnitGroups[BLUE]->AddNewObject(preview);
+			mapBuildings[y][x]=preview;
 			// To keep responding when paused.
 			preview->Update(0);
 			// Remove Preview.
@@ -444,6 +446,7 @@ void PlayScene::ReadMap() {
 		std::cerr<<'\n';
 	}
 	mapState	=	std::vector<std::vector<TileType>>(mapTerrain);
+	mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
 }
 void PlayScene::ReadEnemyWave() {
     // DONE: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
@@ -596,7 +599,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
 }
-std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(int flag) {
+std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildings) {
 	// Reverse BFS to find path.
 	std::vector<std::vector<int>> map(MapHeight, std::vector<int>(std::vector<int>(MapWidth, -1)));
 	std::queue<Engine::Point> que;
@@ -616,9 +619,11 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(int flag) {
 		for(auto& dir : PlayScene::directions){
 			int x = p.x + dir.x;
 			int y = p.y + dir.y;
-			if (x < 0 || x >= PlayScene::MapWidth || y < 0 || y >= PlayScene::MapHeight
-			|| 	mapState[y][x] == TILE_FLOOR || map[y][x] != -1)continue;
-            if(flag==0){
+			if (x < 0 || x >= PlayScene::MapWidth 
+			|| 	y < 0 || y >= PlayScene::MapHeight
+			|| 	mapState[y][x] == TILE_FLOOR || map[y][x] != -1
+			)continue;
+            if(!ignoreBuildings){
                 if(mapState[y][x] != TILE_DIRT)continue;
             }
 			map[y][x]	=	map[p.y][p.x] + 1;
@@ -640,9 +645,16 @@ void PlayScene::RemoveTurret(int x, int y){
 	//std::cerr<<(int)mapState[y][x];
 	std::cerr<<','<<(int)(mapTerrain[y][x]);
 	mapState[y][x]=mapTerrain[y][x];
+	mapBuildings[y][x]=nullptr;
 	mapDistance = CalculateBFSDistance(0);
 	for (auto& it : UnitGroups[RED]->GetObjects())
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+}
+
+Turret *PlayScene::HasBuildingAt(int x, int y)
+{
+	if(x==EndGridPoint.x && y==EndGridPoint.y)	return	nullptr;
+	return mapBuildings[y][x];
 }
 
 void PlayScene::ScorePoint(int point){

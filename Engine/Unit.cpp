@@ -73,6 +73,22 @@ void Unit::Kill(){
 	AudioHelper::PlayAudio("explosion.wav");
 }
 
+void Unit::Update(float deltaTime)
+{
+	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
+		if(hasStatusEffect[i]){
+			effectTimer[i]-=deltaTime;
+			if(effectTimer[i] <= 0.0){
+				ClearEffect((StatusEffect)i);
+			}
+			else{
+				DoEffect((StatusEffect)i,deltaTime);
+			}
+		}
+	}
+	if(doSpriteUpdate)Sprite::Update(deltaTime);
+}
+
 void Unit::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	Sprite::Draw(scale,cx,cy,sx,sy);
 	if (PlayScene::DebugMode) {

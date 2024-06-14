@@ -26,9 +26,10 @@ protected:
 
 	float range = 0;
     float reload = 0;
-    float coolDown=0;
+    float coolDown=1;
     float rotateRadian = 2 * ALLEGRO_PI;
 	std::list<Unit*>::iterator lockedUnitIterator;
+	bool doSpriteUpdate = 1;
 
 	PlayScene* getPlayScene();
 	virtual void OnExplode();
@@ -53,7 +54,7 @@ public:
     std::list<Unit*> lockedUnits;
 	std::list<Bullet*> lockedBullets;
 	virtual void Kill();
-	//void Update(float deltaTime) override;
+	void Update(float deltaTime) override;
 	void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	void GetEffect(StatusEffect effect, float timer);
 };

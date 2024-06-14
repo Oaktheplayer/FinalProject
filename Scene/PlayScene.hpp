@@ -36,13 +36,13 @@ protected:
 	int lives;
 	int money;
 	int SpeedMult;
-	
-public:
-    enum TileType {
+	enum TileType {
         TILE_DIRT,
         TILE_FLOOR,
         TILE_OCCUPIED,
     };
+public:
+    
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
 	static const int MapWidth, MapHeight;
@@ -83,6 +83,7 @@ public:
 	std::vector<std::vector<TileType>> mapState;
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
+	std::vector<std::vector<Turret*>> mapBuildings;
 	std::list<std::pair<int, float>> enemyWaveData;
 	std::list<int> keyStrokes;
 	static Engine::Point GetClientSize();
@@ -106,8 +107,9 @@ public:
 	void ConstructUI();
 	void UIBtnClicked(int id);
 	bool CheckSpaceValid(int x, int y);
-	std::vector<std::vector<int>> CalculateBFSDistance(int flag);
+	std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	void RemoveTurret(int x,int y);
+	Turret* HasBuildingAt(int x,int y);
 	int score;
 	void 	ScorePoint(int x);
 	void 	RecordScore();

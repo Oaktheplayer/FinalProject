@@ -17,4 +17,11 @@ namespace Engine {
 	bool Collider::IsCircleOverlap(Point c1, float r1, Point c2, float r2) {
 		return (c1 - c2).Magnitude() < r1 + r2;
 	}
+    bool Collider::IsCircleNRectOverlap(Point c, float r, Point rectp1, Point rectp2)
+    {
+        return 	IsCircleOverlap(c,r,rectp1,0)
+			||	IsCircleOverlap(c,r,rectp2,0)
+			||	IsCircleOverlap(c,r,Point(rectp1.x,rectp2.y),0)
+			||	IsCircleOverlap(c,r,Point(rectp2.x,rectp1.y),0);
+    }
 }

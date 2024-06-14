@@ -44,6 +44,16 @@ namespace Engine {
 		/// <param name="r2">The radius of the second circle.</param>
 		/// <returns>Determines whether the two circles overlaps.</returns>
 		static bool IsCircleOverlap(Point c1, float r1, Point c2, float r2);
+		/// <summary>
+		/// Check if a circle overlaps a rectangle.
+		/// </summary>
+		/// <param name="c">The center coordinate of the circle.</param>
+		/// <param name="r">The radius of the circle.</param>
+		/// <param name="rectp1">Top-Left coordinate of the rectangle.</param>
+		/// <param name="rectp2">Bottom-Right coordinate of the rectangle.</param>
+		/// <returns>Determines whether the circle overlaps the rectangle.</returns>
+		static bool IsCircleNRectOverlap(Point c, float r, Point rectp1, Point rectp2);
+
 	};
 }
 #endif // COLLIDER_HPP

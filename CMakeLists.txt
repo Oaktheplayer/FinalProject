@@ -109,8 +109,8 @@ add_executable(FinalProject
         Scene/SettingsScene.hpp
         Scene/ScoreboardScene.cpp
         Scene/ScoreboardScene.hpp
-        Turret/wall.cpp
-        Turret/wall.h
+        Turret/Wall.cpp
+        Turret/Wall.hpp
         Enemy/SonicEnemy.cpp
         Enemy/SonicEnemy.h
         #        UI/Component/TextInput.cpp
