@@ -104,6 +104,10 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
 	// If we use deltaTime directly, then we might have Bullet-through-paper problem.
 	// Reference: Bullet-Through-Paper
+    if(sight.x <=0)sight.x=0;
+    else if(sight.x>=MapWidth*BlockSize)sight.x=MapWidth*BlockSize;
+    if(sight.y <=0)sight.y=0;
+    else if(sight.y>=MapHeight*BlockSize)sight.y=MapHeight*BlockSize;
 	sight = sight + sight_dir*sight_speed;
 	if (SpeedMult == 0)
 		deathCountDown = -1;
@@ -234,7 +238,7 @@ void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	scale+= (float)delta /4;
 	if(scale>4)		scale=4;
 	else
-	if(scale<0.25)	scale=0.25;
+	if(scale<0.5)	scale=0.5;
 
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
