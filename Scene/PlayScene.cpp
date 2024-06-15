@@ -60,9 +60,7 @@ void PlayScene::Initialize() {
 	lives = 10;
 	money = 150;
 	SpeedMult = 1;
-    noPath=0;
 	score = 0;
-
 	scale 	= 	1;
 	center	=	Point(Engine::GameEngine::GetInstance().GetScreenWidth()/2,Engine::GameEngine::GetInstance().GetScreenHeight()/2);
 	sight	=	center;
@@ -86,7 +84,7 @@ void PlayScene::Initialize() {
 	ReadMap();
 	ReadEnemyWave();
 	mapDistance = CalculateBFSDistance(0);
-	ConstructUI();
+    ConstructUI();
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
 	preview = nullptr;
@@ -157,17 +155,6 @@ void PlayScene::Update(float deltaTime) {
 			if (UnitGroups[RED]->GetObjects().empty()) {
 				ScorePoint(lives^2);
 				RecordScore();
-				// Free resources.
-				//delete TileMapGroup;
-				//delete GroundEffectGroup;
-				//delete DebugIndicatorGroup;
-				//delete TowerGroup;
-				//delete EnemyGroup;
-				//delete BulletGroup;
-				//delete EffectGroup;
-				//delete UIGroup;
-				//delete imgTarget;
-				
 				Engine::GameEngine::GetInstance().ChangeScene("win");
 			}
 			continue;
@@ -215,7 +202,6 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 		return nullptr;
 	}	
 	enemy->UpdatePath(mapDistance);
-	// enemy->UpdatePath(mapDistance);
 	return enemy;
 }
 void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const {
@@ -436,17 +422,29 @@ void PlayScene::ReadMap() {
 	for (int i = 0; i < MapHeight; i++) {
 		for (int j = 0; j < MapWidth; j++) {
 			const int num = mapData[i * MapWidth + j];
-			mapTerrain[i][j] = num ? TILE_FLOOR : TILE_DIRT;
-			std::cerr<<mapTerrain[i][j]<<' ';
-			if (num)
-				TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-			else
-				TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            switch(num){
+                case 0:
+                    mapTerrain[i][j]=TILE_DIRT;
+                    TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    break;
+                case 1:
+                    mapTerrain[i][j]=TILE_FLOOR;
+                    TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    break;
+                case 2:
+                    mapTerrain[i][j]=TILE_WATER;
+                    //TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    break;
+                default:
+                    std::cerr<<"unknown map terrain\n";
+                    break;            }
+            std::cerr<<mapTerrain[i][j]<<' ';
 		}
 		std::cerr<<'\n';
 	}
-	mapState	=	std::vector<std::vector<TileType>>(mapTerrain);
+    mapState	=	std::vector<std::vector<TileStat>>(MapHeight, std::vector<TileStat>(MapWidth,TILE_EMPTY));
 	mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
+    std::cerr<<"map read succeed\n";
 }
 void PlayScene::ReadEnemyWave() {
     // DONE: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
@@ -475,7 +473,6 @@ void PlayScene::ConstructUI() {
 	int y = 176;
 	int x = 1294;
 	int dx = 1370-1294;
-    //int dy = 1370-1294;
 	int i = 0;
 	// Button 1
 	btn = new TurretButton("play/floor.png", "play/dirt.png",
@@ -502,7 +499,7 @@ void PlayScene::ConstructUI() {
 	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
 	UIGroup->AddNewControlObject(btn);
 	i++;
-
+    // Button 4
 	btn = new TurretButton("play/floor.png", "play/dirt.png",
 		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
 		Engine::Sprite("play/turret-6.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
@@ -510,7 +507,7 @@ void PlayScene::ConstructUI() {
 	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
 	UIGroup->AddNewControlObject(btn);
 	i++;
-
+    // Button 5
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx - 8, 0, 0, 0, 0)
@@ -559,7 +556,6 @@ void PlayScene::UIBtnClicked(int id) {
 bool PlayScene::CheckSpaceValid(int x, int y) {
 	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)
 		return false;
-    noPath=0;
 	auto map00 = mapState[y][x];
 	mapState[y][x] = TILE_OCCUPIED;
 	std::vector<std::vector<int>> map = CalculateBFSDistance(0);
@@ -578,7 +574,6 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
             if (pnt.y==y&&pnt.x==x)
                 return false;
         }
-        noPath=1;
         return true;
     }
 	for (auto& it : UnitGroups[RED]->GetObjects()) {
@@ -605,61 +600,44 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildin
 	std::queue<Engine::Point> que;
 	// Push end point.
 	// BFS from end point.
-	if (mapState[MapHeight - 1][MapWidth - 1] != TILE_DIRT)
+	if (mapTerrain [MapHeight - 1][MapWidth - 1] != TILE_DIRT)
 		return map;
 	que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
 	map[MapHeight - 1][MapWidth - 1] = 0;
 	while (!que.empty()) {
 		Engine::Point p = que.front();
 		que.pop();
-		// DONE: [BFS PathFinding] (1/1): Implement a BFS starting from the most right-bottom block in the map.
-		//               For each step you should assign the corresponding distance to the most right-bottom block.
-		//               mapState[y][x] is TILE_DIRT if it is empty.
-
-		for(auto& dir : PlayScene::directions){
+        for(auto& dir : PlayScene::directions){
 			int x = p.x + dir.x;
 			int y = p.y + dir.y;
-			if (x < 0 || x >= PlayScene::MapWidth 
-			|| 	y < 0 || y >= PlayScene::MapHeight
-			|| 	mapState[y][x] == TILE_FLOOR || map[y][x] != -1
-			)continue;
-            if(!ignoreBuildings){
-                if(mapState[y][x] != TILE_DIRT)continue;
-            }
+			if (x < 0 || x >= PlayScene::MapWidth|| y < 0 || y >= PlayScene::MapHeight
+			|| 	mapTerrain[y][x] != TILE_DIRT || map[y][x] != -1)continue;
+            if(!ignoreBuildings)if(mapState[y][x] != TILE_EMPTY)continue;
 			map[y][x]	=	map[p.y][p.x] + 1;
 			que.push(Engine::Point(x,y));
 		}
 	}
-//    if(flag==1) {
-//        for (int i = 0; i < MapWidth; i++) {
-//            for (int j = 0; j < MapHeight; j++) {
-//                if (mapState[j][i] == TILE_OCCUPIED)map[j][i] = -2;
-//            }
-//        }
-//    }
 	return map;
 }
 
-void PlayScene::RemoveTurret(int x, int y){
-	std::cerr<<"still fine\n";
-	//std::cerr<<(int)mapState[y][x];
-	std::cerr<<','<<(int)(mapTerrain[y][x]);
-	mapState[y][x]=mapTerrain[y][x];
+void PlayScene::RemoveBuilding(int x, int y){
+    std::cerr<<"start removing building\n";
+	mapState[y][x]=TILE_EMPTY;
 	mapBuildings[y][x]=nullptr;
 	mapDistance = CalculateBFSDistance(0);
-	for (auto& it : UnitGroups[RED]->GetObjects())
-		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+	for (auto& it : UnitGroups[RED]->GetObjects())dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+    std::cerr<<"successfully removed building\n";
 }
 
 Turret *PlayScene::HasBuildingAt(int x, int y)
 {
-	if(x==EndGridPoint.x && y==EndGridPoint.y)	return	nullptr;
+	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
 	return mapBuildings[y][x];
 }
 
 void PlayScene::ScorePoint(int point){
 	score+=point;
-	UIScore->Text	=	"Score "+std::to_string(score);
+	UIScore->Text = "Score "+std::to_string(score);
 }
 
 void PlayScene::RecordScore()

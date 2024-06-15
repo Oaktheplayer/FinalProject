@@ -39,7 +39,11 @@ protected:
 	enum TileType {
         TILE_DIRT,
         TILE_FLOOR,
-        TILE_OCCUPIED,
+        TILE_WATER
+    };
+    enum TileStat {
+        TILE_EMPTY,
+        TILE_OCCUPIED
     };
 public:
     
@@ -54,7 +58,6 @@ public:
 	int MapId;
 	float ticks;
 	float deathCountDown;
-    bool noPath;
 	float	scale;
 	Engine::Point center;
 	Engine::Point sight;
@@ -80,7 +83,7 @@ public:
 	Engine::Image* imgTarget;
 	Engine::Sprite* dangerIndicator;
 	Turret* preview;
-	std::vector<std::vector<TileType>> mapState;
+	std::vector<std::vector<TileStat>> mapState;
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
 	std::vector<std::vector<Turret*>> mapBuildings;
@@ -108,7 +111,7 @@ public:
 	void UIBtnClicked(int id);
 	bool CheckSpaceValid(int x, int y);
 	std::vector<std::vector<int>> CalculateBFSDistance(bool);
-	void RemoveTurret(int x,int y);
+	void RemoveBuilding(int x,int y);
 	Turret* HasBuildingAt(int x,int y);
 	int score;
 	void 	ScorePoint(int x);
