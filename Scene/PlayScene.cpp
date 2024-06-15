@@ -429,11 +429,11 @@ void PlayScene::ReadMap() {
                     break;
                 case 1:
                     mapTerrain[i][j]=TILE_FLOOR;
-                    TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                     break;
                 case 2:
                     mapTerrain[i][j]=TILE_WATER;
-                    //TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    //TileMapGroup->AddNewObject(new Engine::Image("play/button2.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                     break;
                 default:
                     std::cerr<<"unknown map terrain\n";
@@ -475,7 +475,7 @@ void PlayScene::ConstructUI() {
 	int dx = 1370-1294;
 	int i = 0;
 	// Button 1
-	btn = new TurretButton("play/floor.png", "play/dirt.png",
+	btn = new TurretButton("play/button1.png", "play/button2.png",
 		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
 		Engine::Sprite("play/turret-1.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
 		, x+i%4*dx, y, MachineGunTurret::Price);
@@ -484,7 +484,7 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewControlObject(btn);
 	i++;
 	// Button 2
-	btn = new TurretButton("play/floor.png", "play/dirt.png",
+	btn = new TurretButton("play/button1.png", "play/button2.png",
 		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
 		Engine::Sprite("play/turret-2.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
 		, x+i%4*dx, y, LaserTurret::Price);
@@ -492,7 +492,7 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewControlObject(btn);
 	i++;
 	// Button 3
-	btn = new TurretButton("play/floor.png", "play/dirt.png",
+	btn = new TurretButton("play/button1.png", "play/button2.png",
 		Engine::Sprite("play/tower-base.png", 1446, y, 0, 0, 0, 0),
 		Engine::Sprite("play/turret-3.png", 1446, y - 8, 0, 0, 0, 0)
 		, x+i%4*dx, y, MissileTurret::Price);
@@ -500,7 +500,7 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewControlObject(btn);
 	i++;
     // Button 4
-	btn = new TurretButton("play/floor.png", "play/dirt.png",
+	btn = new TurretButton("play/button1.png", "play/button2.png",
 		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
 		Engine::Sprite("play/turret-6.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
 		, x+i%4*dx, y, Flamethrower::Price);
@@ -508,7 +508,7 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewControlObject(btn);
 	i++;
     // Button 5
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
+    btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx - 8, 0, 0, 0, 0)
             , x+i%4*dx, y+(i/4)*dx, wall::Price);

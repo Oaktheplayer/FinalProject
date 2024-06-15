@@ -37,12 +37,12 @@ void WinScene::Initialize()
 	
 
 	Engine::ImageButton* btn;
-	btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW - 200, halfH * 7 / 4 - 50, 400, 100);
+	btn = new Engine::ImageButton("win/button2.png", "win/button1.png", halfW - 200, halfH * 7 / 4 - 50, 400, 100);
 	btn->SetOnClickCallback(std::bind(&WinScene::BackOnClick, this, 2));
 	AddNewControlObject(btn);
 	AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
 
-	btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW - 200, halfH/ 2 -60 , 400, 60);
+	btn = new Engine::ImageButton("win/button2.png", "win/button1.png", halfW - 200, halfH/ 2 -60 , 400, 60);
 	btn->SetOnClickCallback(std::bind(&WinScene::ChangeName, this));
 	AddNewControlObject(btn);
 	AddNewObject(nameLabel	= new Engine::Label("name:", "pirulen.ttf", 32, halfW, halfH/ 2 -30, 0, 0, 0, 255, 0.5, 0.5));

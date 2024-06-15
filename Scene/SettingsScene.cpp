@@ -16,17 +16,17 @@ void SettingsScene::Initialize() {
     int halfW = w / 2;
     int halfH = h / 2;
     Engine::ImageButton *btn;
-    // btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH / 2 - 50, 400,
+    // btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png", halfW - 200, halfH / 2 - 50, 400,
     //                               100);
     // btn->SetOnClickCallback(std::bind(&SettingsScene::PlayOnClick, this, 1));
     // AddNewControlObject(btn);
     // AddNewObject(new Engine::Label("Stage 1", "pirulen.ttf", 48, halfW, halfH / 2, 0, 0, 0, 255, 0.5, 0.5));
-    // btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH * 3 / 2 - 50,
+    // btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png", halfW - 200, halfH * 3 / 2 - 50,
     //                               400, 100);
     // btn->SetOnClickCallback(std::bind(&SettingsScene::PlayOnClick, this, 2));
     // AddNewControlObject(btn);
     // AddNewObject(new Engine::Label("Stage 2", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
-    btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
+    btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
     btn->SetOnClickCallback(std::bind(&SettingsScene::BackOnClick, this, 1));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
