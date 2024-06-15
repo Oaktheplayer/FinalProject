@@ -58,7 +58,7 @@ public:
 	int MapWidth, MapHeight;
 	static const int BlockSize;
 	static const float DangerTime;
-	static Engine::Point SpawnGridPoint;
+	Engine::Point SpawnGridPoint;
 	Engine::Point EndGridPoint;
 	static const std::vector<int> code;
 	int MapId;
@@ -112,9 +112,9 @@ public:
 	void EarnMoney(int money);
 	void ReadMap();
 	void ReadEnemyWave();
-	void ConstructUI();
-	void UIBtnClicked(int id);
-	bool CheckSpaceValid(int x, int y,Turret* building);
+	virtual void ConstructUI();
+	virtual void UIBtnClicked(int id);
+	virtual bool CheckSpaceValid(int x, int y,Turret* building);
 	std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	void RemoveBuilding(int x,int y);
 	Turret* HasBuildingAt(int x,int y);
@@ -123,4 +123,15 @@ public:
 	void 	RecordScore();
 	// void ModifyReadMapTiles();
 };
+
+//class DefenceMode :public PlayScene{
+//    void ConstructUI() override;
+//    bool CheckSpaceValid(int x, int y,Turret* building) override;
+//    void UIBtnClicked(int id) override;
+//};
+//class AttackMode :public PlayScene{
+//    void ConstructUI() override;
+//    bool CheckSpaceValid(int x, int y,Turret* building) override;
+//    void UIBtnClicked(int id) override;
+//};
 #endif // PLAYSCENE_HPP

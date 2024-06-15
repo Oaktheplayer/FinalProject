@@ -36,12 +36,8 @@ float scale;
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-//const int PlayScene::MapWidth = 80, PlayScene::MapHeight = 52;
-//int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
-Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
-//Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
 const std::vector<int> PlayScene::code = { ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
 									ALLEGRO_KEY_LEFT, ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_RIGHT,
 									ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEYMOD_SHIFT, ALLEGRO_KEY_ENTER };
@@ -81,8 +77,10 @@ void PlayScene::Initialize() {
 	// Should support buttons.
 	AddNewControlObject(UIGroup = new Group());
 	ReadMap();
+    SpawnGridPoint = Engine::Point(-1, 0);
 	ReadEnemyWave();
 	mapDistance = CalculateBFSDistance(0);
+    if(mapDistance[0][0]  ==-1)mapDistance = CalculateBFSDistance(1);
     ConstructUI();
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
@@ -110,8 +108,8 @@ void PlayScene::Update(float deltaTime) {
 	sight = sight + sight_dir*sight_speed;
 	if (SpeedMult == 0)
 		deathCountDown = -1;
-	else if (deathCountDown != -1)
-		SpeedMult = 1;
+//	else if (deathCountDown != -1)
+//		SpeedMult = 1;
 	// Calculate danger zone.
 	std::vector<float> reachEndTimes;
 	for (auto& it : UnitGroups[RED]->GetObjects()) {
@@ -277,7 +275,6 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			if (!preview)
 				return;
 			// Check if valid.
-            std::cerr<<"oooo\n";
 			if (!CheckSpaceValid(x, y ,preview)) {
 
 				Engine::Sprite* sprite;
@@ -286,7 +283,6 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 				return;
 			}
 			// Purchase.
-            std::cerr<<"pppp\n";
 			EarnMoney(-preview->GetPrice());
 			// Remove Preview.
 			preview->GetObjectIterator()->first = false;
@@ -360,13 +356,9 @@ void PlayScene::OnKeyDown(int keyCode) {
 	}
 	
 	// // TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
-	// else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
-	// 	// Hotkey for Speed up.
-	// 	SpeedMult = keyCode - ALLEGRO_KEY_0;
-	// }
 	else if(keyCode	==	ALLEGRO_KEY_UP){
 		SpeedMult++;
-		if(SpeedMult>10)SpeedMult=10;
+		if(SpeedMult>20)SpeedMult=20;
 	}
 	else if(keyCode	==	ALLEGRO_KEY_DOWN){
 		SpeedMult--;
@@ -405,33 +397,33 @@ void PlayScene::ReadMap() {
 	std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
 	// Read map file.
 	char c;
-    int PrePlaceBuilding=0;
-	std::vector<bool> mapData;
+    int gamemode;
+	std::vector<int> mapData;
 	std::ifstream fin(filename);
 	fin>>MapWidth;
 	fin>>MapHeight;
-    fin>>PrePlaceBuilding;
-	EndGridPoint	=	Point(MapWidth,MapHeight-1);
-	// bool calMapWidth = true;
+    fin>>gamemode;
+    EndGridPoint = Engine::Point(MapWidth-1, MapHeight - 1);
 	while (fin >> c) {
 		switch (c) {
-		case '0': mapData.push_back(false);	break;
-		case '1': mapData.push_back(true); 	break;
+		case '0': mapData.push_back(0);	break;
+		case '1': mapData.push_back(1); break;
+        case '6': mapData.push_back(6); break;
 		case '\n':
 		case '\r':
 			if (static_cast<int>(mapData.size()) / MapWidth != 0)
-				throw std::ios_base::failure("Map data is corrupted.");
+				throw std::ios_base::failure("Map data is corrupted1.");
 			break;
-		default: throw std::ios_base::failure("Map data is corrupted.");
+		default: throw std::ios_base::failure("Map data is corrupted2.");
 		}
 	}
 	std::cerr<<MapWidth<<','<<MapHeight<<'\n';
 	fin.close();
 	// Validate map data.
-    if(!PrePlaceBuilding){
-        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)throw std::ios_base::failure("Map data is corrupted.");
+    if(gamemode==0){
+        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)throw std::ios_base::failure("Map data is corrupted3.");
     }else{
-        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight*2)throw std::ios_base::failure("Map data is corrupted.");
+        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight*2)throw std::ios_base::failure("Map data is corrupted4.");
     }
     // Store map in 2d array.
 	mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
@@ -449,17 +441,15 @@ void PlayScene::ReadMap() {
                     break;
                 case 2:
                     mapTerrain[i][j]=TILE_WATER;
-                    //TileMapGroup->AddNewObject(new Engine::Image("play/button2.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                    TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                     break;
                 default:
                     std::cerr<<"unknown map terrain\n";
                     break;            }
-            std::cerr<<mapTerrain[i][j]<<' ';
 		}
-		std::cerr<<'\n';
 	}
     mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
-    if(PrePlaceBuilding){
+    if(gamemode==1){
         for (int i = MapHeight; i < 2*MapHeight; i++) {
             for (int j = 0; j < MapWidth; j++) {
                 const int num = mapData[i * MapWidth + j];
@@ -480,6 +470,9 @@ void PlayScene::ReadMap() {
                         break;
                     case 5:
                         UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new MachineGunTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    case 6:
+                        EndGridPoint = Engine::Point(j, i-MapHeight);
                         break;
                     default:
                         preview=nullptr;
@@ -555,13 +548,22 @@ void PlayScene::ConstructUI() {
     // Button 5
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
-                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx - 8, 0, 0, 0, 0)
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
             , x+i%4*dx, y+(i/4)*dx, wall::Price);
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
     i++;
+
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
+                           Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    // Reference: Class Member Function Pointer and std::bind.
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 5));
+    UIGroup->AddNewControlObject(btn);
+    i++;
 	// TODO: [CUSTOM-TURRET]: Create a button to support constructing the turret.
-	
+
 	int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
 	int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
 	int shift = 135 + 25;
@@ -584,6 +586,13 @@ void PlayScene::UIBtnClicked(int id) {
 		preview = new Flamethrower(0, 0,BLUE);
     else if (id == 4 && money >= wall::Price)
         preview = new wall(0, 0,BLUE);
+    else if (id == 5 && money >= 10) {
+        Enemy *enemy;
+        UnitGroups[RED]->AddNewObject(enemy=new SonicEnemy(Engine::GameEngine::GetInstance().GetMousePosition().x,
+                                                     Engine::GameEngine::GetInstance().GetMousePosition().y, RED));
+        enemy->UpdatePath(mapDistance);
+        return;
+    }
 	else preview=nullptr;
 	if (!preview){
 		imgTarget->Visible=false;
@@ -615,10 +624,9 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildin
 	std::queue<Engine::Point> que;
 	// Push end point.
 	// BFS from end point.
-	if (mapTerrain [MapHeight - 1][MapWidth - 1] != TILE_DIRT)
-		return map;
-	que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
-	map[MapHeight - 1][MapWidth - 1] = 0;
+	if (mapTerrain [EndGridPoint.y][EndGridPoint.x] != TILE_DIRT)return map;
+	que.push(Engine::Point(EndGridPoint.x, EndGridPoint.y));
+	map[EndGridPoint.y][EndGridPoint.x] = 0;
 	while (!que.empty()) {
 		Engine::Point p = que.front();
 		que.pop();

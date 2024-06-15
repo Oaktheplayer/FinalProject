@@ -4,6 +4,7 @@
 
 class SonicEnemy : public Enemy {
 public:
+    static const int Price;
     SonicEnemy(int x, int y,Team team);
     void Update(float deltaTime) override;
 };
