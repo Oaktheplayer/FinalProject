@@ -625,6 +625,7 @@ void PlayScene::RemoveBuilding(int x, int y){
 	mapState[y][x]=TILE_EMPTY;
 	mapBuildings[y][x]=nullptr;
 	mapDistance = CalculateBFSDistance(0);
+    if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
 	for (auto& it : UnitGroups[RED]->GetObjects())dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
     std::cerr<<"successfully removed building\n";
 }
