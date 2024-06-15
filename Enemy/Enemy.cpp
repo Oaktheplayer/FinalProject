@@ -23,14 +23,8 @@
 #include "Engine/Collider.hpp"
 
 Enemy::Enemy(std::string img, float x, float y,Team team, float radius, float speed, float hp, int money, int point) :
-	// Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money), point(point), font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
 	Unit(img, x, y,team,radius,hp), speed(speed), money(money), point(point){
-	// CollisionRadius = radius;
 	reachEndTime = 0;
-	// for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
-	// 	visualEffect[i]	=	nullptr;
-	// }
-	// ClearEffect();
 }
 void Enemy::Hit(float damage) {
 	Unit::Hit(damage);
@@ -96,13 +90,8 @@ void Enemy::Update(float deltaTime) {
 			
 		if(pathBlock){
 			Target=pathBlock;
-			//std::cerr<<"path blocked\n";
-			//Point	halfsize	=	Point(PlayScene::BlockSize/2,PlayScene::BlockSize/2);
-			//if(Collider::IsCircleNRectOverlap(Position,CollisionRadius,pathBlock->Position-halfsize,pathBlock->Position+halfsize)){
 			bool contacted	=	Collider::IsCircleOverlap(Position,CollisionRadius,pathBlock->Position,pathBlock->CollisionRadius);
 			if(contacted){
-				//Velocity	=	Point(0,0);
-                //speed=0;
 				doSpriteUpdate	=	false;
 				if(!range){
 					if(reload<=0){
@@ -112,12 +101,8 @@ void Enemy::Update(float deltaTime) {
 					reload-=deltaTime;
 					std::cerr<<"attacking building\n";
 				}
+                break;
 			}
-			// if(range && Collider::IsCircleOverlap(Position,CollisionRadius,pathBlock->Position,pathBlock->CollisionRadius)){
-
-			// }
-
-			break;
 		}
 		else if(!pathBlock) doSpriteUpdate	=	true;
 
