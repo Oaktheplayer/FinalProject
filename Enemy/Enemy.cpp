@@ -99,7 +99,7 @@ void Enemy::Update(float deltaTime) {
 						reload	=	coolDown;
 					}
 					reload-=deltaTime;
-					std::cerr<<"attacking building\n";
+					//std::cerr<<"attacking building\n";
 				}
                 break;
 			}

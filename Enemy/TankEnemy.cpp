@@ -33,6 +33,7 @@ void TankEnemy::Update(float deltaTime) {
 	// 	targetRotation = distRadian(rng);
 	// }
 	ShootTarget(deltaTime);
+	if(!Target) head.Rotation	=	Rotation;
 	// head.Rotation = (head.Rotation + deltaTime * targetRotation) / (1 + deltaTime);
 }
 
@@ -44,7 +45,7 @@ void TankEnemy::CreateBullet() {
 	getPlayScene()->BulletGroup->AddNewObject(new FireBullet(Position + normalized * 36, diff, rotation, this));
 	AudioHelper::PlayAudio("gun.wav");
 }
-//TODO: Head rotation error
+//DONE: Head rotation error
 void TankEnemy::RotateHead(float deltaTime){
 	Engine::Point originRotation = Engine::Point(cos(head.Rotation), sin(head.Rotation));
 	Engine::Point targetRotation = (Target->Position - Position).Normalize();
