@@ -39,23 +39,7 @@ void Turret::Update(float deltaTime) {
 		}
 	}
 	if (!Target) {
-		// Lock first seen target.
-		// Can be improved by Spatial Hash, Quad Tree, ...
-		// However simply loop through all enemies is enough for this program.
 		FindTarget();
-		// for (int i=0;i<TEAM_COUNT;i++){
-		// 	if(i==team)	continue;
-		// 	Engine::Group*	enemyGroup	=	scene->UnitGroups[i];
-		// 	for (auto& it : enemyGroup->GetObjects()) {
-		// 		Engine::Point diff = it->Position - Position;
-		// 		if (diff.Magnitude() <= range) {
-		// 			Target = dynamic_cast<Enemy*>(it);
-		// 			Target->lockedUnits.push_back(this);
-		// 			lockedUnitIterator = std::prev(Target->lockedUnits.end());
-		// 			break;
-		// 		}
-		// 	}
-		// }
 	}
 	if (Target) {
 		Engine::Point originRotation = Engine::Point(cos(Rotation - ALLEGRO_PI / 2), sin(Rotation - ALLEGRO_PI / 2));
@@ -101,6 +85,6 @@ int Turret::GetPrice() const {
 	return price;
 }
 void Turret::Kill(){
-	getPlayScene()->RemoveTurret(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);
+	getPlayScene()->RemoveBuilding(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);
 	Unit::Kill();
 }
