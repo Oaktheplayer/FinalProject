@@ -30,8 +30,8 @@ void Plane::Update(float deltaTime) {
 	switch (stage) {
 	case 0:
 		// Check if out of boundary.
-		if (!Engine::Collider::IsRectOverlap(Position - Size / 2, Position + Size / 2, Engine::Point(-100, 0), PlayScene::GetClientSize())) {
-			Position = PlayScene::GetClientSize() / 2;
+		if (!Engine::Collider::IsRectOverlap(Position - Size / 2, Position + Size / 2, Engine::Point(-100, 0), getPlayScene()->GetClientSize())) {
+			Position = getPlayScene()->GetClientSize() / 2;
 			Velocity = Engine::Point();
 			bmp = bmps[0];
 			Size.x = GetBitmapWidth() * minScale;

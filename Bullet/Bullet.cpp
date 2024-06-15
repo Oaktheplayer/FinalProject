@@ -75,6 +75,6 @@ void Bullet::Update(float deltaTime) {
 		}
 	}
 	// Check if out of boundary.
-	if (!Engine::Collider::IsRectOverlap(Position - Size / 2, Position + Size / 2, Engine::Point(0, 0), PlayScene::GetClientSize()))
+	if (!Engine::Collider::IsRectOverlap(Position - Size / 2, Position + Size / 2, Engine::Point(0, 0), getPlayScene()->GetClientSize()))
 		getPlayScene()->BulletGroup->RemoveObject(objectIterator);
 }

@@ -37,11 +37,11 @@ float scale;
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 //const int PlayScene::MapWidth = 80, PlayScene::MapHeight = 52;
-const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
+//int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
-const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
-const Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
+Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
+//Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
 const std::vector<int> PlayScene::code = { ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
 									ALLEGRO_KEY_LEFT, ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_RIGHT,
 									ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEYMOD_SHIFT, ALLEGRO_KEY_ENTER };
@@ -401,10 +401,14 @@ void PlayScene::ReadMap() {
 	char c;
 	std::vector<bool> mapData;
 	std::ifstream fin(filename);
+	fin>>MapWidth;
+	fin>>MapHeight;
+	EndGridPoint	=	Point(MapWidth,MapHeight-1);
+	// bool calMapWidth = true;
 	while (fin >> c) {
 		switch (c) {
-		case '0': mapData.push_back(false); break;
-		case '1': mapData.push_back(true); break;
+		case '0': mapData.push_back(false);	break;
+		case '1': mapData.push_back(true); 	break;
 		case '\n':
 		case '\r':
 			if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -413,6 +417,7 @@ void PlayScene::ReadMap() {
 		default: throw std::ios_base::failure("Map data is corrupted.");
 		}
 	}
+	std::cerr<<MapWidth<<','<<MapHeight<<'\n';
 	fin.close();
 	// Validate map data.
 	if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)

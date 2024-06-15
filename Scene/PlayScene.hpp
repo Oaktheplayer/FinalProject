@@ -49,11 +49,11 @@ public:
     
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
-	static const int MapWidth, MapHeight;
+	int MapWidth, MapHeight;
 	static const int BlockSize;
 	static const float DangerTime;
-	static const Engine::Point SpawnGridPoint;
-	static const Engine::Point EndGridPoint;
+	static Engine::Point SpawnGridPoint;
+	Engine::Point EndGridPoint;
 	static const std::vector<int> code;
 	int MapId;
 	float ticks;
@@ -89,7 +89,7 @@ public:
 	std::vector<std::vector<Turret*>> mapBuildings;
 	std::list<std::pair<int, float>> enemyWaveData;
 	std::list<int> keyStrokes;
-	static Engine::Point GetClientSize();
+	Engine::Point GetClientSize();
 	explicit PlayScene() = default;
 	void Initialize() override;
 	void Terminate() override;

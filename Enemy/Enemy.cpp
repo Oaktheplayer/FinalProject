@@ -39,9 +39,9 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
 	int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));
 	if (x < 0) x = 0;
-	if (x >= PlayScene::MapWidth) x = PlayScene::MapWidth - 1;
+	if (x >= getPlayScene()->MapWidth) x = getPlayScene()->MapWidth - 1;
 	if (y < 0) y = 0;
-	if (y >= PlayScene::MapHeight) y = PlayScene::MapHeight - 1;
+	if (y >= getPlayScene()->MapHeight) y = getPlayScene()->MapHeight - 1;
 	Engine::Point pos(x, y);
 	int num = mapDistance[y][x];
 	if (num == -1) {
@@ -54,7 +54,7 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 		for (auto& dir : PlayScene::directions) {
 			int x = pos.x + dir.x;
 			int y = pos.y + dir.y;
-			if (x < 0 || x >= PlayScene::MapWidth || y < 0 || y >= PlayScene::MapHeight || mapDistance[y][x] != num - 1)
+			if (x < 0 || x >= getPlayScene()->MapWidth || y < 0 || y >= getPlayScene()->MapHeight || mapDistance[y][x] != num - 1)
 				continue;
 			nextHops.emplace_back(x, y);
 		}
@@ -66,7 +66,7 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 		path[num] = pos;
 		num--;
 	}
-	path[0] = PlayScene::EndGridPoint;
+	path[0] = getPlayScene()->EndGridPoint;
 }
 void Enemy::Update(float deltaTime) {
 	// Pre-calculate the velocity.
