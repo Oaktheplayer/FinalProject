@@ -53,7 +53,6 @@ void PlayScene::Initialize() {
 	// DONE: [HACKATHON-3-BUG] (1/5): There's a bug in this file, which crashes the game when you lose. Try to find it.
 	// DONE: [HACKATHON-3-BUG] (2/5): Find out the cheat code to test.
     // DONE: [HACKATHON-3-BUG] (2/5): It should generate a Plane, and add 10000 to the money, but it doesn't work now.
-	mapState.clear();
 	keyStrokes.clear();
 	ticks = 0;
 	deathCountDown = -1;
@@ -116,6 +115,7 @@ void PlayScene::Update(float deltaTime) {
 	// Calculate danger zone.
 	std::vector<float> reachEndTimes;
 	for (auto& it : UnitGroups[RED]->GetObjects()) {
+        if(dynamic_cast<Enemy*>(it))
 		reachEndTimes.push_back(dynamic_cast<Enemy*>(it)->reachEndTime);
 	}
 	// Can use Heap / Priority-Queue instead. But since we won't have too many enemies, sorting is fast enough.
@@ -210,9 +210,8 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 }
 void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	//IScene::Draw();
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	MapComponent->Draw(this->scale, center.x, center.y, sight.x, sight.y);
-	UIGroup->Draw();
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    MapComponent->Draw(this->scale, center.x, center.y, sight.x, sight.y);
 	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
 	if(preview)				preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
 	if (DebugMode) {
@@ -232,13 +231,15 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 			}
 		}
 	}
+
+    UIGroup->Draw();
 }
 void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	float	pre_s	=	scale;
 	scale+= (float)delta /4;
-	if(scale>4)		scale=4;
+	if(scale>2)		scale=2;
 	else
-	if(scale<0.5)	scale=0.5;
+	if(scale<0.75)	scale=0.75;
 
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
@@ -272,17 +273,20 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 	const int x = ((float)(mx-center.x)/scale + sight.x) 	/	BlockSize;
 	const int y = ((float)(my-center.y)/scale + sight.y)	/	BlockSize;
 	if (button & 1) {
-		if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && mapState[y][x] != TILE_OCCUPIED) {
+		if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && !mapBuildings[y][x]) {
 			if (!preview)
 				return;
 			// Check if valid.
-			if (!CheckSpaceValid(x, y)) {
+            std::cerr<<"oooo\n";
+			if (!CheckSpaceValid(x, y ,preview)) {
+
 				Engine::Sprite* sprite;
 				GroundEffectGroup->AddNewObject(sprite = new DirtyEffect("play/target-invalid.png", 1, x * BlockSize + BlockSize / 2, y * BlockSize + BlockSize / 2));
 				sprite->Rotation = 0;
 				return;
 			}
 			// Purchase.
+            std::cerr<<"pppp\n";
 			EarnMoney(-preview->GetPrice());
 			// Remove Preview.
 			preview->GetObjectIterator()->first = false;
@@ -299,8 +303,6 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			preview->Update(0);
 			// Remove Preview.
 			preview = nullptr;
-
-			mapState[y][x] = TILE_OCCUPIED;
 			OnMouseMove(mx, my);
 		}
 	}
@@ -403,10 +405,12 @@ void PlayScene::ReadMap() {
 	std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
 	// Read map file.
 	char c;
+    int PrePlaceBuilding=0;
 	std::vector<bool> mapData;
 	std::ifstream fin(filename);
 	fin>>MapWidth;
 	fin>>MapHeight;
+    fin>>PrePlaceBuilding;
 	EndGridPoint	=	Point(MapWidth,MapHeight-1);
 	// bool calMapWidth = true;
 	while (fin >> c) {
@@ -424,9 +428,12 @@ void PlayScene::ReadMap() {
 	std::cerr<<MapWidth<<','<<MapHeight<<'\n';
 	fin.close();
 	// Validate map data.
-	if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
-		throw std::ios_base::failure("Map data is corrupted.");
-	// Store map in 2d array.
+    if(!PrePlaceBuilding){
+        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)throw std::ios_base::failure("Map data is corrupted.");
+    }else{
+        if (static_cast<int>(mapData.size()) != MapWidth * MapHeight*2)throw std::ios_base::failure("Map data is corrupted.");
+    }
+    // Store map in 2d array.
 	mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
 	for (int i = 0; i < MapHeight; i++) {
 		for (int j = 0; j < MapWidth; j++) {
@@ -451,8 +458,37 @@ void PlayScene::ReadMap() {
 		}
 		std::cerr<<'\n';
 	}
-    mapState	=	std::vector<std::vector<TileStat>>(MapHeight, std::vector<TileStat>(MapWidth,TILE_EMPTY));
-	mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
+    mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
+    if(PrePlaceBuilding){
+        for (int i = MapHeight; i < 2*MapHeight; i++) {
+            for (int j = 0; j < MapWidth; j++) {
+                const int num = mapData[i * MapWidth + j];
+                switch(num){
+                    case 0:
+                        break;
+                    case 1:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new wall((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    case 2:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new LaserTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    case 3:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new MissileTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    case 4:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new Flamethrower((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    case 5:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new MachineGunTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        break;
+                    default:
+                        preview=nullptr;
+                        std::cerr<<"unknown build type\n";
+                        break;
+                }
+            }
+        }
+    }
     std::cerr<<"map read succeed\n";
 }
 void PlayScene::ReadEnemyWave() {
@@ -533,7 +569,6 @@ void PlayScene::ConstructUI() {
 	dangerIndicator->Tint.a = 0;
 	UIGroup->AddNewObject(dangerIndicator);
 }
-
 void PlayScene::UIBtnClicked(int id) {
 	if (preview){
 		RemoveObject(preview->GetObjectIterator());
@@ -561,45 +596,16 @@ void PlayScene::UIBtnClicked(int id) {
 	AddNewObject(preview);
 	OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
-
-bool PlayScene::CheckSpaceValid(int x, int y) {
-	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)
-		return false;
-	auto map00 = mapState[y][x];
-	mapState[y][x] = TILE_OCCUPIED;
+bool PlayScene::CheckSpaceValid(int x, int y,Turret* building) {
+	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)return false;
+    mapBuildings[y][x]=building;
 	std::vector<std::vector<int>> map = CalculateBFSDistance(0);
-	mapState[y][x] = map00;
 	if (map[0][0] == -1) {
-        mapState[y][x] = TILE_OCCUPIED;
         mapDistance =  CalculateBFSDistance(1);
-        for (auto& it : UnitGroups[RED]->GetObjects()) {
-            Engine::Point pnt;
-            pnt.x = floor(it->Position.x / BlockSize);
-            pnt.y = floor(it->Position.y / BlockSize);
-            if (pnt.x < 0) pnt.x = 0;
-            if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
-            if (pnt.y < 0) pnt.y = 0;
-            if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
-            if (pnt.y==y&&pnt.x==x)
-                return false;
-        }
         return true;
     }
-	for (auto& it : UnitGroups[RED]->GetObjects()) {
-        Engine::Point pnt;
-        pnt.x = floor(it->Position.x / BlockSize);
-        pnt.y = floor(it->Position.y / BlockSize);
-        if (pnt.x < 0) pnt.x = 0;
-        if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
-        if (pnt.y < 0) pnt.y = 0;
-        if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
-        if (map[pnt.y][pnt.x] == -1)
-            return false;
-    }
-	// All enemy have path to exit.
-	mapState[y][x] = TILE_OCCUPIED;
-	mapDistance = map;
-	for (auto& it : UnitGroups[RED]->GetObjects())
+    mapDistance = map;
+	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
 }
@@ -621,35 +627,30 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildin
 			int y = p.y + dir.y;
 			if (x < 0 || x >= PlayScene::MapWidth|| y < 0 || y >= PlayScene::MapHeight
 			|| 	mapTerrain[y][x] != TILE_DIRT || map[y][x] != -1)continue;
-            if(!ignoreBuildings)if(mapState[y][x] != TILE_EMPTY)continue;
+            if(!ignoreBuildings)if(mapBuildings[y][x])continue;
 			map[y][x]	=	map[p.y][p.x] + 1;
 			que.push(Engine::Point(x,y));
 		}
 	}
 	return map;
 }
-
 void PlayScene::RemoveBuilding(int x, int y){
     std::cerr<<"start removing building\n";
-	mapState[y][x]=TILE_EMPTY;
 	mapBuildings[y][x]=nullptr;
 	mapDistance = CalculateBFSDistance(0);
     if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
-	for (auto& it : UnitGroups[RED]->GetObjects())dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
     std::cerr<<"successfully removed building\n";
 }
-
 Turret *PlayScene::HasBuildingAt(int x, int y)
 {
 	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
 	return mapBuildings[y][x];
 }
-
 void PlayScene::ScorePoint(int point){
 	score+=point;
 	UIScore->Text = "Score "+std::to_string(score);
 }
-
 void PlayScene::RecordScore()
 {
     std::ofstream   fout("Resource/currentdata.txt");

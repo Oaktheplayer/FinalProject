@@ -27,7 +27,7 @@ enum Team{
 	RED,
 	TEAM_COUNT
 };
-class PlayScene final : public Engine::IScene {
+class PlayScene  : public Engine::IScene {
 private:
 
 	ALLEGRO_SAMPLE_ID bgmId;
@@ -40,6 +40,12 @@ protected:
         TILE_DIRT,
         TILE_FLOOR,
         TILE_WATER
+    };
+    enum BuildingType{
+        NON,
+        TURRET,
+        WALL,
+        TOWNHALL
     };
     enum TileStat {
         TILE_EMPTY,
@@ -83,7 +89,6 @@ public:
 	Engine::Image* imgTarget;
 	Engine::Sprite* dangerIndicator;
 	Turret* preview;
-	std::vector<std::vector<TileStat>> mapState;
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
 	std::vector<std::vector<Turret*>> mapBuildings;
@@ -109,7 +114,7 @@ public:
 	void ReadEnemyWave();
 	void ConstructUI();
 	void UIBtnClicked(int id);
-	bool CheckSpaceValid(int x, int y);
+	bool CheckSpaceValid(int x, int y,Turret* building);
 	std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	void RemoveBuilding(int x,int y);
 	Turret* HasBuildingAt(int x,int y);
