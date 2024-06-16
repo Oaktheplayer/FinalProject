@@ -84,7 +84,11 @@ void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 int Turret::GetPrice() const {
 	return price;
 }
-void Turret::Kill(){
-	getPlayScene()->RemoveBuilding(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);
+int Turret::GetHp() const{
+    return (int)hp;
+}
+void Turret::Kill()
+{
+    getPlayScene()->RemoveBuilding(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);
 	Unit::Kill();
 }

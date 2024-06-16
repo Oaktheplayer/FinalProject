@@ -27,5 +27,6 @@ public:
     virtual void Kill() override;
     void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	int GetPrice() const;
+    int GetHp() const;
 };
 #endif // TURRET_HPP

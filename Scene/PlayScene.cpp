@@ -33,9 +33,12 @@
 #include	<iostream>
 
 float scale;
+const int opd[]={2,3,0,1,6,7,4,5};
 
 bool PlayScene::DebugMode = false;
-const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
+const std::vector<Engine::Point> PlayScene::directions = {
+	Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1),
+	Engine::Point(-1, -1), Engine::Point(1, -1), Engine::Point(1, 1), Engine::Point(-1, 1)};
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const std::vector<int> PlayScene::code = { ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
@@ -77,10 +80,13 @@ void PlayScene::Initialize() {
 	// Should support buttons.
 	AddNewControlObject(UIGroup = new Group());
 	ReadMap();
-    SpawnGridPoint = Engine::Point(-1, 0);
+    //SpawnGridPoint = Engine::Point(-1, 0);
+	SpawnGridPoint = Engine::Point(0, 0);
 	ReadEnemyWave();
-	mapDistance = CalculateBFSDistance(0);
-    if(mapDistance[0][0]  ==-1)mapDistance = CalculateBFSDistance(1);
+	mapDirection= std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
+	mapHValue	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
+	// mapDistance = CalculateBFSDistance(0);
+    // if(mapDistance[0][0]  ==-1)mapDistance = CalculateBFSDistance(1);
     ConstructUI();
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
@@ -210,17 +216,15 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	//IScene::Draw();
     al_clear_to_color(al_map_rgb(0, 0, 0));
     MapComponent->Draw(this->scale, center.x, center.y, sight.x, sight.y);
-	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
-	if(preview)				preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
 	if (DebugMode) {
 		// Draw reverse BFS distance on all reachable blocks.
 		for (int i = 0; i < MapHeight; i++) {
 			for (int j = 0; j < MapWidth; j++) {
-				if (mapDistance[i][j] != -1) {
+				if (mapHValue[i][j] != -1) {
 					// Not elegant nor efficient, but it's quite enough for debugging.
 					int x = (j + 0.5) * BlockSize;
 					int y = (i + 0.5) * BlockSize;
-					Engine::Label label(std::to_string(mapDistance[i][j]), "pirulen.ttf", 32,
+					Engine::Label label(std::to_string(mapHValue[i][j]), "pirulen.ttf", 32,
 					(j + 0.5) * BlockSize,
 					(i + 0.5) * BlockSize);
 					label.Anchor = Engine::Point(0.5, 0.5);
@@ -229,8 +233,11 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 			}
 		}
 	}
-
     UIGroup->Draw();
+	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
+	if(preview)				preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
+	
+
 }
 void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	float	pre_s	=	scale;
@@ -242,7 +249,6 @@ void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
 }
-
 void PlayScene::OnMouseDown(int button, int mx, int my) {
 	if ((button & 1) && !imgTarget->Visible && preview) {
 		// Cancel turret construct.
@@ -263,7 +269,6 @@ void PlayScene::OnMouseMove(int mx, int my) {
 	imgTarget->Position.x = x * BlockSize;
 	imgTarget->Position.y = y * BlockSize;
 }
-//TODO: make preview appear with write scale and places turrets on the correct position
 void PlayScene::OnMouseUp(int button, int mx, int my) {
 	IScene::OnMouseUp(button, mx, my);
 	if (!imgTarget->Visible)
@@ -272,7 +277,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 	const int y = ((float)(my-center.y)/scale + sight.y)	/	BlockSize;
 	if (button & 1) {
 		if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && !mapBuildings[y][x]) {
-			if (!preview)
+			if (!preview || (UIGroup->Visible && mx>=Engine::GameEngine::GetInstance().GetScreenWidth()-320))
 				return;
 			// Check if valid.
 			if (!CheckSpaceValid(x, y ,preview)) {
@@ -303,7 +308,6 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 		}
 	}
 }
-
 void PlayScene::OnKeyDown(int keyCode) {
 	IScene::OnKeyDown(keyCode);
 	if (keyCode == ALLEGRO_KEY_TAB) {
@@ -608,12 +612,14 @@ void PlayScene::UIBtnClicked(int id) {
 bool PlayScene::CheckSpaceValid(int x, int y,Turret* building) {
 	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)return false;
     mapBuildings[y][x]=building;
-	std::vector<std::vector<int>> map = CalculateBFSDistance(0);
-	if (map[0][0] == -1) {
-        mapDistance =  CalculateBFSDistance(1);
-        return true;
-    }
-    mapDistance = map;
+	// std::vector<std::vector<int>> map = CalculateBFSDistance(0);
+	// if (map[0][0] == -1) {
+    //     mapDistance =  CalculateBFSDistance(1);
+    //     return true;
+    // }
+    // mapDistance = map;
+	if(mapDirection[y][x]==-1) return true;
+	mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
 	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
@@ -642,13 +648,109 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildin
 	}
 	return map;
 }
+
+std::string PlayScene::AStarPathFinding(Point start, int flag)
+{
+	//start = Point(2,0);
+	Point end = EndGridPoint;
+	std::priority_queue<PathData> Q;
+	Q.push(PathData(start,0,HVal(start,end),"",1));
+	std::cerr<<"pathfinding started\n";
+	int b = 0;
+	std::string path_str="";
+	while(!Q.empty()){
+		PathData state = Q.top();
+		while(mapDirection[state.y][state.x]!=-1){
+			int dirToken	=	(int)mapDirection[state.y][state.x];
+			Point dir(PlayScene::directions[dirToken]);
+			state.path.push_back(dirToken+'0');
+			state.x +=dir.x;
+			state.y +=dir.y;
+		}
+		if(state	==	end){
+			path_str=state.path;
+			break;
+		}
+		Q.pop();
+		std::cerr<<"bruh * "<<state.path<<'\n';
+		std::cerr<<'\t'<<state.h_val+state.g_cost<<'\n';
+		std::cerr<<'\t'<<state.x<<','<<state.y<<'\n';
+		for(int i=0;i<8;i++){
+			if(opd[i]==state.premove)	continue;
+			Point dir(directions[i]);
+			Point next(state+dir);
+			//std::cerr<<next.x<<','<<next.y<<'\n';
+			if(next.x<0 || next.x>=MapWidth
+			|| next.y<0	|| next.y>=MapHeight)
+				continue;
+			if(mapTerrain[next.y][next.x]!=TILE_FLOOR&& (i<4
+			|| (mapTerrain[next.y][state.x]!=TILE_FLOOR&&mapTerrain[state.y][next.x]!=TILE_FLOOR))){
+				int g	=	state.g_cost;
+				if(i>=4){
+					if(	mapTerrain[next.y][state.x]==TILE_FLOOR
+					||	mapTerrain[state.y][next.x]==TILE_FLOOR)
+						continue;
+					g+=14;
+				}
+				else	g+=10;
+				if(HasBuildingAt(next.x,next.y)){
+					g	+=	mapBuildings[next.y][next.x]->GetHp()/(float)BlockSize * 10.0f;	
+				}
+				//std::cerr<<next.x<<','<<next.y<<'\n';
+				PathData	N		=	PathData(next,g,HVal(next,end),state.path,i);
+				N.path.push_back('0'+i);
+				Q.push(N);	
+				// Q.push(PathData(next,g,HVal(next,end),state.path,i));
+				//std::cerr<<PathData(next,g,HVal(next,end),state.path,i).x<<','<<PathData(next,g,HVal(next,end),state.path,i).y<<'\n';
+			}
+		}
+	}
+	if(Q.empty()){
+		std::cerr<<"pathfinding error\n";
+    	return std::string();
+	}
+
+	std::cerr<<"pathfinding over\n"<<Q.top().path<<'\n';
+	return	path_str;
+}
+
+int PlayScene::HVal(Point A, Point B)
+{
+	// int dx = (A.x-B.x)*10.0f;
+	// int dy = (A.y-B.y)*10.0f;
+	// return 2*(Point(dx
+	if(A==B)	return 0;
+	//if(A.x<0 || A.y<0)
+	if(B==EndGridPoint){
+		if(mapHValue[A.y][A.x]!=-1)
+			return	mapHValue[A.y][A.x];
+		
+		int rtv = mapHValue[A.y][A.x]=floor((A-B).Magnitude()*10*2);
+		Point D(A.x-B.x,A.y-B.y);
+		Point C = A;
+		for(int mul=rtv;C.x>=0&&C.x<MapWidth&&C.y>=0&&C.y<MapHeight;mul+=rtv){
+			if(mapHValue[C.y][C.x]==-1){
+				mapHValue[C.y][C.x]=mul;
+			}
+			C = C + D;
+		}
+		return	rtv;
+	}
+    return floor((A-B).Magnitude()*10*2);
+	//return abs(A.x-B.x+A.y-B.y)*10;
+	//else return	1;
+}
+
 void PlayScene::RemoveBuilding(int x, int y){
     std::cerr<<"start removing building\n";
 	mapBuildings[y][x]=nullptr;
-	mapDistance = CalculateBFSDistance(0);
-    if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
-	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
-    std::cerr<<"successfully removed building\n";
+	if(mapTerrain[y][x]!=TILE_FLOOR){
+		mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+	// mapDistance = CalculateBFSDistance(0);
+    // if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
+		for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+	}
+	std::cerr<<"successfully removed building\n";
 }
 Turret *PlayScene::HasBuildingAt(int x, int y)
 {
@@ -664,3 +766,4 @@ void PlayScene::RecordScore()
     std::ofstream   fout("Resource/currentdata.txt");
     fout << score;
 }
+

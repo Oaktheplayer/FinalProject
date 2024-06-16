@@ -2,13 +2,16 @@
 #define PLAYSCENE_HPP
 #include <allegro5/allegro_audio.h>
 #include <list>
+#include <queue>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
+
 // #include "Enemy/Enemy.hpp"
+
 class Enemy;
 class Turret;
 namespace Engine {
@@ -27,6 +30,9 @@ enum Team{
 	RED,
 	TEAM_COUNT
 };
+
+//const Point directions[] = {Point(1,0),Point(-1,0),Point(0,1),Point(0,-1)};
+
 class PlayScene  : public Engine::IScene {
 private:
 
@@ -91,6 +97,8 @@ public:
 	Turret* preview;
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
+	std::vector<std::vector<int>> mapHValue;
+	std::vector<std::vector<char>> mapDirection;
 	std::vector<std::vector<Turret*>> mapBuildings;
 	std::list<std::pair<int, float>> enemyWaveData;
 	std::list<int> keyStrokes;
@@ -116,12 +124,39 @@ public:
 	virtual void UIBtnClicked(int id);
 	virtual bool CheckSpaceValid(int x, int y,Turret* building);
 	std::vector<std::vector<int>> CalculateBFSDistance(bool);
+	std::string	AStarPathFinding(Engine::Point start, int flag=0);
+	int	HVal(Engine::Point A, Engine::Point B);
 	void RemoveBuilding(int x,int y);
 	Turret* HasBuildingAt(int x,int y);
 	int score;
 	void 	ScorePoint(int x);
 	void 	RecordScore();
 	// void ModifyReadMapTiles();
+};
+
+class PathData: public Engine::Point{
+	private:
+	public:
+		int 	g_cost,h_val;
+		int 	premove;
+		std::string	path;
+		PathData(Engine::Point p, int g, int h, std::string P, int pre): Engine::Point(p),g_cost(g),h_val(h),path(std::string(P)),premove(pre){
+		}
+		PathData(const PathData &P):
+			Engine::Point((Engine::Point)P),
+			g_cost(P.g_cost),
+			h_val(P.h_val),
+			path(P.path),
+			premove(P.premove){
+		}
+		// PathData(PathData P, Engine::Point dir, Engine::Point End , int cost, int h):
+		// 	position(P.position+dir),
+		// 	g_cost(cost), h_val()
+		// {
+			
+		// }
+		auto operator<(const PathData &P) const{return g_cost+h_val>P.g_cost+P.h_val;}
+
 };
 
 //class DefenceMode :public PlayScene{

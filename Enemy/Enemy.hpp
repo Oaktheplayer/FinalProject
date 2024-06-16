@@ -2,6 +2,7 @@
 #define ENEMY_HPP
 #include <list>
 #include <vector>
+#include <queue>
 #include <string>
 
 #include "Engine/Point.hpp"
@@ -19,21 +20,12 @@ class Turret;
 
 class Enemy : public Unit {
 protected:
- 	std::vector<Engine::Point> path;
+ 	// std::vector<Engine::Point> path;
+	std::queue<Engine::Point> path;
 	Turret* pathBlock=nullptr;
 	float speed;
-	// float hp;
 	int money;
 	int point;
-	// VisualEffect*	visualEffect[STATUS_EFFECT_LENGTH];
-	// bool	hasStatusEffect[STATUS_EFFECT_LENGTH];
-	// float	effectTimer[STATUS_EFFECT_LENGTH];
-	// void	DoEffect(StatusEffect effect,float delta);
-	// void	ClearEffect(StatusEffect effect);
-	// void	ClearEffect();
-	// std::shared_ptr<ALLEGRO_FONT> 	font;
-	// PlayScene* getPlayScene();
-	// virtual void OnExplode();
 public:
 	float reachEndTime;
 	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point);

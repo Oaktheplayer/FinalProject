@@ -12,6 +12,7 @@ namespace Engine {
 		/// Construct a Point with coordinate (0, 0).
 		/// </summary>
 		explicit Point();
+		Point(const Point &p):x(p.x),y(p.y){};
 		/// <summary>
 		/// Construct a Point with coordinate (x, y).
 		/// </summary>
@@ -69,6 +70,7 @@ namespace Engine {
 		/// </summary>
 		/// <returns>Magnitude of vector.</returns>
 		float Magnitude() const;
+		// Point operator=(const Point &p){return Point(p.x,p.y);}
 	};
 	Point operator*(const float& lhs, const Point& rhs);
 }

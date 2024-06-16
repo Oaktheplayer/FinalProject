@@ -38,35 +38,46 @@ void Enemy::Hit(float damage) {
 void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
 	int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));
-	if (x < 0) x = 0;
-	if (x >= getPlayScene()->MapWidth) x = getPlayScene()->MapWidth - 1;
-	if (y < 0) y = 0;
-	if (y >= getPlayScene()->MapHeight) y = getPlayScene()->MapHeight - 1;
+	if(Point(x,y)!=getPlayScene()->SpawnGridPoint){
+		if (x < 0) x = 0;
+		if (x >= getPlayScene()->MapWidth) x = getPlayScene()->MapWidth - 1;
+		if (y < 0) y = 0;
+		if (y >= getPlayScene()->MapHeight) y = getPlayScene()->MapHeight - 1;
+	}
 	Engine::Point pos(x, y);
-	int num = mapDistance[y][x];
-	if (num == -1) {
-		num = 0;
-		Engine::LOG(Engine::ERROR) << "Enemy path finding error at "<<x<<','<<y<<": "<<-1;
+	// int num = mapDistance[y][x];
+	// if (num == -1) {
+	// 	num = 0;
+	// 	Engine::LOG(Engine::ERROR) << "Enemy path finding error at "<<x<<','<<y<<": "<<-1;
+	// }
+	// path = std::queue<Engine::Point>();
+	// while (num != 0) {
+	// 	std::vector<Engine::Point> nextHops;
+	// 	for (auto& dir : PlayScene::directions) {
+	// 		int x = pos.x + dir.x;
+	// 		int y = pos.y + dir.y;
+	// 		if (x < 0 || x >= getPlayScene()->MapWidth || y < 0 || y >= getPlayScene()->MapHeight || mapDistance[y][x] != num - 1)
+	// 			continue;
+	// 		nextHops.emplace_back(x, y);
+	// 	}
+	// 	// Choose arbitrary one.
+	// 	std::random_device dev;
+	// 	std::mt19937 rng(dev());
+	// 	std::uniform_int_distribution<std::mt19937::result_type> dist(0, nextHops.size() - 1);
+	// 	pos = nextHops[dist(rng)];
+	// 	path.push(pos);
+	// 	num--;
+	// }
+	// path.push(getPlayScene()->EndGridPoint);
+	path	=	std::queue<Point>();
+	std::string	path_str = std::string(getPlayScene()->AStarPathFinding(pos));
+	Point	nextp =	pos;
+	for(char i: path_str){
+		Point dir(PlayScene::directions[(int)i-'0']);
+		getPlayScene()->mapDirection[nextp.y][nextp.x]	=	i-'0';
+		nextp=nextp+dir;
+		path.push(nextp);
 	}
-	path = std::vector<Engine::Point>(num + 1);
-	while (num != 0) {
-		std::vector<Engine::Point> nextHops;
-		for (auto& dir : PlayScene::directions) {
-			int x = pos.x + dir.x;
-			int y = pos.y + dir.y;
-			if (x < 0 || x >= getPlayScene()->MapWidth || y < 0 || y >= getPlayScene()->MapHeight || mapDistance[y][x] != num - 1)
-				continue;
-			nextHops.emplace_back(x, y);
-		}
-		// Choose arbitrary one.
-		std::random_device dev;
-		std::mt19937 rng(dev());
-		std::uniform_int_distribution<std::mt19937::result_type> dist(0, nextHops.size() - 1);
-		pos = nextHops[dist(rng)];
-		path[num] = pos;
-		num--;
-	}
-	path[0] = getPlayScene()->EndGridPoint;
 }
 void Enemy::Update(float deltaTime) {
 	// Pre-calculate the velocity.
@@ -83,7 +94,7 @@ void Enemy::Update(float deltaTime) {
 			return;
 		}
 		
-		Engine::Point nextp = path.back() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
+		Engine::Point nextp = path.front() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
 		Engine::Point vec = nextp - Position;
 		
 		pathBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
@@ -115,7 +126,7 @@ void Enemy::Update(float deltaTime) {
 		Engine::Point normalized = vec.Normalize();
 		if (remainSpeed - vec.Magnitude() > 0) {
 			Position = nextp;
-			path.pop_back();
+			path.pop();
 			remainSpeed -= vec.Magnitude();
 		}
 		else {
