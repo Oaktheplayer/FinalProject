@@ -15,6 +15,8 @@ int main(int argc, char **argv) {
 	Engine::LOG::SetConfig(true);
 	Engine::GameEngine& game = Engine::GameEngine::GetInstance();
 
+	int halfW;
+    int halfH;
     // DONE: [HACKATHON-1-SCENE] (3/4): Register Scenes here
 	game.AddNewScene("start", new StartScene());
 	game.AddNewScene("settings", new SettingsScene());
