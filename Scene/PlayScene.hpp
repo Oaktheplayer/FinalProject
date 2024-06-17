@@ -125,7 +125,7 @@ public:
 	virtual void ConstructUI();
 	virtual void UIBtnClicked(int id);
 	virtual bool CheckSpaceValid(int x, int y,Turret* building);
-	std::vector<std::vector<int>> CalculateBFSDistance(bool);
+	//std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	std::string	AStarPathFinding(Engine::Point start, int flag=0);
 	int	HVal(Engine::Point A, Engine::Point B);
 	void RemoveBuilding(int x,int y);
@@ -139,8 +139,8 @@ public:
 class PathData: public Engine::Point{
 	private:
 	public:
-		int 	g_cost,h_val;
-		int 	premove;
+		int g_cost,h_val;
+		int premove;
 		std::string	path;
 		bool repathing;
 		PathData(Engine::Point p, int g, int h, std::string P, int pre, bool repath = false): Engine::Point(p),g_cost(g),h_val(h),path(std::string(P)),premove(pre),repathing(repath){
@@ -153,15 +153,11 @@ class PathData: public Engine::Point{
 			premove(P.premove),
 			repathing(P.repathing){
 		}
-		// PathData(PathData P, Engine::Point dir, Engine::Point End , int cost, int h):
-		// 	position(P.position+dir),
-		// 	g_cost(cost), h_val()
-		// {
-			
-		// }
 		auto operator<(const PathData &P) const{
-			if(g_cost+h_val==P.g_cost+P.h_val)
-				return	repathing;
+			if(g_cost+h_val==P.g_cost+P.h_val){
+                if(h_val!=P.h_val)return h_val>P.h_val;
+                return	repathing;
+            }
 			return g_cost+h_val>P.g_cost+P.h_val;
 		}
 
