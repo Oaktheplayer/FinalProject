@@ -98,6 +98,8 @@ public:
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
 	std::vector<std::vector<int>> mapHValue;
+	std::vector<std::vector<int>> mapGCost;
+	std::vector<std::vector<bool>> mapAStarVisited;
 	std::vector<std::vector<char>> mapDirection;
 	std::vector<std::vector<Turret*>> mapBuildings;
 	std::list<std::pair<int, float>> enemyWaveData;
@@ -140,14 +142,16 @@ class PathData: public Engine::Point{
 		int 	g_cost,h_val;
 		int 	premove;
 		std::string	path;
-		PathData(Engine::Point p, int g, int h, std::string P, int pre): Engine::Point(p),g_cost(g),h_val(h),path(std::string(P)),premove(pre){
+		bool repathing;
+		PathData(Engine::Point p, int g, int h, std::string P, int pre, bool repath = false): Engine::Point(p),g_cost(g),h_val(h),path(std::string(P)),premove(pre),repathing(repath){
 		}
 		PathData(const PathData &P):
 			Engine::Point((Engine::Point)P),
 			g_cost(P.g_cost),
 			h_val(P.h_val),
 			path(P.path),
-			premove(P.premove){
+			premove(P.premove),
+			repathing(P.repathing){
 		}
 		// PathData(PathData P, Engine::Point dir, Engine::Point End , int cost, int h):
 		// 	position(P.position+dir),
@@ -155,7 +159,11 @@ class PathData: public Engine::Point{
 		// {
 			
 		// }
-		auto operator<(const PathData &P) const{return g_cost+h_val>P.g_cost+P.h_val;}
+		auto operator<(const PathData &P) const{
+			if(g_cost+h_val==P.g_cost+P.h_val)
+				return	repathing;
+			return g_cost+h_val>P.g_cost+P.h_val;
+		}
 
 };
 

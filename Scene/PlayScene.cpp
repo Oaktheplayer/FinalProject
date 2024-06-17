@@ -35,7 +35,7 @@
 float scale;
 const int opd[]={2,3,0,1,6,7,4,5};
 
-bool PlayScene::DebugMode = false;
+bool PlayScene::DebugMode=true;// = false;
 const std::vector<Engine::Point> PlayScene::directions = {
 	Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1),
 	Engine::Point(-1, -1), Engine::Point(1, -1), Engine::Point(1, 1), Engine::Point(-1, 1)};
@@ -85,6 +85,8 @@ void PlayScene::Initialize() {
 	ReadEnemyWave();
 	mapDirection= std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
 	mapHValue	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
+	mapGCost	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
+	mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
 	// mapDistance = CalculateBFSDistance(0);
     // if(mapDistance[0][0]  ==-1)mapDistance = CalculateBFSDistance(1);
     ConstructUI();
@@ -220,11 +222,11 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 		// Draw reverse BFS distance on all reachable blocks.
 		for (int i = 0; i < MapHeight; i++) {
 			for (int j = 0; j < MapWidth; j++) {
-				if (mapHValue[i][j] != -1) {
+				if (mapGCost[i][j] != -1) {
 					// Not elegant nor efficient, but it's quite enough for debugging.
 					int x = (j + 0.5) * BlockSize;
 					int y = (i + 0.5) * BlockSize;
-					Engine::Label label(std::to_string(mapHValue[i][j]), "pirulen.ttf", 32,
+					Engine::Label label(std::to_string(mapGCost[i][j])+','+std::to_string(mapHValue[i][j]), "pirulen.ttf",16, //32,
 					(j + 0.5) * BlockSize,
 					(i + 0.5) * BlockSize);
 					label.Anchor = Engine::Point(0.5, 0.5);
@@ -244,7 +246,8 @@ void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	scale+= (float)delta /4;
 	if(scale>2)		scale=2;
 	else
-	if(scale<0.75)	scale=0.75;
+	//if(scale<0.75)	scale=0.75;
+	if(scale<0.25)	scale=0.25;
 
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
@@ -619,7 +622,9 @@ bool PlayScene::CheckSpaceValid(int x, int y,Turret* building) {
     // }
     // mapDistance = map;
 	if(mapDirection[y][x]==-1) return true;
-	mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+	mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
+	//mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+	mapDirection[y][x]=-1;
 	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
@@ -660,21 +665,72 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 	std::string path_str="";
 	while(!Q.empty()){
 		PathData state = Q.top();
-		while(mapDirection[state.y][state.x]!=-1){
-			int dirToken	=	(int)mapDirection[state.y][state.x];
-			Point dir(PlayScene::directions[dirToken]);
-			state.path.push_back(dirToken+'0');
-			state.x +=dir.x;
-			state.y +=dir.y;
-		}
+		// PathData N(state);
 		if(state	==	end){
 			path_str=state.path;
 			break;
 		}
 		Q.pop();
-		std::cerr<<"bruh * "<<state.path<<'\n';
+
+		// if(!state.repathing){
+		// 	bool Con = false;
+		// 	state.repathing	=	true;
+		// 	while(mapDirection[state.y][state.x]!=-1 && state!=end){
+		// 		Con = true;
+		// 		int dirToken	=	(mapDirection[state.y][state.x]);
+		// 		std::cerr<<state.x<<','<<state.y<<": "<<dirToken<<'\n';
+		// 		Point dir(PlayScene::directions[dirToken]);
+		// 		//std::cerr<<'\t'<<dir.x<<','<<dir.y<<'\n';
+		// 		state.x +=dir.x;
+		// 		state.y +=dir.y;
+		// 		if(state==end || mapDirection[state.y][state.x]==-1)break;
+		// 		state.path+=dirToken+'0';
+		// 		state.premove	=	dirToken;
+		// 		state.h_val		=	HVal(state,end);
+		// 		if(dirToken>=4)	state.g_cost+=14;
+		// 		else			state.g_cost+=10;
+		// 		//Q.push(PathData(N,N.g_cost,HVal(N,end),N.path,dirToken));
+		// 		Q.push(PathData(state));
+		// 	}
+		// 	if(state	==	end){
+		// 		path_str=state.path;
+		// 		break;
+		// 	}
+		// 	if(Con) continue;
+		// }
+		int dirToken = mapDirection[state.y][state.x];
+		if((!(state.repathing)) && dirToken != -1){
+			mapAStarVisited[state.y][state.x]=true;
+			PathData S(state);
+			S.repathing	=	true;
+			Q.push(S);
+
+			Point dir(directions[dirToken]);
+			Point next(state+dir);
+			int g	=	state.g_cost;
+			if(dirToken>=4){
+				g+=14;
+			}else
+			{
+				g+=10;
+			}
+
+			if(HasBuildingAt(next.x,next.y)){
+				g	+=	mapBuildings[next.y][next.x]->GetHp()/(float)BlockSize * 15.0f;	
+			}
+			//std::cerr<<next.x<<','<<next.y<<'\n';
+			PathData	N		=	PathData(next,g,HVal(next,end),state.path,mapDirection[state.y][state.x]);
+			N.path.push_back('0'+mapDirection[state.y][state.x]);
+			Q.push(N);	
+			continue;
+		}
+		
+		if(!state.repathing && mapAStarVisited[state.y][state.x]) continue;
+		else mapAStarVisited[state.y][state.x]=true;
+
+		std::cerr<<"bruh: "<<state.path<<'\n';
 		std::cerr<<'\t'<<state.h_val+state.g_cost<<'\n';
-		std::cerr<<'\t'<<state.x<<','<<state.y<<'\n';
+		std::cerr<<'\t'<<state.x<<','<<state.y<<"; "<<(state.repathing? "Yes":"No")<<'\n';
 		for(int i=0;i<8;i++){
 			if(opd[i]==state.premove)	continue;
 			Point dir(directions[i]);
@@ -683,21 +739,23 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 			if(next.x<0 || next.x>=MapWidth
 			|| next.y<0	|| next.y>=MapHeight)
 				continue;
-			if(mapTerrain[next.y][next.x]!=TILE_FLOOR&& (i<4
-			|| (mapTerrain[next.y][state.x]!=TILE_FLOOR&&mapTerrain[state.y][next.x]!=TILE_FLOOR))){
+			if(mapTerrain[next.y][next.x]!=TILE_FLOOR){
+			//&& (i<4||(mapTerrain[next.y][state.x]!=TILE_FLOOR && mapTerrain[state.y][next.x]!=TILE_FLOOR))){
 				int g	=	state.g_cost;
 				if(i>=4){
 					if(	mapTerrain[next.y][state.x]==TILE_FLOOR
 					||	mapTerrain[state.y][next.x]==TILE_FLOOR)
 						continue;
 					g+=14;
+				}else{
+					g+=10;
 				}
-				else	g+=10;
 				if(HasBuildingAt(next.x,next.y)){
-					g	+=	mapBuildings[next.y][next.x]->GetHp()/(float)BlockSize * 10.0f;	
+					g	+=	mapBuildings[next.y][next.x]->GetHp()/(float)BlockSize * 15.0f;	
 				}
 				//std::cerr<<next.x<<','<<next.y<<'\n';
 				PathData	N		=	PathData(next,g,HVal(next,end),state.path,i);
+				mapGCost[next.y][next.x]	=	N.g_cost;
 				N.path.push_back('0'+i);
 				Q.push(N);	
 				// Q.push(PathData(next,g,HVal(next,end),state.path,i));
@@ -724,19 +782,23 @@ int PlayScene::HVal(Point A, Point B)
 	if(B==EndGridPoint){
 		if(mapHValue[A.y][A.x]!=-1)
 			return	mapHValue[A.y][A.x];
-		
-		int rtv = mapHValue[A.y][A.x]=floor((A-B).Magnitude()*10*2);
-		Point D(A.x-B.x,A.y-B.y);
-		Point C = A;
-		for(int mul=rtv;C.x>=0&&C.x<MapWidth&&C.y>=0&&C.y<MapHeight;mul+=rtv){
-			if(mapHValue[C.y][C.x]==-1){
-				mapHValue[C.y][C.x]=mul;
-			}
-			C = C + D;
-		}
+
+		Point D(abs((int)A.x-(int)B.x),abs((int)A.y-(int)B.y));
+		int rtv = mapHValue[A.y][A.x]=std::min((int)D.x,(int)D.y)*14 + abs((int)D.x- (int)D.y)*10;
+		// int rtv = mapHValue[A.y][A.x]=floor((A-B).Magnitude()*10*2);//2*abs(A.x-B.x+A.y-B.y)*10;
+		// Point D(A.x-B.x,A.y-B.y);
+		// Point C = A;
+		// for(int mul=rtv;C.x>=0&&C.x<MapWidth&&C.y>=0&&C.y<MapHeight;mul+=rtv){
+		// 	if(mapHValue[C.y][C.x]==-1){
+		// 		mapHValue[C.y][C.x]=mul;
+		// 	}
+		// 	C = C + D;
+		// }
 		return	rtv;
 	}
-    return floor((A-B).Magnitude()*10*2);
+	Point D(abs(A.x-B.x),abs(A.y-B.y));
+	return std::min((int)D.x,(int)D.y)*14 + abs((int)D.x- (int)D.y)*10;
+    // return floor((A-B).Magnitude()*10*2);
 	//return abs(A.x-B.x+A.y-B.y)*10;
 	//else return	1;
 }
@@ -745,7 +807,9 @@ void PlayScene::RemoveBuilding(int x, int y){
     std::cerr<<"start removing building\n";
 	mapBuildings[y][x]=nullptr;
 	if(mapTerrain[y][x]!=TILE_FLOOR){
-		mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+		mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
+		//mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+		mapDirection[y][x]=-1;
 	// mapDistance = CalculateBFSDistance(0);
     // if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
 		for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
@@ -755,6 +819,9 @@ void PlayScene::RemoveBuilding(int x, int y){
 Turret *PlayScene::HasBuildingAt(int x, int y)
 {
 	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
+	if(	x<0 || 	x>=MapWidth
+	||	y<0	||	y>=MapHeight)
+	return nullptr;
 	return mapBuildings[y][x];
 }
 void PlayScene::ScorePoint(int point){
