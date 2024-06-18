@@ -54,7 +54,7 @@ void PlayScene::Initialize() {
 	ticks = 0;
 	deathCountDown = -1;
 	lives = 10;
-	money = 150;
+	money = 1000;
 	SpeedMult = 1;
 	score = 0;
 	scale 	= 	1;
@@ -81,7 +81,10 @@ void PlayScene::Initialize() {
 	ReadMap();
     //SpawnGridPoint = Engine::Point(-1, 0);
 	SpawnGridPoint = Engine::Point(0, 0);
-	ReadEnemyWave();
+	if(gamemode==0){
+        money=150;
+        ReadEnemyWave();
+    }
 	mapDirection= std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
 	mapHValue	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
 	mapGCost	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
@@ -160,14 +163,24 @@ void PlayScene::Update(float deltaTime) {
 		IScene::Update(deltaTime);
 		// Check if we should create new enemy.
 		ticks += deltaTime;
-		if (enemyWaveData.empty()) {
-			if (UnitGroups[RED]->GetObjects().empty()) {
-				ScorePoint(lives^2);
-				RecordScore();
-				Engine::GameEngine::GetInstance().ChangeScene("win");
-			}
-			continue;
-		}
+        if(gamemode==0) {
+            if (enemyWaveData.empty()) {
+                if (UnitGroups[RED]->GetObjects().empty()) {
+                    ScorePoint(lives ^ 2);
+                    RecordScore();
+                    Engine::GameEngine::GetInstance().ChangeScene("win");
+                }
+                continue;
+            }
+        }else if(gamemode==1){
+            if(lives==0){
+                ScorePoint(2000);
+                RecordScore();
+                Engine::GameEngine::GetInstance().ChangeScene("win");
+            }
+            continue;
+        }
+
 		auto current = enemyWaveData.front();
 		if (ticks < current.second)
 			continue;
@@ -389,7 +402,6 @@ void PlayScene::OnKeyDown(int keyCode) {
 		sight	=	sight0;
 	}
 }
-
 void PlayScene::OnKeyUp(int keyCode){
 	if(keyCode	==	ALLEGRO_KEY_W || keyCode	==	ALLEGRO_KEY_S){
 		sight_dir.y=0;
@@ -398,11 +410,10 @@ void PlayScene::OnKeyUp(int keyCode){
 		sight_dir.x=0;
 	}
 }
-
 void PlayScene::Hit() {
-	lives--;
+	if(lives>0)lives--;
 	UILives->Text = std::string("Life ") + std::to_string(lives);
-	if (lives <= 0) {
+	if (lives <= 0 && gamemode==0) {
 		Engine::GameEngine::GetInstance().ChangeScene("lose");
 	}
 }
@@ -542,12 +553,39 @@ void PlayScene::AttackModeUI(){
     int x = 1294;
     int dx = 1370-1294;
     int i = 0;
+    // Button 0
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                          Engine::Sprite("play/enemy-1.png", x+i%4*dx+24, y+(i/4)*dx+24, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 0));
+    UIGroup->AddNewControlObject(btn);
+    i++;
     // Button 1
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                          Engine::Sprite("play/enemy-3.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 1));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 2
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                          Engine::Sprite("play/truck_troop.png", x+i%4*dx-8, y+(i/4)*dx+12, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 2));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 3
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                          Engine::Sprite("play/enemy-2.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 3));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 4
     btn = new EnemyButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
             , x+i%4*dx, y+(i/4)*dx, 10);
-    // Reference: Class Member Function Pointer and std::bind.
-    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 5));
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
     i++;
 }
@@ -557,16 +595,15 @@ void PlayScene::DefenceModeUI(){
     int x = 1294;
     int dx = 1370-1294;
     int i = 0;
-    // Button 1
+    // Button 0
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-1.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
             , x+i%4*dx, y, MachineGunTurret::Price);
-    // Reference: Class Member Function Pointer and std::bind.
     btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 0));
     UIGroup->AddNewControlObject(btn);
     i++;
-    // Button 2
+    // Button 1
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-2.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
@@ -574,7 +611,7 @@ void PlayScene::DefenceModeUI(){
     btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 1));
     UIGroup->AddNewControlObject(btn);
     i++;
-    // Button 3
+    // Button 2
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", 1446, y, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-3.png", 1446, y - 8, 0, 0, 0, 0)
@@ -582,7 +619,7 @@ void PlayScene::DefenceModeUI(){
     btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 2));
     UIGroup->AddNewControlObject(btn);
     i++;
-    // Button 4
+    // Button 3
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-6.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
@@ -590,7 +627,7 @@ void PlayScene::DefenceModeUI(){
     btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 3));
     UIGroup->AddNewControlObject(btn);
     i++;
-    // Button 5
+    // Button 4
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
@@ -603,7 +640,15 @@ void PlayScene::AMUIBtnClicked(int id) {
     if (preview){
         RemoveObject(preview->GetObjectIterator());
     }
-    if (id == 5 && money >= SonicEnemy::Price) {
+    if (id == 0 && money >= SoldierEnemy::Price) {
+        preview = new SoldierEnemy(0, 0,RED);
+    }else if (id == 1 && money >= TankEnemy::Price) {
+        preview = new TankEnemy(0, 0,RED);
+    }else if (id == 2 && money >= TruckEnemy::Price) {
+        preview = new TruckEnemy(0, 0,RED);
+    }else if (id == 3 && money >= PlaneEnemy::Price) {
+        preview = new PlaneEnemy(0, 0,RED);
+    }else if (id == 4 && money >= SonicEnemy::Price) {
         preview = new SonicEnemy(0, 0,RED);
     }
     else preview=nullptr;
@@ -657,9 +702,7 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         if(mapDirection[y][x]!=-1) hasPath	=	true;
 		for(int i=0;i<4 && !hasPath;i++){
 			Point dir = directions[i];
-			if(x+dir.x<0||x+dir.x>=MapWidth
-			|| y+dir.y<0||y+dir.y>=MapHeight)
-				continue;
+			if(x+dir.x<0||x+dir.x>=MapWidth|| y+dir.y<0||y+dir.y>=MapHeight)continue;
 			if(mapDirection[y+dir.y][x+dir.x]!=-1){
 				hasPath = true;
 				break;
@@ -673,38 +716,7 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
         return true;
     }
-	// std::vector<std::vector<int>> map = CalculateBFSDistance(0);
-	// if (map[0][0] == -1) {
-    //     mapDistance =  CalculateBFSDistance(1);
-    //     return true;
-    // }
-    // mapDistance = map;
-
 }
-//std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildings) {
-//	// Reverse BFS to find path.
-//	std::vector<std::vector<int>> map(MapHeight, std::vector<int>(std::vector<int>(MapWidth, -1)));
-//	std::queue<Engine::Point> que;
-//	// Push end point.
-//	// BFS from end point.
-//	if (mapTerrain [EndGridPoint.y][EndGridPoint.x] != TILE_DIRT)return map;
-//	que.push(Engine::Point(EndGridPoint.x, EndGridPoint.y));
-//	map[EndGridPoint.y][EndGridPoint.x] = 0;
-//	while (!que.empty()) {
-//		Engine::Point p = que.front();
-//		que.pop();
-//        for(auto& dir : PlayScene::directions){
-//			int x = p.x + dir.x;
-//			int y = p.y + dir.y;
-//			if (x < 0 || x >= PlayScene::MapWidth|| y < 0 || y >= PlayScene::MapHeight
-//			|| 	mapTerrain[y][x] != TILE_DIRT || map[y][x] != -1)continue;
-//            if(!ignoreBuildings)if(mapBuildings[y][x])continue;
-//			map[y][x]	=	map[p.y][p.x] + 1;
-//			que.push(Engine::Point(x,y));
-//		}
-//	}
-//	return map;
-//}
 
 std::string PlayScene::AStarPathFinding(Point start, int flag)
 {
@@ -713,7 +725,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 	std::priority_queue<PathData> Q;
 	std::vector<std::vector<bool>>mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
 	Q.push(PathData(start,0,HVal(start,end),"",-1));
-	std::cerr<<"pathfinding started\n";
+	//std::cerr<<"pathfinding started\n";
 	std::string path_str="";
 	while(!Q.empty()){
 		PathData curstate = Q.top();
@@ -728,7 +740,6 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 				PathData S(curstate);
 				S.repathing	=	true;
 				Q.push(S);
-			//mapAStarVisited[curstate.y][curstate.x]=true;
 			Point next(curstate+directions[dirToken]);
 			int g = curstate.g_cost;
 			if(dirToken>=4){
@@ -742,7 +753,6 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 			//std::cerr<<next.x<<','<<next.y<<'\n';
 			PathData N = PathData(next,g,HVal(next,end),curstate.path,mapDirection[curstate.y][curstate.x]);
 			N.path.push_back('0'+mapDirection[curstate.y][curstate.x]);
-            //mapGCost[next.y][next.x] = N.g_cost;
 			Q.push(N);
             //std::cerr<<"2bruh: "<<N.path<<'\n';
 			continue;
@@ -752,14 +762,11 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 		else mapAStarVisited[curstate.y][curstate.x]=true;
 
 		//std::cerr<<"bruh: "<<curstate.path<<'\n';
-		//std::cerr<<'\t'<<curstate.h_val+curstate.g_cost<<'\n';
-		//std::cerr<<'\t'<<curstate.x<<','<<curstate.y<<"; "<<(curstate.repathing? "Yes":"No")<<'\n';
 		for(int i=0;i<8;i++){
 			if(opd[i]==curstate.premove)	continue;
 				//TEST
 				if(curstate.repathing && i == mapDirection[curstate.y][curstate.x]) continue;
 			Point next(curstate+directions[i]);
-			//std::cerr<<next.x<<','<<next.y<<'\n';
 			if(next.x<0 || next.x>=MapWidth || next.y<0	|| next.y>=MapHeight || mapTerrain[next.y][next.x]!=TILE_DIRT)continue;
             int g	=	curstate.g_cost;
             if(i>=4){
@@ -786,7 +793,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
     	return std::string();
 	}
 
-	std::cerr<<"pathfinding over\n"<<Q.top().path<<'\n';
+	//std::cerr<<"pathfinding over\n"<<Q.top().path<<'\n';
 	return	path_str;
 }
 

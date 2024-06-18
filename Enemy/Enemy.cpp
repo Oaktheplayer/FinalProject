@@ -73,6 +73,7 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	std::string	path_str = std::string(getPlayScene()->AStarPathFinding(pos));
 	Point	nextp =	pos;
 	for(char i: path_str){
+        //if(i=='\0')break;
 		Point dir(PlayScene::directions[(int)i-'0']);
 		getPlayScene()->mapDirection[nextp.y][nextp.x]	=	i-'0';
 		nextp=nextp+dir;

@@ -60,7 +60,7 @@ public:
     int gamemode;
 	float ticks;
 	float deathCountDown;
-	float	scale;
+	float scale;
 	Engine::Point center;
 	Engine::Point sight;
 	Engine::Point sight0;

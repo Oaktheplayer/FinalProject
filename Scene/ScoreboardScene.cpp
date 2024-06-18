@@ -26,18 +26,9 @@ void ScoreboardScene::Initialize() {
     currentLength   =   10;
 
     Engine::ImageButton*    btn;
-    Engine::Label*          title;
 
-    //data[10];
     ReadScoreboard();
-    
     AddNewObject(new Engine::Label("SCOREBOARD", "pirulen.ttf", 48, halfW, halfH / 4, 255, 255, 255, 255, 0.5, 0.5));
-    // for(int i=0;i<10;i++){
-    //     usernames[i] =   new Engine::Label(record[i].username, "pirulen.ttf", 32, halfW/2, halfH / 4 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
-    //     scores[i] =   new Engine::Label(std::to_string(record[i].score), "pirulen.ttf", 32, 3*halfW/2, halfH / 4 + 64 + 32*i, 255, 255, 255, 255, 0.5, 0.5);
-    //     AddNewObject(usernames[i]);
-    //     AddNewObject(scores[i]);
-    // }
     
 
     btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
