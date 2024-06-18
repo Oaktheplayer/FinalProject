@@ -308,7 +308,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
                 UnitGroups[BLUE]->AddNewObject(dynamic_cast<Turret *>(preview));
                 mapBuildings[y][x] = dynamic_cast<Turret *>(preview);
             }else {
-                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Enemy *>(preview));
+                UnitGroups[RED]->AddNewObject(dynamic_cast<Enemy *>(preview));
                 dynamic_cast<Enemy *>(preview)->UpdatePath(mapDistance);
             }
 			// To keep responding when paused.
@@ -599,7 +599,7 @@ void PlayScene::AMUIBtnClicked(int id) {
         RemoveObject(preview->GetObjectIterator());
     }
     if (id == 5 && money >= SonicEnemy::Price) {
-        preview = new SonicEnemy(0, 0,BLUE);
+        preview = new SonicEnemy(0, 0,RED);
     }
     else preview=nullptr;
     if (!preview){
