@@ -134,9 +134,10 @@ void WinScene::RecordScore(){
 
 void WinScene::ChangeName(){
 	std::cerr<<"start name insert\n";
+    if(recordKey ==	true)return ;
+    cursor		=	nameInput.length();
+    nameInput   +=  CUR;
 	recordKey	=	true;
-	cursor		=	nameInput.length();
-	nameInput   +=  CUR;
 	PutName();
 }
 
