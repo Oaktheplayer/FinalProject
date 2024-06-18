@@ -222,9 +222,9 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 			for (int j = 0; j < MapWidth; j++) {
                 float x = (j + 0.5) * BlockSize;
                 float y = (i + 0.5) * BlockSize;
-                Engine::Label label1(std::to_string(mapHValue[i][j]), "pirulen.ttf",16,x,y);
-                label1.Anchor = Engine::Point(0.5, 0.5);
-                label1.Draw(this->scale, center.x, center.y, sight.x, sight.y);
+                // Engine::Label label1(std::to_string(mapHValue[i][j]), "pirulen.ttf",16,x,y);
+                // label1.Anchor = Engine::Point(0.5, 0.5);
+                // label1.Draw(this->scale, center.x, center.y, sight.x, sight.y);
 				if (mapGCost[i][j] != -1) {
 					Engine::Label label2(std::to_string(mapGCost[i][j]), "pirulen.ttf",16,
 					x ,
@@ -341,6 +341,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 			money+=10000;
 		}
 	}
+	// TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
 	if (keyCode == ALLEGRO_KEY_1) {
 		// Hotkey for MachineGunTurret.
 		DMUIBtnClicked(0);
@@ -357,6 +358,10 @@ void PlayScene::OnKeyDown(int keyCode) {
 		// Hotkey for Flamethrower.
 		DMUIBtnClicked(3);
 	}
+	else if (keyCode == ALLEGRO_KEY_5) {
+		// Hotkey for Wall.
+		DMUIBtnClicked(4);
+	}
 	else if (keyCode == ALLEGRO_KEY_W) {
 		sight_dir.y=-1;
 	}
@@ -370,7 +375,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 		sight_dir.x=1;
 	}
 	
-	// // TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
+	// 
 	else if(keyCode	==	ALLEGRO_KEY_UP){
 		SpeedMult++;
 		if(SpeedMult>20)SpeedMult=20;
@@ -647,10 +652,23 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         return true;
     }else{
         mapBuildings[y][x] = dynamic_cast<Turret *>(unit);
-        if(mapDirection[y][x]==-1) return true;
+		//TEST
+		bool hasPath = false;
+        if(mapDirection[y][x]!=-1) hasPath	=	true;
+		for(int i=0;i<4 && !hasPath;i++){
+			Point dir = directions[i];
+			if(x+dir.x<0||x+dir.x>=MapWidth
+			|| y+dir.y<0||y+dir.y>=MapHeight)
+				continue;
+			if(mapDirection[y+dir.y][x+dir.x]!=-1){
+				hasPath = true;
+				break;
+			}
+		}
+		if(!hasPath)	return true;
         mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-        mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-		//mapDirection[y][x]=-1;
+        //mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+			mapDirection[y][x]=-1;
         for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
         return true;
@@ -698,45 +716,55 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 	std::cerr<<"pathfinding started\n";
 	std::string path_str="";
 	while(!Q.empty()){
-		PathData CurState = Q.top();
-		if(CurState	==	end){
-			path_str=CurState.path;
+		PathData curstate = Q.top();
+		if(curstate	==	end){
+			path_str=curstate.path;
 			break;
 		}
 		Q.pop();
-		int dirToken = mapDirection[CurState.y][CurState.x];
-		if((!(CurState.repathing)) && dirToken != -1){
-			mapAStarVisited[CurState.y][CurState.x]=true;
-			Point next(CurState+directions[dirToken]);
-			int g = CurState.g_cost;
-			if(dirToken>=4)g+=14;
+		int dirToken = mapDirection[curstate.y][curstate.x];
+		if((!(curstate.repathing)) && dirToken != -1){
+				//TEST
+				PathData S(curstate);
+				S.repathing	=	true;
+				Q.push(S);
+			//mapAStarVisited[curstate.y][curstate.x]=true;
+			Point next(curstate+directions[dirToken]);
+			int g = curstate.g_cost;
+			if(dirToken>=4){
+				if(HasBuildingAt(next.x,curstate.y) || HasBuildingAt(curstate.x,next.y)) continue;
+				g+=14;
+			}
 			else g += 10;
 			if(HasBuildingAt(next.x,next.y)){
 				g += mapBuildings[next.y][next.x]->GetHp()*G;
 			}
 			//std::cerr<<next.x<<','<<next.y<<'\n';
-			PathData N = PathData(next,g,HVal(next,end),CurState.path,mapDirection[CurState.y][CurState.x]);
-			N.path.push_back('0'+mapDirection[CurState.y][CurState.x]);
+			PathData N = PathData(next,g,HVal(next,end),curstate.path,mapDirection[curstate.y][curstate.x]);
+			N.path.push_back('0'+mapDirection[curstate.y][curstate.x]);
             //mapGCost[next.y][next.x] = N.g_cost;
 			Q.push(N);
             //std::cerr<<"2bruh: "<<N.path<<'\n';
 			continue;
 		}
 
-		if( mapAStarVisited[CurState.y][CurState.x]) continue;
-		else mapAStarVisited[CurState.y][CurState.x]=true;
+		if( mapAStarVisited[curstate.y][curstate.x]) continue;
+		else mapAStarVisited[curstate.y][curstate.x]=true;
 
-		//std::cerr<<"bruh: "<<CurState.path<<'\n';
-		//std::cerr<<'\t'<<CurState.h_val+CurState.g_cost<<'\n';
-		//std::cerr<<'\t'<<CurState.x<<','<<CurState.y<<"; "<<(CurState.repathing? "Yes":"No")<<'\n';
+		//std::cerr<<"bruh: "<<curstate.path<<'\n';
+		//std::cerr<<'\t'<<curstate.h_val+curstate.g_cost<<'\n';
+		//std::cerr<<'\t'<<curstate.x<<','<<curstate.y<<"; "<<(curstate.repathing? "Yes":"No")<<'\n';
 		for(int i=0;i<8;i++){
-			if(opd[i]==CurState.premove)	continue;
-			Point next(CurState+directions[i]);
+			if(opd[i]==curstate.premove)	continue;
+				//TEST
+				if(curstate.repathing && i == mapDirection[curstate.y][curstate.x]) continue;
+			Point next(curstate+directions[i]);
 			//std::cerr<<next.x<<','<<next.y<<'\n';
 			if(next.x<0 || next.x>=MapWidth || next.y<0	|| next.y>=MapHeight || mapTerrain[next.y][next.x]!=TILE_DIRT)continue;
-            int g	=	CurState.g_cost;
+            int g	=	curstate.g_cost;
             if(i>=4){
-                if(	mapTerrain[next.y][CurState.x]!=TILE_DIRT||	mapTerrain[CurState.y][next.x]!=TILE_DIRT)continue;
+                if(	mapTerrain[next.y][curstate.x]!=TILE_DIRT||	mapTerrain[curstate.y][next.x]!=TILE_DIRT
+				||  HasBuildingAt(next.x,curstate.y) || HasBuildingAt(curstate.x,next.y))continue;
                 g+=14;
             }else{
                 g+=10;
@@ -745,7 +773,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
                 g	+=	mapBuildings[next.y][next.x]->GetHp()*G;
             }
             //std::cerr<<next.x<<','<<next.y<<'\n';
-            PathData N = PathData(next,g,HVal(next,end),CurState.path,i);
+            PathData N = PathData(next,g,HVal(next,end),curstate.path,i);
             mapGCost[next.y][next.x] = N.g_cost;
             N.path.push_back('0'+i);
             Q.push(N);
@@ -777,8 +805,9 @@ void PlayScene::RemoveBuilding(int x, int y){
 	mapBuildings[y][x]=nullptr;
 	if(mapTerrain[y][x]!=TILE_FLOOR){
 		mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-		mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-//		mapDirection[y][x]=-1;
+		//TEST
+		//mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+			mapDirection[y][x]=-1;
 //	    mapDistance = CalculateBFSDistance(0);
 //        if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
 		for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
