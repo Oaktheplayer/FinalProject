@@ -640,12 +640,19 @@ void PlayScene::DMUIBtnClicked(int id) {
 	AddNewObject(preview);
 	OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
-bool PlayScene::CheckSpaceValid(int x, int y,Unit* building) {
+bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
 	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)return false;
-    if(dynamic_cast<Enemy*>(building)) {
+    if(dynamic_cast<Enemy*>(unit)) {
         if(mapTerrain[y][x]!=TILE_DIRT)return false;
+        return true;
     }else{
-        mapBuildings[y][x] = dynamic_cast<Turret *>(building);
+        mapBuildings[y][x] = dynamic_cast<Turret *>(unit);
+        if(mapDirection[y][x]==-1) return true;
+        mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
+        mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+        for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
+                dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+        return true;
     }
 	// std::vector<std::vector<int>> map = CalculateBFSDistance(0);
 	// if (map[0][0] == -1) {
@@ -653,12 +660,7 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* building) {
     //     return true;
     // }
     // mapDistance = map;
-	if(mapDirection[y][x]==-1) return true;
-	mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-	mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
-		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
-	return true;
+
 }
 //std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(bool ignoreBuildings) {
 //	// Reverse BFS to find path.
