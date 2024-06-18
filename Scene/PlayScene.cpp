@@ -649,7 +649,8 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         mapBuildings[y][x] = dynamic_cast<Turret *>(unit);
         if(mapDirection[y][x]==-1) return true;
         mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-        mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+        //mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+		mapDirection[y][x]=-1;
         for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
         return true;
@@ -692,6 +693,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 	Point end = EndGridPoint;
     const float G=15.0f/(float)BlockSize;
 	std::priority_queue<PathData> Q;
+	std::vector<std::vector<bool>>mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
 	Q.push(PathData(start,0,HVal(start,end),"",-1));
 	std::cerr<<"pathfinding started\n";
 	std::string path_str="";
