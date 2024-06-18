@@ -19,6 +19,8 @@ void TankEnemy::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	head.Draw(scale, cx, cy, sx, sy);
 }
 void TankEnemy::Update(float deltaTime) {
+	
+	if(!Enabled) return;
 	Enemy::Update(deltaTime);
 	//head.Update(deltaTime);
 	head.Position = Position;
@@ -32,6 +34,7 @@ void TankEnemy::Update(float deltaTime) {
 	// 	std::uniform_real_distribution<> distRadian(-ALLEGRO_PI, ALLEGRO_PI);
 	// 	targetRotation = distRadian(rng);
 	// }
+	//std::cerr<<(!Target? "No":(std::to_string(Target->Position.x)+","+std::to_string(Target->Position.y)))<<'\n';
 	ShootTarget(deltaTime);
 	if(!Target) head.Rotation	=	Rotation;
 	// head.Rotation = (head.Rotation + deltaTime * targetRotation) / (1 + deltaTime);

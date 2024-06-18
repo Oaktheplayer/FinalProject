@@ -213,9 +213,9 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 		UnitGroups[RED]->AddNewObject(enemy = new TruckEnemy(x, y,RED));
 		break;
 
-        case 5:
-            UnitGroups[RED]->AddNewObject(enemy = new SonicEnemy(x, y,RED));
-            break;
+    case 5:
+        UnitGroups[RED]->AddNewObject(enemy = new SonicEnemy(x, y,RED));
+        break;
     // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
     //         The format is "[EnemyId] [TimeDelay] [Repeat]".
     // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
@@ -321,7 +321,7 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
                 UnitGroups[BLUE]->AddNewObject(dynamic_cast<Turret *>(preview));
                 mapBuildings[y][x] = dynamic_cast<Turret *>(preview);
             }else {
-                UnitGroups[RED]->AddNewObject(dynamic_cast<Enemy *>(preview));
+                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Enemy *>(preview));
                 dynamic_cast<Enemy *>(preview)->UpdatePath(mapDistance);
             }
 			// To keep responding when paused.
@@ -641,15 +641,15 @@ void PlayScene::AMUIBtnClicked(int id) {
         RemoveObject(preview->GetObjectIterator());
     }
     if (id == 0 && money >= SoldierEnemy::Price) {
-        preview = new SoldierEnemy(0, 0,RED);
+        preview = new SoldierEnemy(0, 0,BLUE);
     }else if (id == 1 && money >= TankEnemy::Price) {
-        preview = new TankEnemy(0, 0,RED);
+        preview = new TankEnemy(0, 0,BLUE);
     }else if (id == 2 && money >= TruckEnemy::Price) {
-        preview = new TruckEnemy(0, 0,RED);
+        preview = new TruckEnemy(0, 0,BLUE);
     }else if (id == 3 && money >= PlaneEnemy::Price) {
-        preview = new PlaneEnemy(0, 0,RED);
+        preview = new PlaneEnemy(0, 0,BLUE);
     }else if (id == 4 && money >= SonicEnemy::Price) {
-        preview = new SonicEnemy(0, 0,RED);
+        preview = new SonicEnemy(0, 0,BLUE);
     }
     else preview=nullptr;
     if (!preview){
@@ -712,7 +712,8 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
         //mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
 			mapDirection[y][x]=-1;
-        for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
+		for(auto& g: UnitGroups)
+        for (auto& it : g->GetObjects())if(dynamic_cast<Enemy*>(it))
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
         return true;
     }
@@ -817,7 +818,8 @@ void PlayScene::RemoveBuilding(int x, int y){
 			mapDirection[y][x]=-1;
 //	    mapDistance = CalculateBFSDistance(0);
 //        if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
-		for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
+		for(auto& g: UnitGroups)
+			for (auto& it : g->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	}
 	std::cerr<<"successfully removed building\n";
 }
