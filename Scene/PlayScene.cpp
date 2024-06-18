@@ -649,8 +649,8 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         mapBuildings[y][x] = dynamic_cast<Turret *>(unit);
         if(mapDirection[y][x]==-1) return true;
         mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-        //mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-		mapDirection[y][x]=-1;
+        mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
+		//mapDirection[y][x]=-1;
         for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
         return true;
@@ -719,16 +719,16 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 			N.path.push_back('0'+mapDirection[CurState.y][CurState.x]);
             //mapGCost[next.y][next.x] = N.g_cost;
 			Q.push(N);
-            std::cerr<<"2bruh: "<<N.path<<'\n';
+            //std::cerr<<"2bruh: "<<N.path<<'\n';
 			continue;
 		}
 
 		if( mapAStarVisited[CurState.y][CurState.x]) continue;
 		else mapAStarVisited[CurState.y][CurState.x]=true;
 
-		std::cerr<<"bruh: "<<CurState.path<<'\n';
-		std::cerr<<'\t'<<CurState.h_val+CurState.g_cost<<'\n';
-		std::cerr<<'\t'<<CurState.x<<','<<CurState.y<<"; "<<(CurState.repathing? "Yes":"No")<<'\n';
+		//std::cerr<<"bruh: "<<CurState.path<<'\n';
+		//std::cerr<<'\t'<<CurState.h_val+CurState.g_cost<<'\n';
+		//std::cerr<<'\t'<<CurState.x<<','<<CurState.y<<"; "<<(CurState.repathing? "Yes":"No")<<'\n';
 		for(int i=0;i<8;i++){
 			if(opd[i]==CurState.premove)	continue;
 			Point next(CurState+directions[i]);
