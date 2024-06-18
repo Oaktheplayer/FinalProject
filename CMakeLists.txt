@@ -113,6 +113,8 @@ add_executable(FinalProject
         Turret/Wall.hpp
         Enemy/SonicEnemy.cpp
         Enemy/SonicEnemy.h
+        Enemy/EnemyButton.cpp
+        Enemy/EnemyButton.h
         #        UI/Component/TextInput.cpp
 #        UI/Component/TextInput.hpp
 )

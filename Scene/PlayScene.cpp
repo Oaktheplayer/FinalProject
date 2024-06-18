@@ -28,13 +28,11 @@
 #include "Enemy/TruckEnemy.hpp"
 #include "Enemy/SonicEnemy.h"
 #include "Turret/TurretButton.hpp"
-//#include "Engine/Unit.hpp"
-
+#include "Enemy/EnemyButton.h"
 #include	<iostream>
 
 float scale;
 const int opd[]={2,3,0,1,6,7,4,5};
-
 bool PlayScene::DebugMode=true;// = false;
 const std::vector<Engine::Point> PlayScene::directions = {
 	Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1),
@@ -65,6 +63,7 @@ void PlayScene::Initialize() {
 	sight0	=	center;
 	sight_dir	=	Point(0,0);
 	sight_speed	=	16;
+    gamemode=0;
 	// Add Map
 	AddNewObject(MapComponent = new Group());
 	// Add groups from bottom to top.
@@ -182,7 +181,6 @@ void PlayScene::Update(float deltaTime) {
 	}
 	if (preview) {
 		preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
-		// To keep responding when paused.
 		preview->Update(deltaTime);
 	}
 }
@@ -239,7 +237,10 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	}
     UIGroup->Draw();
 	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
-	if(preview)				preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
+	if(preview)		{
+        //std::cerr<<"draw preview\n";
+        preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
+    }
 	
 
 }
@@ -303,8 +304,13 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			preview->Enabled = true;
 			preview->Preview = false;
 			preview->Tint = al_map_rgba(255, 255, 255, 255);
-			UnitGroups[BLUE]->AddNewObject(preview);
-			mapBuildings[y][x]=preview;
+            if(dynamic_cast<Turret*>(preview)) {
+                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Turret *>(preview));
+                mapBuildings[y][x] = dynamic_cast<Turret *>(preview);
+            }else {
+                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Enemy *>(preview));
+                dynamic_cast<Enemy *>(preview)->UpdatePath(mapDistance);
+            }
 			// To keep responding when paused.
 			preview->Update(0);
 			// Remove Preview.
@@ -337,19 +343,19 @@ void PlayScene::OnKeyDown(int keyCode) {
 	}
 	if (keyCode == ALLEGRO_KEY_1) {
 		// Hotkey for MachineGunTurret.
-		UIBtnClicked(0);
+		DMUIBtnClicked(0);
 	}
 	else if (keyCode == ALLEGRO_KEY_2) {
 		// Hotkey for LaserTurret.
-		UIBtnClicked(1);
+		DMUIBtnClicked(1);
 	}
 	else if (keyCode == ALLEGRO_KEY_3) {
 		// Hotkey for MissileTurret.
-		UIBtnClicked(2);
+		DMUIBtnClicked(2);
 	}
 	else if (keyCode == ALLEGRO_KEY_4) {
 		// Hotkey for Flamethrower.
-		UIBtnClicked(3);
+		DMUIBtnClicked(3);
 	}
 	else if (keyCode == ALLEGRO_KEY_W) {
 		sight_dir.y=-1;
@@ -406,7 +412,6 @@ void PlayScene::ReadMap() {
 	std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
 	// Read map file.
 	char c;
-    int gamemode;
 	std::vector<int> mapData;
 	std::ifstream fin(filename);
 	fin>>MapWidth;
@@ -516,62 +521,8 @@ void PlayScene::ConstructUI() {
 	UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
 	UIGroup->AddNewObject(UIScore = new Engine::Label(std::string("Score ") + std::to_string(score), "pirulen.ttf", 24, 1294,	128));
 
-	TurretButton* btn;
-	int y = 176;
-	int x = 1294;
-	int dx = 1370-1294;
-	int i = 0;
-	// Button 1
-	btn = new TurretButton("play/button1.png", "play/button2.png",
-		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
-		Engine::Sprite("play/turret-1.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
-		, x+i%4*dx, y, MachineGunTurret::Price);
-	// Reference: Class Member Function Pointer and std::bind.
-	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
-	UIGroup->AddNewControlObject(btn);
-	i++;
-	// Button 2
-	btn = new TurretButton("play/button1.png", "play/button2.png",
-		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
-		Engine::Sprite("play/turret-2.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
-		, x+i%4*dx, y, LaserTurret::Price);
-	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
-	UIGroup->AddNewControlObject(btn);
-	i++;
-	// Button 3
-	btn = new TurretButton("play/button1.png", "play/button2.png",
-		Engine::Sprite("play/tower-base.png", 1446, y, 0, 0, 0, 0),
-		Engine::Sprite("play/turret-3.png", 1446, y - 8, 0, 0, 0, 0)
-		, x+i%4*dx, y, MissileTurret::Price);
-	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
-	UIGroup->AddNewControlObject(btn);
-	i++;
-    // Button 4
-	btn = new TurretButton("play/button1.png", "play/button2.png",
-		Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
-		Engine::Sprite("play/turret-6.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
-		, x+i%4*dx, y, Flamethrower::Price);
-	btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
-	UIGroup->AddNewControlObject(btn);
-	i++;
-    // Button 5
-    btn = new TurretButton("play/button1.png", "play/button2.png",
-                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
-                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
-            , x+i%4*dx, y+(i/4)*dx, wall::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
-    UIGroup->AddNewControlObject(btn);
-    i++;
-
-    btn = new TurretButton("play/button1.png", "play/button2.png",
-                           Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
-                           Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
-            , x+i%4*dx, y+(i/4)*dx, 10);
-    // Reference: Class Member Function Pointer and std::bind.
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 5));
-    UIGroup->AddNewControlObject(btn);
-    i++;
-	// TODO: [CUSTOM-TURRET]: Create a button to support constructing the turret.
+    if(gamemode==0)DefenceModeUI();
+    else AttackModeUI();
 
 	int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
 	int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -580,7 +531,89 @@ void PlayScene::ConstructUI() {
 	dangerIndicator->Tint.a = 0;
 	UIGroup->AddNewObject(dangerIndicator);
 }
-void PlayScene::UIBtnClicked(int id) {
+void PlayScene::AttackModeUI(){
+    EnemyButton* btn;
+    int y = 176;
+    int x = 1294;
+    int dx = 1370-1294;
+    int i = 0;
+    // Button 1
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/jeep_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    // Reference: Class Member Function Pointer and std::bind.
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 5));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+}
+void PlayScene::DefenceModeUI(){
+    TurretButton* btn;
+    int y = 176;
+    int x = 1294;
+    int dx = 1370-1294;
+    int i = 0;
+    // Button 1
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
+                           Engine::Sprite("play/turret-1.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
+            , x+i%4*dx, y, MachineGunTurret::Price);
+    // Reference: Class Member Function Pointer and std::bind.
+    btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 0));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 2
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
+                           Engine::Sprite("play/turret-2.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
+            , x+i%4*dx, y, LaserTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 1));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 3
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/tower-base.png", 1446, y, 0, 0, 0, 0),
+                           Engine::Sprite("play/turret-3.png", 1446, y - 8, 0, 0, 0, 0)
+            , x+i%4*dx, y, MissileTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 2));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 4
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y, 0, 0, 0, 0),
+                           Engine::Sprite("play/turret-6.png", x+i%4*dx, y - 8, 0, 0, 0, 0)
+            , x+i%4*dx, y, Flamethrower::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 3));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+    // Button 5
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
+                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, wall::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 4));
+    UIGroup->AddNewControlObject(btn);
+    i++;
+}
+void PlayScene::AMUIBtnClicked(int id) {
+    if (preview){
+        RemoveObject(preview->GetObjectIterator());
+    }
+    if (id == 5 && money >= SonicEnemy::Price) {
+        preview = new SonicEnemy(0, 0,BLUE);
+    }
+    else preview=nullptr;
+    if (!preview){
+        imgTarget->Visible=false;
+        return;
+    }
+    preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+    preview->Tint = al_map_rgba(255, 255, 255, 200);
+    preview->Enabled = false;
+    preview->Preview = true;
+    AddNewObject(preview);
+    OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
+}
+void PlayScene::DMUIBtnClicked(int id) {
 	if (preview){
 		RemoveObject(preview->GetObjectIterator());
 	}
@@ -595,13 +628,6 @@ void PlayScene::UIBtnClicked(int id) {
 		preview = new Flamethrower(0, 0,BLUE);
     else if (id == 4 && money >= wall::Price)
         preview = new wall(0, 0,BLUE);
-    else if (id == 5 && money >= 10) {
-        Enemy *enemy;
-        UnitGroups[RED]->AddNewObject(enemy=new SonicEnemy(Engine::GameEngine::GetInstance().GetMousePosition().x,
-                                                     Engine::GameEngine::GetInstance().GetMousePosition().y, RED));
-        enemy->UpdatePath(mapDistance);
-        return;
-    }
 	else preview=nullptr;
 	if (!preview){
 		imgTarget->Visible=false;
@@ -614,9 +640,13 @@ void PlayScene::UIBtnClicked(int id) {
 	AddNewObject(preview);
 	OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
-bool PlayScene::CheckSpaceValid(int x, int y,Turret* building) {
+bool PlayScene::CheckSpaceValid(int x, int y,Unit* building) {
 	if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)return false;
-    mapBuildings[y][x]=building;
+    if(dynamic_cast<Enemy*>(building)) {
+        if(mapTerrain[y][x]!=TILE_DIRT)return false;
+    }else{
+        mapBuildings[y][x] = dynamic_cast<Turret *>(building);
+    }
 	// std::vector<std::vector<int>> map = CalculateBFSDistance(0);
 	// if (map[0][0] == -1) {
     //     mapDistance =  CalculateBFSDistance(1);
@@ -626,7 +656,6 @@ bool PlayScene::CheckSpaceValid(int x, int y,Turret* building) {
 	if(mapDirection[y][x]==-1) return true;
 	mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
 	mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-	//mapDirection[y][x]=-1;
 	for (auto& it : UnitGroups[RED]->GetObjects())if(dynamic_cast<Enemy*>(it))
 		dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	return true;
@@ -686,7 +715,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 			N.path.push_back('0'+mapDirection[CurState.y][CurState.x]);
             //mapGCost[next.y][next.x] = N.g_cost;
 			Q.push(N);
-            //std::cerr<<"bruh: "<<N.path<<'\n';
+            std::cerr<<"2bruh: "<<N.path<<'\n';
 			continue;
 		}
 

@@ -6,7 +6,6 @@
 #define WALL_HPP
 #include "Turret.hpp"
 
-
 class wall: public Turret {
 public:
     static const int Price;

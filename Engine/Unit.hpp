@@ -6,11 +6,11 @@
 #include <string>
 
 #include "UI/Component/Image.hpp"
-#include	"UI/Animation/VisualEffect.hpp"
-#include	"UI/Component/Label.hpp"
+#include "UI/Animation/VisualEffect.hpp"
+#include "UI/Component/Label.hpp"
 #include "Engine/Point.hpp"
 #include "Engine/Sprite.hpp"
-#include "Scene/PlayScene.hpp"
+//#include "Scene/PlayScene.hpp"
 
 using namespace Engine;
 
@@ -18,7 +18,15 @@ using namespace Engine;
 
 class Bullet;
 class PlayScene;
-
+enum Team{
+    BLUE,
+    RED,
+    TEAM_COUNT
+};
+typedef enum effects{
+    BURN,
+    STATUS_EFFECT_LENGTH
+}StatusEffect;
 class Unit: public Sprite{
 protected:    
 	float hp;
@@ -47,6 +55,8 @@ protected:
 	virtual void RotateHead(float deltaTime);
     virtual void CreateBullet();
 public:
+    bool Enabled = true;
+    bool Preview = false;
     Unit(std::string img, float x, float y,Team team, float radius, float hp);
 	Team	getTeam();
     Unit* 	Target = nullptr;
@@ -57,6 +67,7 @@ public:
 	void Update(float deltaTime) override;
 	void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	void GetEffect(StatusEffect effect, float timer);
+    virtual int GetPrice() const=0;
 };
 
 #endif //UNIT_HPP

@@ -24,20 +24,20 @@ void wall::Draw(float scale, float cx, float cy, float sx, float sy) const {
     }
     imgBase.Draw(scale, cx, cy, sx, sy);
 	//Unit::Draw(scale, cx, cy, sx, sy);
-    if (PlayScene::DebugMode) {
-        // Draw target radius.
-        al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
-        // Draw collision radius.
-		al_draw_circle(
-			(Position.x-sx)*scale	+ 	cx,
-			(Position.y-sy)*scale 	+	cy,
-			CollisionRadius*scale,
-			al_map_rgb(255, 0, 0), 2);
-		//Display health
-		std::string text = std::to_string((int)hp);
-		al_draw_text(font.get(),al_map_rgba(255, 255, 255, 127),
-			(Position.x-sx)*scale	+ 	cx,
-			(Position.y-sy)*scale 	+	cy,
-			0,text.c_str());
-    }
+//    if (PlayScene::DebugMode) {
+//        // Draw target radius.
+//        al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
+//        // Draw collision radius.
+//		al_draw_circle(
+//			(Position.x-sx)*scale	+ 	cx,
+//			(Position.y-sy)*scale 	+	cy,
+//			CollisionRadius*scale,
+//			al_map_rgb(255, 0, 0), 2);
+//		//Display health
+//		std::string text = std::to_string((int)hp);
+//		al_draw_text(font.get(),al_map_rgba(255, 255, 255, 127),
+//			(Position.x-sx)*scale	+ 	cx,
+//			(Position.y-sy)*scale 	+	cy,
+//			0,text.c_str());
+//    }
 }

@@ -9,7 +9,7 @@
 
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
-
+#include "Engine/Unit.hpp"
 // #include "Enemy/Enemy.hpp"
 
 class Enemy;
@@ -21,15 +21,8 @@ namespace Engine {
 	class Sprite;
 }  // namespace Engine
 
-typedef enum effects{
-	BURN,
-	STATUS_EFFECT_LENGTH
-}StatusEffect;
-enum Team{
-	BLUE,
-	RED,
-	TEAM_COUNT
-};
+
+
 
 //const Point directions[] = {Point(1,0),Point(-1,0),Point(0,1),Point(0,-1)};
 
@@ -53,10 +46,6 @@ protected:
         WALL,
         TOWNHALL
     };
-    enum TileStat {
-        TILE_EMPTY,
-        TILE_OCCUPIED
-    };
 public:
     
 	static bool DebugMode;
@@ -68,6 +57,7 @@ public:
 	Engine::Point EndGridPoint;
 	static const std::vector<int> code;
 	int MapId;
+    int gamemode;
 	float ticks;
 	float deathCountDown;
 	float	scale;
@@ -94,7 +84,7 @@ public:
 	Engine::Label* UIScore;
 	Engine::Image* imgTarget;
 	Engine::Sprite* dangerIndicator;
-	Turret* preview;
+	Unit* preview;
 	std::vector<std::vector<TileType>> mapTerrain;
 	std::vector<std::vector<int>> mapDistance;
 	std::vector<std::vector<int>> mapHValue;
@@ -122,17 +112,20 @@ public:
 	void EarnMoney(int money);
 	void ReadMap();
 	void ReadEnemyWave();
-	virtual void ConstructUI();
-	virtual void UIBtnClicked(int id);
-	virtual bool CheckSpaceValid(int x, int y,Turret* building);
+	void ConstructUI();
+    void AttackModeUI();
+    void DefenceModeUI();
+	void DMUIBtnClicked(int id);
+    void AMUIBtnClicked(int id);
+    bool CheckSpaceValid(int x, int y,Unit* building);
 	//std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	std::string	AStarPathFinding(Engine::Point start, int flag=0);
 	int	HVal(Engine::Point A, Engine::Point B);
 	void RemoveBuilding(int x,int y);
 	Turret* HasBuildingAt(int x,int y);
 	int score;
-	void 	ScorePoint(int x);
-	void 	RecordScore();
+	void ScorePoint(int x);
+	void RecordScore();
 	// void ModifyReadMapTiles();
 };
 
@@ -163,14 +156,4 @@ class PathData: public Engine::Point{
 
 };
 
-//class DefenceMode :public PlayScene{
-//    void ConstructUI() override;
-//    bool CheckSpaceValid(int x, int y,Turret* building) override;
-//    void UIBtnClicked(int id) override;
-//};
-//class AttackMode :public PlayScene{
-//    void ConstructUI() override;
-//    bool CheckSpaceValid(int x, int y,Turret* building) override;
-//    void UIBtnClicked(int id) override;
-//};
 #endif // PLAYSCENE_HPP

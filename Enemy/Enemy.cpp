@@ -22,8 +22,8 @@
 #include "Engine/Resources.hpp"
 #include "Engine/Collider.hpp"
 
-Enemy::Enemy(std::string img, float x, float y,Team team, float radius, float speed, float hp, int money, int point) :
-	Unit(img, x, y,team,radius,hp), speed(speed), money(money), point(point){
+Enemy::Enemy(std::string img, float x, float y,Team team, float radius, float speed, float hp, int money, int point,int price) :
+	Unit(img, x, y,team,radius,hp), speed(speed), money(money), point(point),price(price){
 	reachEndTime = 0;
 }
 void Enemy::Hit(float damage) {
@@ -83,9 +83,9 @@ void Enemy::Update(float deltaTime) {
 	// Pre-calculate the velocity.
 	float remainSpeed = speed * deltaTime;
 	//Deal with effects
-	
 	while (remainSpeed != 0) {
-		if (path.empty()) {
+		if (Position.x==getPlayScene()->EndGridPoint.x * PlayScene::BlockSize +  PlayScene::BlockSize / 2 &&
+                Position.y==getPlayScene()->EndGridPoint.y * PlayScene::BlockSize +  PlayScene::BlockSize / 2) {
 			// Reach end point.
 			//Hit(hp);
 			Kill();
@@ -96,7 +96,6 @@ void Enemy::Update(float deltaTime) {
 		
 		Engine::Point nextp = path.front() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
 		Engine::Point vec = nextp - Position;
-		
 		pathBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
 			
 		if(pathBlock){
@@ -137,4 +136,23 @@ void Enemy::Update(float deltaTime) {
 
 	Rotation = atan2(Velocity.y, Velocity.x);
 	Unit::Update(deltaTime);
+}
+
+void Enemy::Draw(float scale, float cx, float cy, float sx, float sy) const {
+    if (Preview) {
+        al_draw_filled_circle(
+                (Position.x-sx)*scale	+ 	cx,
+                (Position.y-sy)*scale 	+	cy,
+                range*scale,
+                al_map_rgba(0, 255, 0, 50));
+    }
+    Unit::Draw(scale, cx, cy, sx, sy);
+//    if (PlayScene::DebugMode) {
+//        // Draw target radius.
+//        al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
+//    }
+}
+
+int Enemy::GetPrice() const {
+    return price;
 }

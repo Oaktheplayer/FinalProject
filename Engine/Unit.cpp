@@ -75,7 +75,8 @@ void Unit::Kill(){
 
 void Unit::Update(float deltaTime)
 {
-	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
+    //std::cerr<<"???\n";
+    for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
 		if(hasStatusEffect[i]){
 			effectTimer[i]-=deltaTime;
 			if(effectTimer[i] <= 0.0){
@@ -86,6 +87,7 @@ void Unit::Update(float deltaTime)
 			}
 		}
 	}
+    //std::cerr<<"?????\n";
 	if(doSpriteUpdate)Sprite::Update(deltaTime);
 }
 
@@ -227,5 +229,6 @@ void Unit::ClearEffect(StatusEffect effect){
 	effectTimer[effect]		=	0.0;
 	visualEffect[effect]	=	nullptr;
 }
+
 
 Team Unit::getTeam(){return	team;}

@@ -17,7 +17,6 @@ class PlayScene;
 class Turret;
 
 //extern float scale;
-
 class Enemy : public Unit {
 protected:
  	// std::vector<Engine::Point> path;
@@ -26,13 +25,18 @@ protected:
 	float speed;
 	int money;
 	int point;
+    int price;
+
 public:
 	float reachEndTime;
-	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point);
+
+	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point ,int price);
  	void Hit(float damage) override;
 	// virtual void Kill() override;
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
+    void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
+    int GetPrice() const override;
 	// void Draw() const override;
 	// void GetEffect(StatusEffect effect, float timer);
 };

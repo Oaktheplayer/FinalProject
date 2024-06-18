@@ -9,7 +9,7 @@
 
 #include <iostream>
 const int TankEnemy::Price = 50;
-TankEnemy::TankEnemy(int x, int y,Team team) : Enemy("play/enemy-3.png", x, y,team, 20, 20, 100, 50, 5),
+TankEnemy::TankEnemy(int x, int y,Team team) : Enemy("play/enemy-3.png", x, y,team, 20, 20, 100, 50, 5,Price),
 head("play/enemy-3-head.png", x, y), targetRotation(0) {
 	coolDown	=	1;
 	range		=	300;

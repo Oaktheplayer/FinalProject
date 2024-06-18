@@ -81,9 +81,11 @@ void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 		al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
 	}
 }
+
 int Turret::GetPrice() const {
-	return price;
+    return price;
 }
+
 int Turret::GetHp() const{
     return (int)hp;
 }
