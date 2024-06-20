@@ -31,8 +31,10 @@ void MapEditScene::Initialize() {
     sight_speed	=	16;
     MapWidth=20;
     MapHeight=13;
-    CurBrushType = 0;
+    CurBrushType = TILE_DIRT;
     buildingExist=0;
+    brushUsed = 0;
+    brush= nullptr;
     AddNewObject(MapComponent = new Group());
     MapComponent->AddNewObject(TileMapGroup = new Group());
     MapComponent->AddNewObject(GroundEffectGroup = new Group());
@@ -60,6 +62,33 @@ void MapEditScene::Update(float deltaTime) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
     }
+    if(brush) {
+        brush->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+        brush->Update(deltaTime);
+        if(brushUsed){
+            const int x = ((float)(brush->Position.x-center.x)/scale + sight.x)	/BlockSize;
+            const int y = ((float)(brush->Position.y-center.y)/scale + sight.y)	/BlockSize;
+            if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth) {
+                if (mapTerrain[y][x] != CurBrushType) {
+                    mapTerrain[y][x] = CurBrushType;
+                    RemoveObject(mapTerrainPtr[y][x]->GetObjectIterator());
+                    if (CurBrushType == TILE_DIRT) {
+                        MapComponent->AddNewObject(
+                                mapTerrainPtr[y][x] = new Engine::Image("play/dirt.png", x * BlockSize, y * BlockSize,
+                                                                        BlockSize, BlockSize));
+                    } else if (CurBrushType == TILE_FLOOR) {
+                        MapComponent->AddNewObject(
+                                mapTerrainPtr[y][x] = new Engine::Image("play/grass.png", x * BlockSize, y * BlockSize,
+                                                                        BlockSize, BlockSize));
+                    } else if (CurBrushType == TILE_WATER) {
+                        MapComponent->AddNewObject(
+                                mapTerrainPtr[y][x] = new Engine::Image("play/water.png", x * BlockSize, y * BlockSize,
+                                                                        BlockSize, BlockSize));
+                    }
+                }
+            }
+        }
+    }
 }
 void MapEditScene::Draw(float scale, float cx, float cy, float sx, float sy) const {
     al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -68,6 +97,9 @@ void MapEditScene::Draw(float scale, float cx, float cy, float sx, float sy) con
     if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
     if(preview)	{
         preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
+    }
+    if(brush) {
+        brush->Draw(this->scale,brush->Position.x,brush->Position.y,brush->Position.x,brush->Position.y);
     }
 }
 void MapEditScene::OnMouseScroll(int mx, int my, int delta){
@@ -93,6 +125,9 @@ void MapEditScene::OnMouseDown(int button, int mx, int my) {
             buildingExist--;
         }
     }
+    if(button & 1 && brush) {
+        if (!brushUsed)brushUsed = 1;
+    }
     IScene::OnMouseDown(button, mx, my);
 }
 void MapEditScene::OnMouseMove(int mx, int my) {
@@ -109,11 +144,18 @@ void MapEditScene::OnMouseMove(int mx, int my) {
 }
 void MapEditScene::OnMouseUp(int button, int mx, int my) {
     IScene::OnMouseUp(button, mx, my);
-    if (!imgTarget->Visible)
-        return;
     const int x = ((float)(mx-center.x)/scale + sight.x) 	/	BlockSize;
     const int y = ((float)(my-center.y)/scale + sight.y)	/	BlockSize;
     if (button & 1) {
+        if(brushUsed && brush){
+            std::cerr<<"remove brush\n";
+            RemoveObject(brush->GetObjectIterator());
+            brush= nullptr;
+            brushUsed=0;
+            return;
+        }
+        if (!imgTarget->Visible)
+            return;
         if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && !mapBuildings[y][x]) {
             if (!preview || (UIGroup->Visible && mx>=Engine::GameEngine::GetInstance().GetScreenWidth()-320))
                 return;
@@ -138,6 +180,7 @@ void MapEditScene::OnMouseUp(int button, int mx, int my) {
             preview = nullptr;
             OnMouseMove(mx, my);
         }
+
     }
 }
 void MapEditScene::OnKeyDown(int keyCode) {
@@ -264,14 +307,17 @@ void MapEditScene::ConstructUI() {
     Btn->SetOnClickCallback(std::bind(&MapEditScene::ChangeBrush, this, j));
     UIGroup->AddNewControlObject(Btn);
 
+    Btn = new Engine::ImageButton("play/turret-7.png", "play/turret-7.png", x, y+(j/4)*dx+400 , 75, 75);
+    Btn->SetOnClickCallback(std::bind(&MapEditScene::BrushClick, this, 0));
+    UIGroup->AddNewControlObject(Btn);
+
     //save button
-    Btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png",x, y+550, 290, 60);
+    Btn = new Engine::ImageButton("stage-select/button1.png", "stage-select/button2.png",x, y+550, 290, 60);
     Btn->SetOnClickCallback(std::bind(&MapEditScene::SaveBtnClicked, this, 0));
     UIGroup->AddNewControlObject(Btn);
     UIGroup->AddNewObject(new Engine::Label("Save", "pirulen.ttf", 48, x+145, y+580, 0, 0, 0, 255, 0.5, 0.5));
 }
 void MapEditScene::BtnClicked(int id) {
-    std::cerr<<"button clicked\n";
     if (preview){
         RemoveObject(preview->GetObjectIterator());
     }
@@ -287,22 +333,27 @@ void MapEditScene::BtnClicked(int id) {
         preview = new wall(0, 0,RED);
     else preview=nullptr;
     if (!preview){
-        std::cerr<<"Button click fail\n";
         imgTarget->Visible=false;
         return;
     }
-    std::cerr<<"Button clicking\n";
     preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
     preview->Tint = al_map_rgba(255, 255, 255, 200);
     preview->Enabled = false;
     preview->Preview = true;
     AddNewObject(preview);
     OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
-    std::cerr<<"Button click end\n";
+}
+
+void MapEditScene::BrushClick(int id){
+    brush=new Sprite("play/turret-7.png",0,0);
+    brush->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+    AddNewObject(brush);
+    std::cerr<<"brush create\n";
+    OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
 
 void MapEditScene::ChangeBrush(int id){
-    if(id!=CurBrushType)CurBrushType=id;
+    if(id!=CurBrushType)CurBrushType=(TileType)id;
 }
 
 void MapEditScene::SaveBtnClicked(int id){

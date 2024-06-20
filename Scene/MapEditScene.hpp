@@ -40,9 +40,10 @@ protected:
     };
 public:
 
-    int CurBrushType;
+    TileType CurBrushType;
     int MapWidth, MapHeight;
     int buildingExist;
+    int brushUsed;
     static const int BlockSize=64;
     float scale;
     Engine::Point center;
@@ -57,6 +58,7 @@ public:
     Group* UIGroup;
     Engine::Image* imgTarget;
     Turret* preview;
+    Engine::Sprite* brush;
     std::vector<std::vector<TileType>> mapTerrain;
     std::vector<std::vector<Engine::Image*>> mapTerrainPtr;
     std::vector<std::vector<Turret*>> mapBuildings;
@@ -74,6 +76,7 @@ public:
     void ConstructUI();
     void BtnClicked(int id);
     void SaveBtnClicked(int id);
+    void BrushClick(int id);
     void ChangeBrush(int id);
     bool CheckSpaceValid(int x, int y,Turret *turret);
     void InitializeMap();
