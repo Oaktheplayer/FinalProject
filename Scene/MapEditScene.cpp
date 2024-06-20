@@ -1,5 +1,6 @@
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -159,7 +160,7 @@ void MapEditScene::OnMouseUp(int button, int mx, int my) {
         if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth && !mapBuildings[y][x]) {
             if (!preview || (UIGroup->Visible && mx>=Engine::GameEngine::GetInstance().GetScreenWidth()-320))
                 return;
-            if (!CheckSpaceValid(x, y ,preview)) {
+            if (!CheckSpaceValid(x, y)) {
                 Engine::Sprite* sprite;
                 GroundEffectGroup->AddNewObject(sprite = new DirtyEffect("play/target-invalid.png", 1, x * BlockSize + BlockSize / 2, y * BlockSize + BlockSize / 2));
                 sprite->Rotation = 0;
@@ -233,7 +234,7 @@ void MapEditScene::OnKeyUp(int keyCode){
 void MapEditScene::InitializeMap() {
     mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
     mapTerrainPtr = std::vector<std::vector<Engine::Image*>>(MapHeight, std::vector<Engine::Image*>(MapWidth));
-    mapBuildings = std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth));
+    mapBuildings = std::vector<std::vector<Building*>>(MapHeight, std::vector<Building*>(MapWidth));
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             mapTerrain[i][j]=TILE_DIRT;
@@ -293,16 +294,25 @@ void MapEditScene::ConstructUI() {
     i++;
 
     Engine::ImageButton* Btn;
+    Frame1 = new Engine::ImageButton("play/black.png", "play/black.png", x+j%4*(dx+30)-10, y+(j/4)*dx+290 , 95, 95);
+    UIGroup->AddNewObject(Frame1);
+    Frame1->Visible=1;
     Btn = new Engine::ImageButton("play/dirt.png", "play/dirt.png", x+j%4*(dx+30), y+(j/4)*dx+300 , 75, 75);
     Btn->SetOnClickCallback(std::bind(&MapEditScene::ChangeBrush, this, j));
     UIGroup->AddNewControlObject(Btn);
     j++;
 
+    Frame2 = new Engine::ImageButton("play/black.png", "play/black.png", x+j%4*(dx+30)-10, y+(j/4)*dx+290 , 95, 95);
+    UIGroup->AddNewObject(Frame2);
+    Frame2->Visible=0;
     Btn = new Engine::ImageButton("play/grass.png", "play/grass.png", x+j%4*(dx+30), y+(j/4)*dx+300 , 75, 75);
     Btn->SetOnClickCallback(std::bind(&MapEditScene::ChangeBrush, this, j));
     UIGroup->AddNewControlObject(Btn);
     j++;
 
+    Frame3 = new Engine::ImageButton("play/black.png", "play/black.png", x+j%4*(dx+30)-10, y+(j/4)*dx+290 , 95, 95);
+    UIGroup->AddNewObject(Frame3);
+    Frame3->Visible=0;
     Btn = new Engine::ImageButton("play/water.png", "play/water.png", x+j%4*(dx+30), y+(j/4)*dx+300 , 75, 75);
     Btn->SetOnClickCallback(std::bind(&MapEditScene::ChangeBrush, this, j));
     UIGroup->AddNewControlObject(Btn);
@@ -311,11 +321,16 @@ void MapEditScene::ConstructUI() {
     Btn->SetOnClickCallback(std::bind(&MapEditScene::BrushClick, this, 0));
     UIGroup->AddNewControlObject(Btn);
 
+    //back button
+    Btn = new Engine::ImageButton("stage-select/button1.png", "stage-select/button2.png",x, y+490, 290, 60);
+    Btn->SetOnClickCallback(std::bind(&MapEditScene::BackOnClick, this, 0));
+    UIGroup->AddNewControlObject(Btn);
+    UIGroup->AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, x+145, y+520, 0, 0, 0, 255, 0.5, 0.5));
     //save button
-    Btn = new Engine::ImageButton("stage-select/button1.png", "stage-select/button2.png",x, y+550, 290, 60);
+    Btn = new Engine::ImageButton("stage-select/button1.png", "stage-select/button2.png",x, y+570, 290, 60);
     Btn->SetOnClickCallback(std::bind(&MapEditScene::SaveBtnClicked, this, 0));
     UIGroup->AddNewControlObject(Btn);
-    UIGroup->AddNewObject(new Engine::Label("Save", "pirulen.ttf", 48, x+145, y+580, 0, 0, 0, 255, 0.5, 0.5));
+    UIGroup->AddNewObject(new Engine::Label("Save", "pirulen.ttf", 48, x+145, y+600, 0, 0, 0, 255, 0.5, 0.5));
 }
 void MapEditScene::BtnClicked(int id) {
     if (preview){
@@ -330,7 +345,7 @@ void MapEditScene::BtnClicked(int id) {
     else if (id == 3 )
         preview = new Flamethrower(0, 0,RED);
     else if (id == 4 )
-        preview = new wall(0, 0,RED);
+        preview = new Wall(0, 0,RED);
     else preview=nullptr;
     if (!preview){
         imgTarget->Visible=false;
@@ -344,6 +359,10 @@ void MapEditScene::BtnClicked(int id) {
     OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
 
+void MapEditScene::BackOnClick(int stage) {
+    Engine::GameEngine::GetInstance().ChangeScene("start");
+}
+
 void MapEditScene::BrushClick(int id){
     brush=new Sprite("play/turret-7.png",0,0);
     brush->Position = Engine::GameEngine::GetInstance().GetMousePosition();
@@ -353,7 +372,32 @@ void MapEditScene::BrushClick(int id){
 }
 
 void MapEditScene::ChangeBrush(int id){
-    if(id!=CurBrushType)CurBrushType=(TileType)id;
+    if(id!=CurBrushType){
+        switch(CurBrushType){
+            case TILE_DIRT:
+                Frame1->Visible=0;
+                break;
+            case TILE_FLOOR:
+                Frame2->Visible=0;
+                break;
+            case TILE_WATER:
+                Frame3->Visible=0;
+                break;
+        }
+        CurBrushType=(TileType)id;
+        switch(CurBrushType){
+            case TILE_DIRT:
+                Frame1->Visible=1;
+                break;
+            case TILE_FLOOR:
+                Frame2->Visible=1;
+                break;
+            case TILE_WATER:
+                Frame3->Visible=1;
+                break;
+        }
+    }
+
 }
 
 void MapEditScene::SaveBtnClicked(int id){
@@ -376,7 +420,7 @@ void MapEditScene::SaveBtnClicked(int id){
                 for (int j = 0; j < MapWidth; j++) {
                     if (dynamic_cast<MachineGunTurret *> (mapBuildings[i][j]))data << MachineGun;
                     else if (dynamic_cast<LaserTurret *> (mapBuildings[i][j]))data << Laser;
-                    else if (dynamic_cast<wall *> (mapBuildings[i][j]))data << Wall;
+                    else if (dynamic_cast<Wall *> (mapBuildings[i][j]))data << wall;
                     else if (dynamic_cast<Flamethrower *> (mapBuildings[i][j]))data << FlameThrower;
                     else if (dynamic_cast<MissileTurret *> (mapBuildings[i][j]))data << Missile;
                     else data << None;
@@ -389,7 +433,7 @@ void MapEditScene::SaveBtnClicked(int id){
     }
 }
 
-bool MapEditScene::CheckSpaceValid(int x, int y,Turret *turret) {
+bool MapEditScene::CheckSpaceValid(int x, int y) {
     if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight)return false;
     if(mapBuildings[y][x])return false;
     return true;

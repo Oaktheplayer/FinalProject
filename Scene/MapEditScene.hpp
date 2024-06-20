@@ -11,6 +11,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "Turret/Turret.hpp"
+#include "Turret/TurretButton.hpp"
 
 class Enemy;
 class Turret;
@@ -35,7 +36,7 @@ protected:
         MachineGun,
         Laser,
         Missile,
-        Wall,
+        wall,
         FlameThrower
     };
 public:
@@ -57,11 +58,12 @@ public:
     Group* GroundEffectGroup;
     Group* UIGroup;
     Engine::Image* imgTarget;
-    Turret* preview;
+    Building* preview;
     Engine::Sprite* brush;
+    Engine::ImageButton* Frame1,* Frame2,* Frame3;
     std::vector<std::vector<TileType>> mapTerrain;
     std::vector<std::vector<Engine::Image*>> mapTerrainPtr;
-    std::vector<std::vector<Turret*>> mapBuildings;
+    std::vector<std::vector<Building*>> mapBuildings;
     explicit MapEditScene() = default;
     void Initialize() override;
     void Terminate() override;
@@ -75,10 +77,11 @@ public:
     void OnKeyUp(int keyCode) override;
     void ConstructUI();
     void BtnClicked(int id);
+    void BackOnClick(int stage);
     void SaveBtnClicked(int id);
     void BrushClick(int id);
     void ChangeBrush(int id);
-    bool CheckSpaceValid(int x, int y,Turret *turret);
+    bool CheckSpaceValid(int x, int y);
     void InitializeMap();
 };
 
