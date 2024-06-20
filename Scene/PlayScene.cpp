@@ -34,7 +34,7 @@
 
 float scale;
 const int opd[]={2,3,0,1,6,7,4,5};
-bool PlayScene::DebugMode=true;// = false;
+bool PlayScene::DebugMode= true;
 const std::vector<Engine::Point> PlayScene::directions = {
 	Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1),
 	Engine::Point(-1, -1), Engine::Point(1, -1), Engine::Point(1, 1), Engine::Point(-1, 1)};
@@ -86,12 +86,10 @@ void PlayScene::Initialize() {
         money=150;
         ReadEnemyWave();
     }
-	mapDirection= std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
-	mapHValue	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
-	mapGCost	= std::vector<std::vector<int>>	(MapHeight, std::vector<int>	(MapWidth,-1));
-	mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-	// mapDistance = CalculateBFSDistance(0);
-    // if(mapDistance[0][0]  ==-1)mapDistance = CalculateBFSDistance(1);
+	mapDirection = std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
+	mapHValue = std::vector<std::vector<int>>(MapHeight, std::vector<int>	(MapWidth,-1));
+	mapGCost = std::vector<std::vector<int>>(MapHeight, std::vector<int>	(MapWidth,-1));
+	mapAStarVisited = std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
     ConstructUI();
 	imgTarget = new Engine::Image("play/target.png", 0, 0);
 	imgTarget->Visible = false;
@@ -119,9 +117,6 @@ void PlayScene::Update(float deltaTime) {
 	sight = sight + sight_dir*sight_speed;
 	if (SpeedMult == 0)
 		deathCountDown = -1;
-//	else if (deathCountDown != -1)
-//		SpeedMult = 1;
-	// Calculate danger zone.
 	std::vector<float> reachEndTimes;
 	for (auto& it : UnitGroups[RED]->GetObjects()) {
         if(dynamic_cast<Enemy*>(it))
@@ -261,10 +256,8 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	float	pre_s	=	scale;
 	scale+= (float)delta /4;
-	if(scale>2)		scale=2;
-	else
-	//if(scale<0.75)	scale=0.75;
-	if(scale<0.25)	scale=0.25;
+	if(scale>2)	scale=2;
+	else if(scale<0.25)	scale=0.25;
 
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
@@ -437,15 +430,14 @@ void PlayScene::ReadMap() {
     EndGridPoint = Engine::Point(MapWidth-1, MapHeight - 1);
 	while (fin >> c) {
 		switch (c) {
-		case '0': mapData.push_back(0);	break;
-		case '1': mapData.push_back(1); break;
-        case '6': mapData.push_back(6); break;
 		case '\n':
 		case '\r':
 			if (static_cast<int>(mapData.size()) / MapWidth != 0)
 				throw std::ios_base::failure("Map data is corrupted1.");
 			break;
-		default: throw std::ios_base::failure("Map data is corrupted2.");
+		default:
+            if(c>='0'&&c<='9')mapData.push_back(c-'0');
+            else throw std::ios_base::failure("Map data is corrupted2.");
 		}
 	}
 	std::cerr<<MapWidth<<','<<MapHeight<<'\n';
