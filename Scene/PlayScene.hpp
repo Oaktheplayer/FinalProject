@@ -10,10 +10,12 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "Engine/Unit.hpp"
+#include "Building/Building.hpp"
 // #include "Enemy/Enemy.hpp"
 
 class Enemy;
 class Turret;
+class Building;
 namespace Engine {
 	class Group;
 	class Image;
@@ -91,7 +93,9 @@ public:
 	std::vector<std::vector<int>> mapGCost;
 	std::vector<std::vector<bool>> mapAStarVisited;
 	std::vector<std::vector<char>> mapDirection;
-	std::vector<std::vector<Turret*>> mapBuildings;
+	//TEST
+	//std::vector<std::vector<Turret*>> mapBuildings;
+	std::vector<std::vector<Building*>> mapBuildings;
 	std::list<std::pair<int, float>> enemyWaveData;
 	std::list<int> keyStrokes;
 	Engine::Point GetClientSize();
@@ -122,7 +126,8 @@ public:
 	std::string	AStarPathFinding(Engine::Point start, int flag=0);
 	int	HVal(Engine::Point A, Engine::Point B);
 	void RemoveBuilding(int x,int y);
-	Turret* HasBuildingAt(int x,int y);
+	Building* HasBuildingAt(int x,int y);
+	Building* HasBuildingAt(Engine::Point p);
 	int score;
 	void ScorePoint(int x);
 	void RecordScore();

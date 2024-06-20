@@ -15,7 +15,7 @@ void TruckEnemy::Kill(){
 	Enemy* enemy;
 	for(int i=0;i<4;i++){
 		enemy = getPlayScene()->SpawnEnemy(1,Position.x,Position.y);
-		if(!pathBlock)
+		if(!roadBlock)
 			enemy->Update(0.5f*i);
 	}
 	Enemy::Kill();

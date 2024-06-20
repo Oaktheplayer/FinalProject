@@ -41,8 +41,8 @@ void Unit::OnExplode() {
 	}
 }
 
-Unit::Unit(std::string img, float x, float y,Team team, float radius, float hp):
-    Engine::Sprite(img, x, y), hp(hp),team(team),font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)){
+Unit::Unit(std::string img, float x, float y,Team team, float radius, float hp, int price):
+    Engine::Sprite(img, x, y), hp(hp),team(team),font(Engine::Resources::GetInstance().GetFont("pirulen.ttf", 32)), price(price){
     CollisionRadius = radius;
 	for(int i=0;i<STATUS_EFFECT_LENGTH;i++){
 		visualEffect[i]	=	nullptr;
@@ -230,5 +230,8 @@ void Unit::ClearEffect(StatusEffect effect){
 	visualEffect[effect]	=	nullptr;
 }
 
+int Unit::GetPrice()const 	{return price;}
+
+int Unit::GetHp() 	const	{return (int)hp;}
 
 Team Unit::getTeam(){return	team;}

@@ -28,6 +28,8 @@ add_executable(FinalProject
         UI/Animation/FireEffect.hpp
         Enemy/Enemy.cpp
         Enemy/Enemy.hpp
+        Building/Building.cpp
+        Building/Building.hpp
         UI/Animation/ExplosionEffect.cpp
         UI/Animation/ExplosionEffect.hpp
         UI/Animation/FireParticle.cpp
@@ -111,6 +113,8 @@ add_executable(FinalProject
         Scene/ScoreboardScene.hpp
         Turret/Wall.cpp
         Turret/Wall.hpp
+        Enemy/TroopTurret/TroopTurret.cpp
+        Enemy/TroopTurret/TroopTurret.hpp
         Enemy/SonicEnemy.cpp
         Enemy/SonicEnemy.h
         Enemy/EnemyButton.cpp

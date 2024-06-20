@@ -29,6 +29,7 @@
 #include "Enemy/SonicEnemy.h"
 #include "Turret/TurretButton.hpp"
 #include "Enemy/EnemyButton.h"
+#include "Building/Building.hpp"
 #include	<iostream>
 
 float scale;
@@ -317,9 +318,9 @@ void PlayScene::OnMouseUp(int button, int mx, int my) {
 			preview->Enabled = true;
 			preview->Preview = false;
 			preview->Tint = al_map_rgba(255, 255, 255, 255);
-            if(dynamic_cast<Turret*>(preview)) {
-                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Turret *>(preview));
-                mapBuildings[y][x] = dynamic_cast<Turret *>(preview);
+            if(dynamic_cast<Building*>(preview)) {
+                UnitGroups[BLUE]->AddNewObject(dynamic_cast<Building *>(preview));
+                mapBuildings[y][x] = dynamic_cast<Building*>(preview);
             }else {
                 UnitGroups[BLUE]->AddNewObject(dynamic_cast<Enemy *>(preview));
                 dynamic_cast<Enemy *>(preview)->UpdatePath(mapDistance);
@@ -478,7 +479,9 @@ void PlayScene::ReadMap() {
                     break;            }
 		}
 	}
-    mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
+	//TEST
+	//mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
+    mapBuildings	=	std::vector<std::vector<Building*>>(MapHeight, std::vector<Building*>(MapWidth,nullptr));
     if(gamemode==1){
         for (int i = MapHeight; i < 2*MapHeight; i++) {
             for (int j = 0; j < MapWidth; j++) {
@@ -487,7 +490,7 @@ void PlayScene::ReadMap() {
                     case 0:
                         break;
                     case 1:
-                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new wall((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new Wall((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
                         break;
                     case 2:
                         UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new LaserTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
@@ -631,7 +634,7 @@ void PlayScene::DefenceModeUI(){
     btn = new TurretButton("play/button1.png", "play/button2.png",
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
                            Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
-            , x+i%4*dx, y+(i/4)*dx, wall::Price);
+            , x+i%4*dx, y+(i/4)*dx, Wall::Price);
     btn->SetOnClickCallback(std::bind(&PlayScene::DMUIBtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
     i++;
@@ -676,8 +679,8 @@ void PlayScene::DMUIBtnClicked(int id) {
 		preview = new MissileTurret(0, 0,BLUE);
 	else if (id == 3 && money >= Flamethrower::Price)
 		preview = new Flamethrower(0, 0,BLUE);
-    else if (id == 4 && money >= wall::Price)
-        preview = new wall(0, 0,BLUE);
+    else if (id == 4 && money >= Wall::Price)
+        preview = new Wall(0, 0,BLUE);
 	else preview=nullptr;
 	if (!preview){
 		imgTarget->Visible=false;
@@ -696,7 +699,7 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
         if(mapTerrain[y][x]!=TILE_DIRT)return false;
         return true;
     }else{
-        mapBuildings[y][x] = dynamic_cast<Turret *>(unit);
+        mapBuildings[y][x] = dynamic_cast<Building*>(unit);
 		//TEST
 		bool hasPath = false;
         if(mapDirection[y][x]!=-1) hasPath	=	true;
@@ -823,7 +826,7 @@ void PlayScene::RemoveBuilding(int x, int y){
 	}
 	std::cerr<<"successfully removed building\n";
 }
-Turret *PlayScene::HasBuildingAt(int x, int y)
+Building *PlayScene::HasBuildingAt(int x, int y)
 {
 	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
 	if(	x<0 || 	x>=MapWidth
@@ -831,6 +834,10 @@ Turret *PlayScene::HasBuildingAt(int x, int y)
 	return nullptr;
 	return mapBuildings[y][x];
 }
+Building *PlayScene::HasBuildingAt(Point p){
+	return HasBuildingAt(p.x,p.y);
+}
+
 void PlayScene::ScorePoint(int point){
 	score+=point;
 	UIScore->Text = "Score "+std::to_string(score);

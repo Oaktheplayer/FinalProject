@@ -2,10 +2,11 @@
 #define TANKENEMY_HPP
 #include "Enemy.hpp"
 #include "Engine/Sprite.hpp"
+#include "TroopTurret/TroopTurret.hpp"
 
 class TankEnemy : public Enemy {
 private:
-	Sprite head;
+	TroopTurret head;
 	float targetRotation;
 	float reload;
 public:
@@ -15,5 +16,6 @@ public:
 	void Update(float deltaTime) override;
 	void RotateHead(float deltaTime) override;
 	void CreateBullet() override;
+	void Kill() override;
 };
 #endif // TANKENEMY_HPP

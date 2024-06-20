@@ -21,9 +21,10 @@
 #include "Turret/Turret.hpp"
 #include "Engine/Resources.hpp"
 #include "Engine/Collider.hpp"
+#include "Building/Building.hpp"
 
 Enemy::Enemy(std::string img, float x, float y,Team team, float radius, float speed, float hp, int money, int point,int price) :
-	Unit(img, x, y,team,radius,hp), speed(speed), money(money), point(point),price(price){
+	Unit(img, x, y,team,radius,hp,price), speed(speed), money(money), point(point){
 	reachEndTime = 0;
 }
 void Enemy::Hit(float damage) {
@@ -38,11 +39,12 @@ void Enemy::Hit(float damage) {
 void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
 	int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));
-	if(Point(x,y)!=getPlayScene()->SpawnGridPoint){
+	auto scene = getPlayScene();
+	if(Point(x,y)!=scene->SpawnGridPoint){
 		if (x < 0) x = 0;
-		if (x >= getPlayScene()->MapWidth) x = getPlayScene()->MapWidth - 1;
+		if (x >= scene->MapWidth) x = scene->MapWidth - 1;
 		if (y < 0) y = 0;
-		if (y >= getPlayScene()->MapHeight) y = getPlayScene()->MapHeight - 1;
+		if (y >= scene->MapHeight) y = scene->MapHeight - 1;
 	}
 	Engine::Point pos(x, y);
 	// int num = mapDistance[y][x];
@@ -69,19 +71,22 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 	// 	num--;
 	// }
 	// path.push(getPlayScene()->EndGridPoint);
-	path	=	std::queue<Point>();
-	std::string	path_str = std::string(getPlayScene()->AStarPathFinding(pos));
+	path		=	std::queue<Point>();
+	roadBlockQ	=	std::queue<Point>();
+	std::string	path_str = std::string(scene->AStarPathFinding(pos));
 	Point	nextp =	pos;
 	for(char i: path_str){
         //if(i=='\0')break;
 		Point dir(PlayScene::directions[(int)i-'0']);
-		getPlayScene()->mapDirection[nextp.y][nextp.x]	=	i-'0';
+		scene->mapDirection[nextp.y][nextp.x]	=	i-'0';
+		if(scene->HasBuildingAt(nextp.x,nextp.y)){
+			roadBlockQ.push(nextp);
+		}
 		nextp=nextp+dir;
 		path.push(nextp);
 	}
 }
 void Enemy::Update(float deltaTime) {
-	
 	// Pre-calculate the velocity.
 	if(!Enabled) return;
 	float remainSpeed = speed * deltaTime;
@@ -99,26 +104,58 @@ void Enemy::Update(float deltaTime) {
 		
 		Engine::Point nextp = path.front() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
 		Engine::Point vec = nextp - Position;
-		pathBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
-			
-		if(pathBlock){
-			Target=pathBlock;
-			bool contacted	=	Collider::IsCircleOverlap(Position,CollisionRadius,pathBlock->Position,pathBlock->CollisionRadius);
-			if(contacted){
-				doSpriteUpdate	=	false;
+		//roadBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
+		
+		if(!roadBlockQ.empty()){
+			if(!(roadBlock	=	getPlayScene()->HasBuildingAt(roadBlockQ.front()))){
+				roadBlockQ.pop();
+			}
+		}
+		else roadBlock	=	nullptr;
+		
+		if(roadBlock){
+			if(roadBlock!=Target){
+				if(range){	
+					if(Collider::IsCircleOverlap(Position,range,roadBlock->Position,0)){
+						if(Target){
+							Target->lockedUnits.erase(lockedUnitIterator);
+							Target = nullptr;
+							lockedUnitIterator = std::list<Unit*>::iterator();
+						}
+						Target = dynamic_cast<Unit*>(roadBlock);
+						Target->lockedUnits.push_back(this);
+						lockedUnitIterator = std::prev(Target->lockedUnits.end());
+						// Target	=	roadBlock;
+						// RotateHead(deltaTime);
+					}
+					// if(Target && roadBlock==Target)  doSpriteUpdate	=	false;
+					// else doSpriteUpdate	=	true;
+				}
+				else{
+					if(Collider::IsCircleOverlap(Position,CollisionRadius,roadBlock->Position,roadBlock->CollisionRadius)){
+						if(roadBlock!=Target){
+							Target=roadBlock;
+						}
+						
+					}
+				}
+			}
+			if(roadBlock==Target){
+            	doSpriteUpdate	=	false;
 				if(!range){
 					if(reload<=0){
 						Target->Hit(1);
 						reload	=	coolDown;
 					}
 					reload-=deltaTime;
-					//std::cerr<<"attacking building\n";
 				}
-                break;
+				break;
 			}
+			else doSpriteUpdate	=	true;
 		}
-		else if(!pathBlock) doSpriteUpdate	=	true;
+		else doSpriteUpdate	=	true;
 
+		//std::cerr<<"done raodblock update.\n";
 		// Add up the distances:
 		// 1. to path.back()
 		// 2. path.back() to border
@@ -156,6 +193,6 @@ void Enemy::Draw(float scale, float cx, float cy, float sx, float sy) const {
 //    }
 }
 
-int Enemy::GetPrice() const {
-    return price;
-}
+// int Enemy::GetPrice() const {
+//     return price;
+// }

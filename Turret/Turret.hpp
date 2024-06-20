@@ -6,13 +6,14 @@
 
 #include "Engine/Sprite.hpp"
 #include "Engine/Unit.hpp"
+#include "Building/Building.hpp"
 
 class Enemy;
 class PlayScene;
+class Building;
 
-class Turret: public Unit {
+class Turret: public Building {
 protected:
-    int price;
     int point;
     Sprite imgBase;
     //std::list<Turret*>::iterator lockedTurretIterator;
@@ -24,7 +25,5 @@ public:
     void Update(float deltaTime) override;
     virtual void Kill() override;
     void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
-    int GetHp() const;
-    int GetPrice() const override;
 };
 #endif // TURRET_HPP

@@ -11,6 +11,8 @@
 #include	"UI/Animation/VisualEffect.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/Unit.hpp"
+#include "Building/Building.hpp"
+#include "TroopTurret/TroopTurret.hpp"
 
 class Bullet;
 class PlayScene;
@@ -21,11 +23,11 @@ class Enemy : public Unit {
 protected:
  	// std::vector<Engine::Point> path;
 	std::queue<Engine::Point> path;
-	Turret* pathBlock=nullptr;
+	Building* roadBlock=nullptr;
+	std::queue<Point> roadBlockQ;
 	float speed;
 	int money;
 	int point;
-    int price;
 
 public:
 	float reachEndTime;
@@ -36,8 +38,9 @@ public:
 	void UpdatePath(const std::vector<std::vector<int>>& mapDistance);
 	void Update(float deltaTime) override;
     void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
-    int GetPrice() const override;
+    // int GetPrice() const override;
 	// void Draw() const override;
 	// void GetEffect(StatusEffect effect, float timer);
+	friend class TroopTurret;
 };
 #endif // ENEMY_HPP

@@ -17,7 +17,7 @@ PlayScene* Turret::getPlayScene() {
 }
 Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y,Team team, float radius, int price, float coolDown, int point) :
 	//Sprite(imgTurret, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
-	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,100), price(price), imgBase(imgBase, x, y) {
+	Building(imgTurret, x, y,team,PlayScene::BlockSize/2,100,price), imgBase(imgBase, x, y) {
 	Unit::coolDown	=	coolDown;
 	range = radius;
 	if(team==BLUE)
@@ -82,13 +82,6 @@ void Turret::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	}
 }
 
-int Turret::GetPrice() const {
-    return price;
-}
-
-int Turret::GetHp() const{
-    return (int)hp;
-}
 void Turret::Kill()
 {
     getPlayScene()->RemoveBuilding(Position.x/PlayScene::BlockSize,Position.y/PlayScene::BlockSize);

@@ -32,6 +32,8 @@ protected:
 	float hp;
 	Team team;
 
+	int price;
+
 	float range = 0;
     float reload = 0;
     float coolDown=1;
@@ -57,7 +59,7 @@ protected:
 public:
     bool Enabled = true;
     bool Preview = false;
-    Unit(std::string img, float x, float y,Team team, float radius, float hp);
+    Unit(std::string img, float x, float y,Team team, float radius, float hp, int price);
 	Team	getTeam();
     Unit* 	Target = nullptr;
     virtual void Hit(float damage);
@@ -67,7 +69,8 @@ public:
 	void Update(float deltaTime) override;
 	void Draw(float scale=1, float cx=0, float cy=0, float sx=0, float sy=0) const override;
 	void GetEffect(StatusEffect effect, float timer);
-    virtual int GetPrice() const=0;
+    int  GetPrice() const;
+	int  GetHp() const;
 };
 
 #endif //UNIT_HPP
