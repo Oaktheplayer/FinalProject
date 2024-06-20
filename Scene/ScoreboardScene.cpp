@@ -126,10 +126,4 @@ void ScoreboardScene::ToPage(bool isToNext){
 Record::Record(std::string  n,  std::string s,  std::string d):     username(n),score(s),date(d) {}
 
 Record::Record(std::string  n, std::string  s) : username(n), score(s), date("N/A") {};
-// std::istream &operator>>(std::istream    is, Record  r){
-//     std::string s;
-//     int n;
-//     is>>s>>n;
-//     r.score =   n;  r.username  =   s;
-//     return  is;
-// };
+

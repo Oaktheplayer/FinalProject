@@ -13,13 +13,15 @@ TurretButton::TurretButton(std::string img, std::string imgIn, Engine::Sprite Ba
 }
 void TurretButton::Update(float deltaTime) {
 	ImageButton::Update(deltaTime);
-	if (getPlayScene()->GetMoney() >= money) {
-		Enabled = true;
-		Base.Tint = Turret.Tint = al_map_rgba(255, 255, 255, 255);
-	} else {
-		Enabled = false;
-		Base.Tint = Turret.Tint = al_map_rgba(0, 0, 0, 160);
-	}
+    if (dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene())){
+        if (getPlayScene()->GetMoney() >= money) {
+            Enabled = true;
+            Base.Tint = Turret.Tint = al_map_rgba(255, 255, 255, 255);
+        } else {
+            Enabled = false;
+            Base.Tint = Turret.Tint = al_map_rgba(0, 0, 0, 160);
+        }
+    }else Enabled =true;
 }
 void TurretButton::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	ImageButton::Draw();

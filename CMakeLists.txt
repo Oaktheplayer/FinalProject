@@ -12,7 +12,6 @@ file(COPY Resource/fonts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY Resource/images DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY Resource DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY allegro_monolith-5.2.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 add_executable(FinalProject
         Engine/Allegro5Exception.cpp
         Engine/Allegro5Exception.hpp
@@ -119,6 +118,8 @@ add_executable(FinalProject
         Enemy/SonicEnemy.h
         Enemy/EnemyButton.cpp
         Enemy/EnemyButton.h
+        Scene/MapEditScene.cpp
+        Scene/MapEditScene.hpp
         #        UI/Component/TextInput.cpp
 #        UI/Component/TextInput.hpp
 )

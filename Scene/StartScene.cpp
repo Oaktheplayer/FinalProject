@@ -36,6 +36,11 @@ void StartScene::Initialize() {
     btn->SetOnClickCallback(std::bind(&StartScene::SettingsOnClick, this, 2));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Settings", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
+
+    btn = new Engine::ImageButton("stage-select/button2.png", "stage-select/button1.png", halfW +300, halfH * 3 / 2 - 50, 400, 100);
+    btn->SetOnClickCallback(std::bind(&StartScene::MapEditOnClick, this, 3));
+    AddNewControlObject(btn);
+    AddNewObject(new Engine::Label("Map Edit", "pirulen.ttf", 48, halfW+500, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
 }
 void StartScene::Terminate() {
     IScene::Terminate();
@@ -46,3 +51,6 @@ void StartScene::PlayOnClick(int stage) {
 void StartScene::SettingsOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("settings");
 }
+void StartScene::MapEditOnClick(int stage){
+    Engine::GameEngine::GetInstance().ChangeScene("map-edit");
+};
