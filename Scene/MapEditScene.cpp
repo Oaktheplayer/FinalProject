@@ -84,6 +84,15 @@ void MapEditScene::OnMouseDown(int button, int mx, int my) {
         RemoveObject(preview->GetObjectIterator());
         preview = nullptr;
     }
+    const int x = ((float)(mx-center.x)/scale + sight.x)	/BlockSize;
+    const int y = ((float)(my-center.y)/scale + sight.y)	/BlockSize;
+    if (x >= 0 && x < MapWidth && y >= 0 && y < MapHeight){
+        if ((button & 1) && mapBuildings[y][x]) {
+            RemoveObject(mapBuildings[y][x]->GetObjectIterator());
+            mapBuildings[y][x] = nullptr;
+            buildingExist--;
+        }
+    }
     IScene::OnMouseDown(button, mx, my);
 }
 void MapEditScene::OnMouseMove(int mx, int my) {
