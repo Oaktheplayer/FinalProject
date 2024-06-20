@@ -33,11 +33,11 @@ protected:
     };
     enum BuildingType {
         None,
-        MachineGun,
+        wall,
         Laser,
         Missile,
-        wall,
-        FlameThrower
+        FlameThrower,
+        MachineGun
     };
 public:
 
