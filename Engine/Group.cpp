@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <utility>
-
+#include <iostream>
 #include "Group.hpp"
 #include "IControl.hpp"
 #include "IObject.hpp"

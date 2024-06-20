@@ -20,7 +20,7 @@ Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y,Team
 	Unit(imgTurret, x, y,team,PlayScene::BlockSize/2,100), price(price), imgBase(imgBase, x, y) {
 	Unit::coolDown	=	coolDown;
 	range = radius;
-	if(team==BLUE)
+	if(team==BLUE && getPlayScene())
 		getPlayScene()->ScorePoint(point);
 }
 void Turret::Update(float deltaTime) {
