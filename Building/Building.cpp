@@ -3,13 +3,10 @@
 #include "Building.hpp"
 Building::Building(std::string img, float x, float y,Team team, float radius, float hp, int price) :
     Unit(img, x, y,team, radius, hp, price) {
-    // Move center downward, since we the Building head is slightly biased upward.
-    Anchor.y += 8.0f / GetBitmapHeight();
     hp = 500;
 }
 void Building::Update(float deltaTime) {
     Unit::Update(deltaTime);
-    // PlayScene *scene = getPlayScene();
 }
 void Building::Draw(float scale, float cx, float cy, float sx, float sy) const {
 	if (Preview) {

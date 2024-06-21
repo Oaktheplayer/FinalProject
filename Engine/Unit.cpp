@@ -63,6 +63,8 @@ void Unit::Hit(float damage) {
 //Q1: Remove from where? Enemy? Turret? Do we make two lists or multiple list for each team?
 void Unit::Kill(){
 	OnExplode();
+    Target= nullptr;
+    Enabled= false;
 	// Remove all turret's reference to target.
 	for (auto& it: lockedUnits)
 		it->Target = nullptr;
@@ -193,7 +195,6 @@ void Unit::GetEffect(StatusEffect newEffect, float timer){
 	effectTimer[newEffect]	=	timer;
 	
 }
-
 
 void Unit::DoEffect(StatusEffect effect, float delta){
 	switch(effect){
