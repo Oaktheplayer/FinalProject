@@ -105,56 +105,59 @@ void Enemy::Update(float deltaTime) {
 		Engine::Point nextp = path.front() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
 		Engine::Point vec = nextp - Position;
 		//roadBlock=getPlayScene()->HasBuildingAt(floor(nextp.x/PlayScene::BlockSize),floor(nextp.y/PlayScene::BlockSize));
-		
-		if(!roadBlockQ.empty()){
-			if(!(roadBlock	=	getPlayScene()->HasBuildingAt(roadBlockQ.front()))){
-				roadBlockQ.pop();
-			}
-		}
-		else roadBlock	=	nullptr;
-		
-		if(roadBlock){
-			if(roadBlock!=Target){
-				if(range){	
-					if(Collider::IsCircleOverlap(Position,range,roadBlock->Position,0)){
-						if(Target){
-							Target->lockedUnits.erase(lockedUnitIterator);
-							Target = nullptr;
-							lockedUnitIterator = std::list<Unit*>::iterator();
-						}
-						Target = dynamic_cast<Unit*>(roadBlock);
-						Target->lockedUnits.push_back(this);
-						lockedUnitIterator = std::prev(Target->lockedUnits.end());
-						// Target	=	roadBlock;
-						// RotateHead(deltaTime);
-					}
-					// if(Target && roadBlock==Target)  doSpriteUpdate	=	false;
-					// else doSpriteUpdate	=	true;
-				}
-				else{
-					if(Collider::IsCircleOverlap(Position,CollisionRadius,roadBlock->Position,roadBlock->CollisionRadius)){
-						if(roadBlock!=Target){
-							Target=roadBlock;
-						}
-						
-					}
+		if(type	!= Air){
+			if(!roadBlockQ.empty()){
+				if(!(roadBlock	=	getPlayScene()->HasBuildingAt(roadBlockQ.front()))){
+					roadBlockQ.pop();
 				}
 			}
-			if(roadBlock==Target){
-            	doSpriteUpdate	=	false;
-				if(!range){
-					if(reload<=0){
-						Target->Hit(1);
-						reload	=	coolDown;
+			else roadBlock	=	nullptr;
+
+			if(roadBlock){
+				if(roadBlock!=Target){
+					if(range){	
+						Engine::Point diff = roadBlock->Position - Position;
+						if (diff.Magnitude() <= range) {
+							if(Target){
+								Target->lockedUnits.erase(lockedUnitIterator);
+								Target = nullptr;
+								lockedUnitIterator = std::list<Unit*>::iterator();
+							}
+							Target = dynamic_cast<Unit*>(roadBlock);
+							Target->lockedUnits.push_back(this);
+							lockedUnitIterator = std::prev(Target->lockedUnits.end());
+							// Target	=	roadBlock;
+							// RotateHead(deltaTime);
+						}
+						// if(Target && roadBlock==Target)  doSpriteUpdate	=	false;
+						// else doSpriteUpdate	=	true;
 					}
-					reload-=deltaTime;
+					else{
+						if(Collider::IsCircleOverlap(Position,CollisionRadius,roadBlock->Position,roadBlock->CollisionRadius)){
+							if(roadBlock!=Target){
+								Target=roadBlock;
+							}
+
+						}
+					}
 				}
-				break;
+				if(roadBlock==Target){
+        	    	doSpriteUpdate	=	false;
+					if(!range){
+						if(reload<=0){
+							Target->Hit(1);
+							reload	=	coolDown;
+						}
+						reload-=deltaTime;
+					}
+					break;
+				}
+				else doSpriteUpdate	=	true;
 			}
 			else doSpriteUpdate	=	true;
+		}else{
+			
 		}
-		else doSpriteUpdate	=	true;
-
 		//std::cerr<<"done raodblock update.\n";
 		// Add up the distances:
 		// 1. to path.back()
@@ -187,12 +190,4 @@ void Enemy::Draw(float scale, float cx, float cy, float sx, float sy) const {
                 al_map_rgba(0, 255, 0, 50));
     }
     Unit::Draw(scale, cx, cy, sx, sy);
-//    if (PlayScene::DebugMode) {
-//        // Draw target radius.
-//        al_draw_circle((Position.x-sx)*scale + cx, (Position.y-sy)*scale + cy, range*scale, al_map_rgb(0, 0, 255), 2);
-//    }
 }
-
-// int Enemy::GetPrice() const {
-//     return price;
-// }

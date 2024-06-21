@@ -18,8 +18,8 @@ void TankEnemy::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	head.Draw(scale, cx, cy, sx, sy);
 }
 void TankEnemy::Update(float deltaTime) {
-	if(!Enabled) return;
 	head.Position = Position;
+	if(!Enabled) return;
 	ShootTarget(deltaTime);
 	if(!Target) head.Rotation	=	Rotation;
     Enemy::Update(deltaTime);
@@ -40,5 +40,5 @@ void TankEnemy::Kill()
 // TODO: Head rotation error
 void TankEnemy::RotateHead(float deltaTime){
 	head.RotateTurret(deltaTime);
-    std::cerr<<"rotate head\n";
+    //std::cerr<<"rotate head\n";
 }

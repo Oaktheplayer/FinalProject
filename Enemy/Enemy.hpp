@@ -19,6 +19,13 @@ class PlayScene;
 class Turret;
 
 //extern float scale;
+enum TroopType{
+	Ground,
+	Air,
+	Water,
+	Amph,
+	TYPE_COUNT
+};
 class Enemy : public Unit {
 protected:
  	// std::vector<Engine::Point> path;
@@ -31,7 +38,7 @@ protected:
 
 public:
 	float reachEndTime;
-
+	TroopType type=Ground;
 	Enemy(std::string img, float x, float y, Team team, float radius, float speed, float hp, int money, int point ,int price);
  	void Hit(float damage) override;
 	// virtual void Kill() override;

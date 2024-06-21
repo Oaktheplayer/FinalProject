@@ -14,6 +14,8 @@
 #include "Bullet/FireBullet.hpp"
 #include "Engine/AudioHelper.hpp"
 
+#include <iostream>
+
 PlayScene* TroopTurret::getPlayScene() {
 	return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
@@ -39,13 +41,20 @@ void TroopTurret::RotateTurret(float deltaTime){
 	if (cosTheta > 1) cosTheta = 1;
 	else if (cosTheta < -1) cosTheta = -1;
 	float radian = acos(cosTheta);
+	//std::cerr<<"Target angle "<<radian<<'\n';
 	Engine::Point rotation;
 	if (abs(radian) <= maxRotateRadian)
 		rotation = targetRotation;
-	else
+	else{
+		if(cosTheta	==	-1) originRotation=originRotation+Point(0.01,0.01);
 		rotation = ((abs(radian) - maxRotateRadian) * originRotation + maxRotateRadian * targetRotation) / radian;
+		//std::cerr<<"rotation vec:"<<rotation.x<<','<<rotation.y<<'\n';
+	}	
 	// Add 90 degrees (PI/2 radian), since we assume the image is oriented upward.
+	
 	Rotation = atan2(rotation.y, rotation.x);// + ALLEGRO_PI / 2;
+	//std::cerr<<"Facing = "<<Rotation<<'\n';
+	if(abs(radian)>0.5)return;
 	// Shoot reload.
 	reload -= deltaTime;
 	if (reload <= 0) {
