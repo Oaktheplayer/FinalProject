@@ -49,5 +49,7 @@ public:
 	// void Draw() const override;
 	// void GetEffect(StatusEffect effect, float timer);
 	friend class TroopTurret;
+	virtual void AirTroopTargetFinding();
+	virtual bool AirTroopUpdate(float deltaTime);
 };
 #endif // ENEMY_HPP
