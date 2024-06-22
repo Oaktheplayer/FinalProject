@@ -10,7 +10,7 @@
 const int TankEnemy::Price = 25;
 TankEnemy::TankEnemy(int x, int y,Team team) : Enemy("play/enemy-3.png", x, y,team, 20, 20, 100, 50, 5,Price),
 	head("play/enemy-3-head.png", this,0,0,range,1), targetRotation(0) {
-	coolDown	=	1;
+	coolDown	=	0.2;
 	range		=	300;
 }
 void TankEnemy::Draw(float scale, float cx, float cy, float sx, float sy) const {

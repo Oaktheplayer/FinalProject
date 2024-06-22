@@ -35,7 +35,7 @@
 
 float scale;
 const int opd[]={2,3,0,1,6,7,4,5};
-bool PlayScene::DebugMode= true;
+bool PlayScene::DebugMode= false;
 const std::vector<Engine::Point> PlayScene::directions = {
 	Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1),
 	Engine::Point(-1, -1), Engine::Point(1, -1), Engine::Point(1, 1), Engine::Point(-1, 1)};
