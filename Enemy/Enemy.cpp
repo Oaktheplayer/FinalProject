@@ -157,7 +157,9 @@ void Enemy::Update(float deltaTime) {
 		Rotation = atan2(Velocity.y, Velocity.x);
 	}
 	else{
-		AirTroopUpdate(deltaTime);
+		if(!AirTroopUpdate(deltaTime)){
+			return;
+		}
 	}
 	Unit::Update(deltaTime);
 }
