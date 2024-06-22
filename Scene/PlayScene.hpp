@@ -42,12 +42,6 @@ protected:
         TILE_FLOOR,
         TILE_WATER
     };
-    enum BuildingType{
-        NON,
-        TURRET,
-        WALL,
-        TOWNHALL
-    };
 public:
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
@@ -70,7 +64,7 @@ public:
 	Engine::Point sight_dir;
 	float	sight_speed;
     bool BaseExsist;
-
+    ALLEGRO_TIMER* timer;
 	// For everything on the map (non-UI)
 	Group* MapComponent;
 	// Map tiles.

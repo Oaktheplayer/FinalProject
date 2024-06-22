@@ -241,10 +241,33 @@ void MapEditScene::InitializeMap() {
     mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
     mapTerrainPtr = std::vector<std::vector<Engine::Image*>>(MapHeight, std::vector<Engine::Image*>(MapWidth));
     mapBuildings = std::vector<std::vector<Building*>>(MapHeight, std::vector<Building*>(MapWidth));
+    std::ifstream input("Resource/map10.txt");
+    int gameMode=0;
+    char inputChar;
+    int inputInt;
+    input>>MapWidth>>MapHeight>>gameMode;
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
-            mapTerrain[i][j]=TILE_DIRT;
-            TileMapGroup->AddNewObject(mapTerrainPtr[i][j]=new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            input>>inputChar;
+            mapTerrain[i][j]=(TileType)(inputChar-'0');
+            if(mapTerrain[i][j]==TILE_DIRT)TileMapGroup->AddNewObject(mapTerrainPtr[i][j]=new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            else if(mapTerrain[i][j]==TILE_FLOOR)TileMapGroup->AddNewObject(mapTerrainPtr[i][j]=new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            else if(mapTerrain[i][j]==TILE_WATER)TileMapGroup->AddNewObject(mapTerrainPtr[i][j]=new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+    }
+    if(gameMode){
+        for (int i = 0; i < MapHeight; i++) {
+            for (int j = 0; j < MapWidth; j++) {
+                input>>inputChar;
+                inputInt=inputChar-'0';
+                if (inputInt==MachineGun)MapComponent->AddNewObject(mapBuildings[i][j]=new MachineGunTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==Laser)MapComponent->AddNewObject(mapBuildings[i][j]=new LaserTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==wall)MapComponent->AddNewObject(mapBuildings[i][j]=new Wall(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==FlameThrower)MapComponent->AddNewObject(mapBuildings[i][j]=new Flamethrower(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==Missile)MapComponent->AddNewObject(mapBuildings[i][j]=new MissileTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==base)MapComponent->AddNewObject(mapBuildings[i][j]=new Base(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                if(mapBuildings[i][j])mapBuildings[i][j]->Enabled = false;
+            }
         }
     }
 }

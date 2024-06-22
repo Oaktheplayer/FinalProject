@@ -101,6 +101,10 @@ void PlayScene::Initialize() {
 	Engine::Resources::GetInstance().GetBitmap("lose/benjamin-happy.png");
 	// Start BGM.
 	bgmId = AudioHelper::PlayBGM("play.ogg");
+    if(gamemode==1) {
+        timer = al_create_timer(10);
+        al_start_timer(timer);
+    }
 }
 void PlayScene::Terminate() {
 	AudioHelper::StopBGM(bgmId);
@@ -174,7 +178,10 @@ void PlayScene::Update(float deltaTime) {
             }
         }else if(gamemode==1){
             if(!BaseExsist){
-                score=2000;
+                al_stop_timer(timer);
+                score=(15-al_get_timer_count(timer))*100;
+                if(score<=0)score=0;
+                //al_destroy_timer(timer);
                 RecordScore();
                 Engine::GameEngine::GetInstance().ChangeScene("win");
             }
@@ -257,7 +264,7 @@ void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	float	pre_s	=	scale;
 	scale+= (float)delta /4;
 	if(scale>2)	scale=2;
-	else if(scale<0.25)	scale=0.25;
+	else if(scale<0.5)	scale=0.5;
 
 	Point	mouse(mx,my);
 	sight	=	(mouse-center)/pre_s + sight - (mouse-center)/scale;	
@@ -418,11 +425,13 @@ void PlayScene::OnKeyUp(int keyCode){
 	}
 }
 void PlayScene::Hit() {
-	if(lives>0)lives--;
-	UILives->Text = std::string("Life ") + std::to_string(lives);
-	if (lives <= 0 && gamemode==0) {
-		Engine::GameEngine::GetInstance().ChangeScene("lose");
-	}
+    if(gamemode==0) {
+        if (lives > 0)lives--;
+        UILives->Text = std::string("Life ") + std::to_string(lives);
+        if (lives <= 0 ) {
+            Engine::GameEngine::GetInstance().ChangeScene("lose");
+        }
+    }
 }
 int PlayScene::GetMoney() const {
 	return money;
