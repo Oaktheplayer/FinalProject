@@ -125,7 +125,6 @@ void Enemy::Update(float deltaTime) {
     	        	doSpriteUpdate	=	false;
 					if(!range){
 						if(reload<=0){
-                            if(Target)
 							Target->Hit(1);
 							reload	=	coolDown;
 						}
