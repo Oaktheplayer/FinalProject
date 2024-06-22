@@ -42,12 +42,6 @@ protected:
         TILE_FLOOR,
         TILE_WATER
     };
-    enum BuildingType{
-        NON,
-        TURRET,
-        WALL,
-        TOWNHALL
-    };
 public:
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
