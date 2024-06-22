@@ -23,7 +23,8 @@ TroopTurret::TroopTurret(std::string img, Enemy* parent, float osx, float osy, f
 	//Sprite(, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
 	Sprite(img,parent->Position.x+osx,parent->Position.y+osy),
 	offset(osx,osy),	Parent(parent),
-	coolDown(coolDown){
+	coolDown(coolDown), range(100){
+	reload	=	coolDown;
 	
 }
 void TroopTurret::Update(float deltaTime) {
@@ -32,9 +33,11 @@ void TroopTurret::Update(float deltaTime) {
 }
 //TODO: CANT SHOOT
 void TroopTurret::RotateTurret(float deltaTime){
+	std::cerr<<"shoot\n";
 	Target	=	Parent->Target;
-	Engine::Point originRotation = Engine::Point(cos(Rotation), sin(Rotation));
-	Engine::Point targetRotation = (Target->Position - Position).Normalize();
+	Engine::Point originRotation	= Engine::Point(cos(Rotation), sin(Rotation));
+	Engine::Point diff				=	Target->Position - Position;
+	Engine::Point targetRotation 	=	diff.Normalize();
 	float maxRotateRadian = rotateRadian * deltaTime;
 	float cosTheta = originRotation.Dot(targetRotation);
 	// Might have floating-point precision error.
@@ -56,11 +59,14 @@ void TroopTurret::RotateTurret(float deltaTime){
 	//std::cerr<<"Facing = "<<Rotation<<'\n';
 	if(abs(radian)>0.5)return;
 	// Shoot reload.
-	reload -= deltaTime;
-	if (reload <= 0) {
-		// shoot.
-		reload = coolDown;
-		CreateBullet();
+	if(diff.Magnitude()<=range){
+		reload -= deltaTime;
+		if (reload <= 0) {
+			// shoot.
+			std::cerr<<"shooting\n";
+			reload = coolDown;
+			CreateBullet();
+		}
 	}
 }
 
