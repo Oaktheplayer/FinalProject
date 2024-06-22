@@ -181,6 +181,7 @@ void MapEditScene::OnMouseUp(int button, int mx, int my) {
             preview->Tint = al_map_rgba(255, 255, 255, 255);
             MapComponent->AddNewObject(preview);
             mapBuildings[y][x] = preview;
+            if (dynamic_cast<Base*>(preview))baseCnt++;
             buildingExist++;
             preview->Update(0);
             preview = nullptr;
@@ -360,7 +361,6 @@ void MapEditScene::BtnClicked(int id) {
     else if (id == 4 )
         preview = new Wall(0, 0,RED);
     else if (id == 5 && !baseCnt) {
-        baseCnt++;
         preview = new Base(0, 0, RED);
     }
     else preview=nullptr;
@@ -419,7 +419,7 @@ void MapEditScene::ChangeBrush(int id){
 
 void MapEditScene::SaveBtnClicked(int id){
     std::cerr<<"start saving\n";
-    std::ofstream data("Resource/map5.txt");
+    std::ofstream data("Resource/map10.txt");
     if(data.is_open()){
         data<<MapWidth<<" "<<MapHeight;
         if(buildingExist)data<<" 1"<<std::endl;
