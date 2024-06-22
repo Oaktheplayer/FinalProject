@@ -71,7 +71,7 @@ void MapEditScene::Update(float deltaTime) {
         if(brushUsed){
             const int x = ((float)(brush->Position.x-center.x)/scale + sight.x)	/BlockSize;
             const int y = ((float)(brush->Position.y-center.y)/scale + sight.y)	/BlockSize;
-            if (x>=0 && x<=MapWidth && y>=0 && y<=MapWidth) {
+            if (x>=0 && x<MapWidth && y>=0 && y<MapHeight) {
                 if (mapTerrain[y][x] != CurBrushType) {
                     mapTerrain[y][x] = CurBrushType;
                     RemoveObject(mapTerrainPtr[y][x]->GetObjectIterator());
@@ -89,6 +89,8 @@ void MapEditScene::Update(float deltaTime) {
                                                                         BlockSize, BlockSize));
                     }
                 }
+            }else{
+                std::cerr<<"out of range\n";
             }
         }
     }
@@ -123,6 +125,7 @@ void MapEditScene::OnMouseDown(int button, int mx, int my) {
     const int y = ((float)(my-center.y)/scale + sight.y)	/BlockSize;
     if (x >= 0 && x < MapWidth && y >= 0 && y < MapHeight){
         if ((button & 1) && mapBuildings[y][x]) {
+            if(dynamic_cast<Base*>(mapBuildings[y][x]))baseCnt--;
             RemoveObject(mapBuildings[y][x]->GetObjectIterator());
             mapBuildings[y][x] = nullptr;
             buildingExist--;
@@ -416,7 +419,7 @@ void MapEditScene::ChangeBrush(int id){
 
 void MapEditScene::SaveBtnClicked(int id){
     std::cerr<<"start saving\n";
-    std::ofstream data("Resource/map4.txt");
+    std::ofstream data("Resource/map5.txt");
     if(data.is_open()){
         data<<MapWidth<<" "<<MapHeight;
         if(buildingExist)data<<" 1"<<std::endl;

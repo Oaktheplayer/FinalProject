@@ -110,7 +110,7 @@ void ScoreboardScene::LoadScoreBoard(int page){
 
 void ScoreboardScene::ToPage(bool isToNext){
     int delta   =   isToNext?   1:-1;
-    if((page+delta)*10 > record.size() || page+delta<0){
+    if((page+delta+1)*10 > record.size() || page+delta<0){
         fprintf(stderr,"no neet page (currently on %d)\n",page);
         return;
     }

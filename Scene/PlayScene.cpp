@@ -116,46 +116,49 @@ void PlayScene::Update(float deltaTime) {
     if(sight.y <=0)sight.y=0;
     else if(sight.y>=MapHeight*BlockSize)sight.y=MapHeight*BlockSize;
 	sight = sight + sight_dir*sight_speed;
-	if (SpeedMult == 0)
-		deathCountDown = -1;
-	std::vector<float> reachEndTimes;
-	for (auto& it : UnitGroups[RED]->GetObjects()) {
-        if(dynamic_cast<Enemy*>(it))
-		reachEndTimes.push_back(dynamic_cast<Enemy*>(it)->reachEndTime);
-	}
-	// Can use Heap / Priority-Queue instead. But since we won't have too many enemies, sorting is fast enough.
-	std::sort(reachEndTimes.begin(), reachEndTimes.end());
-	float newDeathCountDown = -1;
-	int danger = lives;
-	for (auto& it : reachEndTimes) {
-		if (it <= DangerTime) {
-			danger--;
-			if (danger <= 0) {
-				// Death Countdown
-				float pos = DangerTime - it;
-				if (it > deathCountDown) {
-					// Restart Death Count Down BGM.
-					AudioHelper::StopSample(deathBGMInstance);
-					if (SpeedMult != 0)
-						deathBGMInstance = AudioHelper::PlaySample("astronomia.ogg", false, AudioHelper::BGMVolume, pos);
-				}
-				float alpha = pos / DangerTime;
-				alpha = std::max(0, std::min(255, static_cast<int>(alpha * alpha * 255)));
-				dangerIndicator->Tint = al_map_rgba(255, 255, 255, alpha);
-				newDeathCountDown = it;
-				break;
-			}
-		}
-	}
-	deathCountDown = newDeathCountDown;
-	if (SpeedMult == 0)
-		AudioHelper::StopSample(deathBGMInstance);
-	if (deathCountDown == -1 && lives > 0) {
-		AudioHelper::StopSample(deathBGMInstance);
-		dangerIndicator->Tint.a = 0;
-	}
-	if (SpeedMult == 0)
-		deathCountDown = -1;
+    if(gamemode==0){
+        if (SpeedMult == 0)
+            deathCountDown = -1;
+        std::vector<float> reachEndTimes;
+        for (auto &it: UnitGroups[RED]->GetObjects()) {
+            if (dynamic_cast<Enemy *>(it))
+                reachEndTimes.push_back(dynamic_cast<Enemy *>(it)->reachEndTime);
+        }
+        // Can use Heap / Priority-Queue instead. But since we won't have too many enemies, sorting is fast enough.
+        std::sort(reachEndTimes.begin(), reachEndTimes.end());
+        float newDeathCountDown = -1;
+        int danger = lives;
+        for (auto &it: reachEndTimes) {
+            if (it <= DangerTime) {
+                danger--;
+                if (danger <= 0) {
+                    // Death Countdown
+                    float pos = DangerTime - it;
+                    if (it > deathCountDown) {
+                        // Restart Death Count Down BGM.
+                        AudioHelper::StopSample(deathBGMInstance);
+                        if (SpeedMult != 0)
+                            deathBGMInstance = AudioHelper::PlaySample("astronomia.ogg", false, AudioHelper::BGMVolume,
+                                                                       pos);
+                    }
+                    float alpha = pos / DangerTime;
+                    alpha = std::max(0, std::min(255, static_cast<int>(alpha * alpha * 255)));
+                    dangerIndicator->Tint = al_map_rgba(255, 255, 255, alpha);
+                    newDeathCountDown = it;
+                    break;
+                }
+            }
+        }
+        deathCountDown = newDeathCountDown;
+        if (SpeedMult == 0)
+            AudioHelper::StopSample(deathBGMInstance);
+        if (deathCountDown == -1 && lives > 0) {
+            AudioHelper::StopSample(deathBGMInstance);
+            dangerIndicator->Tint.a = 0;
+        }
+        if (SpeedMult == 0)
+            deathCountDown = -1;
+    }
 	for (int i = 0; i < SpeedMult; i++) {
 		IScene::Update(deltaTime);
 		// Check if we should create new enemy.
