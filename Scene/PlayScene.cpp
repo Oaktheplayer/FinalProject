@@ -350,24 +350,39 @@ void PlayScene::OnKeyDown(int keyCode) {
 	}
 	// TODO: [CUSTOM-TURRET]: Make specific key to create the turret.
 	if (keyCode == ALLEGRO_KEY_1) {
-		// Hotkey for MachineGunTurret.
-		DMUIBtnClicked(0);
+		if(gamemode==0){
+			// Hotkey for MachineGunTurret.
+			DMUIBtnClicked(0);
+		}else
+		if(gamemode==1){AMUIBtnClicked(0);}
 	}
 	else if (keyCode == ALLEGRO_KEY_2) {
-		// Hotkey for LaserTurret.
-		DMUIBtnClicked(1);
+		if(gamemode==0){
+			// Hotkey for LaserTurret.
+			DMUIBtnClicked(1);
+		}else
+		if(gamemode==1){AMUIBtnClicked(1);}
 	}
 	else if (keyCode == ALLEGRO_KEY_3) {
-		// Hotkey for MissileTurret.
-		DMUIBtnClicked(2);
+		if(gamemode==0){
+			// Hotkey for MissileTurret.
+			DMUIBtnClicked(2);
+		}else
+		if(gamemode==1){AMUIBtnClicked(2);}
 	}
 	else if (keyCode == ALLEGRO_KEY_4) {
-		// Hotkey for Flamethrower.
-		DMUIBtnClicked(3);
+		if(gamemode==0){
+			// Hotkey for Flamethrower.
+			DMUIBtnClicked(3);
+		}else
+		if(gamemode==1){AMUIBtnClicked(3);}
 	}
 	else if (keyCode == ALLEGRO_KEY_5) {
-		// Hotkey for Wall.
-		DMUIBtnClicked(4);
+		if(gamemode==0){
+			// Hotkey for Wall.
+			DMUIBtnClicked(4);
+		}else
+		if(gamemode==1){AMUIBtnClicked(4);}
 	}
 	else if (keyCode == ALLEGRO_KEY_W) {
 		sight_dir.y=-1;

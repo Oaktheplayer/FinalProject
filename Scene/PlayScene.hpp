@@ -49,7 +49,6 @@ protected:
         TOWNHALL
     };
 public:
-    
 	static bool DebugMode;
 	static const std::vector<Engine::Point> directions;
 	int MapWidth, MapHeight;
@@ -59,6 +58,8 @@ public:
 	Engine::Point EndGridPoint;
 	static const std::vector<int> code;
 	int MapId;
+	///Defend: 0
+	///Attack: 1
     int gamemode;
 	float ticks;
 	float deathCountDown;

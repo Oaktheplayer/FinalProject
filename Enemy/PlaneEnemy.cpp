@@ -25,7 +25,6 @@ void PlaneEnemy::AirTroopTargetFinding(){
 		Target->lockedUnits.erase(lockedUnitIterator);
 		Target = nullptr;
 		lockedUnitIterator = std::list<Unit*>::iterator();
-		escapeCoolDown	=	0.5;
 	}
 
 	float curDis = -1;
@@ -62,27 +61,28 @@ void PlaneEnemy::AirTroopTargetFinding(){
 
 bool PlaneEnemy::AirTroopUpdate(float deltaTime)
 {	
-	if ((int)abs(Position.x- (getPlayScene()->EndGridPoint.x * PlayScene::BlockSize +  PlayScene::BlockSize / 2))<4 &&
+	std::cerr<<"start Update\n";
+	if (getPlayScene()->gamemode==0 && (int)abs(Position.x- (getPlayScene()->EndGridPoint.x * PlayScene::BlockSize +  PlayScene::BlockSize / 2))<4 &&
     	(int)abs(Position.y- (getPlayScene()->EndGridPoint.y * PlayScene::BlockSize +  PlayScene::BlockSize / 2))<4) {
 		// Reach end point.
 		//Hit(hp);
 		Kill();
 		getPlayScene()->Hit();
 		reachEndTime = 0;
-		return true;
+		return false;
 	}
 	if(escapeReload<=0){
 		escapeReload	=	0;
 	}else{
 		escapeReload-=deltaTime;
-		return false;
+		return true;
 	}
 	if(Target && Engine::Collider::IsCircleOverlap(Position,CollisionRadius,Target->Position,Target->CollisionRadius)){
 		escapeReload	=	escapeCoolDown;
-		return false;
+		return true;
 	}
 
-	if(!Target && !toEnd)	{
+	if(!Target)	{
 		AirTroopTargetFinding();
 		if(!Target){
 			targetPos=getPlayScene()->EndGridPoint*PlayScene::BlockSize+Point(PlayScene::BlockSize/2,PlayScene::BlockSize/2);
@@ -121,7 +121,8 @@ bool PlaneEnemy::AirTroopUpdate(float deltaTime)
 	}
 	
 
-    return false;
+	std::cerr<<"end Update\n";
+    return true;
 }
 
 void PlaneEnemy::CreateBullet() {
