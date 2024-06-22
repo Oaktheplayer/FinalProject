@@ -120,15 +120,20 @@ add_executable(FinalProject
         Enemy/EnemyButton.h
         Scene/MapEditScene.cpp
         Scene/MapEditScene.hpp
-        #        UI/Component/TextInput.cpp
-#        UI/Component/TextInput.hpp
+        Turret/Base.cpp
+        Turret/Base.hpp
+        #client/main.cpp
 )
 
 IF (WIN32)
     target_include_directories(FinalProject PUBLIC C:/allegro/include)
+    #target_include_directories(FinalProject PUBLIC C:/enet-1.3.18/include)
     target_link_directories(FinalProject PUBLIC C:/allegro/lib)
+    #target_link_directories(FinalProject PUBLIC C:/enet-1.3.18/enet64.lib)
     target_compile_options(FinalProject PUBLIC ${ALLEGRO5_CFLAGS_OTHER})
     target_link_libraries(FinalProject liballegro_monolith)
+    #target_link_libraries(FinalProject ws2_32.lib)
+    #target_link_libraries(FinalProject winmm.lib)
 ELSE()
     find_package(PkgConfig)
     pkg_check_modules(ALLEGRO5 REQUIRED allegro-5 allegro_main-5 allegro_font-5 allegro_dialog-5 allegro_primitives-5 allegro_image-5 allegro_ttf-5 allegro_audio-5 allegro_acodec-5)
@@ -137,4 +142,9 @@ ELSE()
     target_compile_options(FinalProject PUBLIC ${ALLEGRO5_CFLAGS_OTHER})
     target_link_libraries(FinalProject ${ALLEGRO5_LIBRARIES})
     target_link_directories(FinalProject PUBLIC ${ALLEGRO5_LIBRARY_DIRS})
+
+    #target_include_directories(FinalProject PUBLIC C:/enet-1.3.18/include)
+    #target_link_directories(FinalProject PUBLIC C:/enet-1.3.18/enet64.lib)
+    #target_link_libraries(FinalProject ws2_32.lib)
+    #target_link_libraries(FinalProject winmm.lib)
 ENDIF()

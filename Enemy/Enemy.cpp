@@ -53,7 +53,6 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 		std::string	path_str = std::string(scene->AStarPathFinding(pos));
 		Point	nextp =	pos;
 		for(char i: path_str){
-    	    //if(i=='\0')break;
 			Point dir(PlayScene::directions[(int)i-'0']);
 			scene->mapDirection[nextp.y][nextp.x]	=	i-'0';
 			if(scene->HasBuildingAt(nextp.x,nextp.y)){
@@ -62,8 +61,8 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 			nextp=nextp+dir;
 			path.push(nextp);
 		}
-	}else
-	{
+        if(getPlayScene()->HasBuildingAt(nextp.x,nextp.y))roadBlockQ.push(nextp);
+	}else{
 		AirTroopTargetFinding();
 	}
 }
@@ -74,7 +73,8 @@ void Enemy::Update(float deltaTime) {
 		float remainSpeed = speed * deltaTime;
 		while (remainSpeed != 0) {
 			if (Position.x==getPlayScene()->EndGridPoint.x * PlayScene::BlockSize +  PlayScene::BlockSize / 2 &&
-    	            Position.y==getPlayScene()->EndGridPoint.y * PlayScene::BlockSize +  PlayScene::BlockSize / 2) {
+                Position.y==getPlayScene()->EndGridPoint.y * PlayScene::BlockSize +  PlayScene::BlockSize / 2 &&
+                !getPlayScene()->BaseExsist) {
 				// Reach end point.
 				//Hit(hp);
 				Kill();

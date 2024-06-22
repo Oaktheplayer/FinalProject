@@ -68,6 +68,7 @@ public:
 	Engine::Point sight0;
 	Engine::Point sight_dir;
 	float	sight_speed;
+    bool BaseExsist;
 
 	// For everything on the map (non-UI)
 	Group* MapComponent;

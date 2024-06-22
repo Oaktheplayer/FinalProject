@@ -7,7 +7,7 @@
 #include <queue>
 #include <string>
 #include <memory>
-
+#include <iostream>
 #include "Engine/AudioHelper.hpp"
 #include "UI/Animation/DirtyEffect.hpp"
 #include "Enemy/Enemy.hpp"
@@ -16,6 +16,7 @@
 #include "UI/Component/Label.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/Wall.hpp"
+#include "Turret/Base.hpp"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/MissileTurret.hpp"
 #include "Turret/Flamethrower.hpp"
@@ -30,7 +31,7 @@
 #include "Turret/TurretButton.hpp"
 #include "Enemy/EnemyButton.h"
 #include "Building/Building.hpp"
-#include	<iostream>
+
 
 float scale;
 const int opd[]={2,3,0,1,6,7,4,5};
@@ -64,7 +65,7 @@ void PlayScene::Initialize() {
 	sight0	=	center;
 	sight_dir	=	Point(0,0);
 	sight_speed	=	16;
-    gamemode=0;
+    gamemode = 0;
 	// Add Map
 	AddNewObject(MapComponent = new Group());
 	// Add groups from bottom to top.
@@ -169,8 +170,8 @@ void PlayScene::Update(float deltaTime) {
                 continue;
             }
         }else if(gamemode==1){
-            if(lives==0){
-                ScorePoint(2000);
+            if(!BaseExsist){
+                score=2000;
                 RecordScore();
                 Engine::GameEngine::GetInstance().ChangeScene("win");
             }
@@ -208,7 +209,6 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
 	case 4:
 		UnitGroups[RED]->AddNewObject(enemy = new TruckEnemy(x, y,RED));
 		break;
-
     case 5:
         UnitGroups[RED]->AddNewObject(enemy = new SonicEnemy(x, y,RED));
         break;
@@ -225,33 +225,30 @@ void PlayScene::Draw(float scale, float cx, float cy, float sx, float sy) const 
 	//IScene::Draw();
     al_clear_to_color(al_map_rgb(0, 0, 0));
     MapComponent->Draw(this->scale, center.x, center.y, sight.x, sight.y);
-	if (DebugMode) {
-		// Draw reverse BFS distance on all reachable blocks.
-		for (int i = 0; i < MapHeight; i++) {
-			for (int j = 0; j < MapWidth; j++) {
-                float x = (j + 0.5) * BlockSize;
-                float y = (i + 0.5) * BlockSize;
-                // Engine::Label label1(std::to_string(mapHValue[i][j]), "pirulen.ttf",16,x,y);
-                // label1.Anchor = Engine::Point(0.5, 0.5);
-                // label1.Draw(this->scale, center.x, center.y, sight.x, sight.y);
-				if (mapGCost[i][j] != -1) {
-					Engine::Label label2(std::to_string(mapGCost[i][j]), "pirulen.ttf",16,
-					x ,
-					y );
-					label2.Anchor = Engine::Point(0.5, 0.5);
-					label2.Draw(this->scale, center.x, center.y, sight.x, sight.y+10);
-				}
-			}
-		}
-	}
+//	if (DebugMode) {
+//		// Draw reverse BFS distance on all reachable blocks.
+//		for (int i = 0; i < MapHeight; i++) {
+//			for (int j = 0; j < MapWidth; j++) {
+//                float x = (j + 0.5) * BlockSize;
+//                float y = (i + 0.5) * BlockSize;
+//                Engine::Label label1(std::to_string(mapHValue[i][j]), "pirulen.ttf",16,x,y);
+//                label1.Anchor = Engine::Point(0.5, 0.5);
+//                label1.Draw(this->scale, center.x, center.y, sight.x, sight.y);
+//				if (mapGCost[i][j] != -1) {
+//					Engine::Label label2(std::to_string(mapGCost[i][j]), "pirulen.ttf",16,
+//					x ,
+//					y );
+//					label2.Anchor = Engine::Point(0.5, 0.5);
+//					label2.Draw(this->scale, center.x, center.y, sight.x, sight.y+10);
+//				}
+//			}
+//		}
+//	}
     UIGroup->Draw();
 	if(imgTarget->Visible)	imgTarget->Draw(this->scale, center.x, center.y, sight.x, sight.y);
 	if(preview)		{
-        //std::cerr<<"draw preview\n";
         preview->Draw(this->scale,preview->Position.x,preview->Position.y,preview->Position.x,preview->Position.y);
     }
-	
-
 }
 void PlayScene::OnMouseScroll(int mx, int my, int delta){
 	float	pre_s	=	scale;
@@ -381,8 +378,6 @@ void PlayScene::OnKeyDown(int keyCode) {
 	else if (keyCode == ALLEGRO_KEY_D) {
 		sight_dir.x=1;
 	}
-	
-	// 
 	else if(keyCode	==	ALLEGRO_KEY_UP){
 		SpeedMult++;
 		if(SpeedMult>20)SpeedMult=20;
@@ -475,6 +470,7 @@ void PlayScene::ReadMap() {
 	//mapBuildings	=	std::vector<std::vector<Turret*>>(MapHeight, std::vector<Turret*>(MapWidth,nullptr));
     mapBuildings	=	std::vector<std::vector<Building*>>(MapHeight, std::vector<Building*>(MapWidth,nullptr));
     if(gamemode==1){
+        int BaseCnt=0;
         for (int i = MapHeight; i < 2*MapHeight; i++) {
             for (int j = 0; j < MapWidth; j++) {
                 const int num = mapData[i * MapWidth + j];
@@ -497,15 +493,19 @@ void PlayScene::ReadMap() {
                         UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new MachineGunTurret((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
                         break;
                     case 6:
+                        UnitGroups[RED]->AddNewObject(mapBuildings[i-MapHeight][j]=new Base((j+0.5)*BlockSize, (i-MapHeight+0.5)*BlockSize,RED));
                         EndGridPoint = Engine::Point(j, i-MapHeight);
+                        BaseExsist=true;
+                        BaseCnt++;
                         break;
                     default:
-                        preview=nullptr;
                         std::cerr<<"unknown build type\n";
                         break;
                 }
             }
         }
+        if(BaseCnt==0)std::cerr<<"missing Base\n";
+        else if(BaseCnt>1)std::cerr<<"Too many Base\n";
     }
     std::cerr<<"map read succeed\n";
 }
@@ -529,10 +529,12 @@ void PlayScene::ConstructUI() {
 	// Text
 	UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
 	UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
-	UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
-	UIGroup->AddNewObject(UIScore = new Engine::Label(std::string("Score ") + std::to_string(score), "pirulen.ttf", 24, 1294,	128));
+	UIGroup->AddNewObject(UIScore = new Engine::Label(std::string("Score ") + std::to_string(score), "pirulen.ttf", 24, 1294,	88));
 
-    if(gamemode==0)DefenceModeUI();
+    if(gamemode==0){
+        UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 128));
+        DefenceModeUI();
+    }
     else AttackModeUI();
 
 	int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
@@ -706,7 +708,7 @@ bool PlayScene::CheckSpaceValid(int x, int y,Unit* unit) {
 		if(!hasPath)	return true;
         mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
         //mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-			mapDirection[y][x]=-1;
+        mapDirection[y][x]=-1;
 		for(auto& g: UnitGroups)
         for (auto& it : g->GetObjects())if(dynamic_cast<Enemy*>(it))
                 dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
@@ -788,8 +790,6 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 		std::cerr<<"pathfinding error\n";
     	return std::string();
 	}
-
-	//std::cerr<<"pathfinding over\n"<<Q.top().path<<'\n';
 	return	path_str;
 }
 
@@ -808,11 +808,7 @@ void PlayScene::RemoveBuilding(int x, int y){
 	mapBuildings[y][x]=nullptr;
 	if(mapTerrain[y][x]!=TILE_FLOOR){
 		mapAStarVisited= std::vector<std::vector<bool>>(MapHeight, std::vector<bool>(MapWidth,false));
-		//TEST
-		//mapDirection= std::vector<std::vector<char>>(MapHeight, std::vector<char>(MapWidth,-1));
-			mapDirection[y][x]=-1;
-//	    mapDistance = CalculateBFSDistance(0);
-//        if(mapDistance[y][x]==-1)mapDistance = CalculateBFSDistance(1);
+        mapDirection[y][x]=-1;
 		for(auto& g: UnitGroups)
 			for (auto& it : g->GetObjects())if(dynamic_cast<Enemy*>(it))dynamic_cast<Enemy*>(it)->UpdatePath(mapDistance);
 	}
@@ -820,10 +816,8 @@ void PlayScene::RemoveBuilding(int x, int y){
 }
 Building *PlayScene::HasBuildingAt(int x, int y)
 {
-	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
-	if(	x<0 || 	x>=MapWidth
-	||	y<0	||	y>=MapHeight)
-	return nullptr;
+//	if(x == EndGridPoint.x && y == EndGridPoint.y)	return	nullptr;
+	if(	x<0 || 	x>=MapWidth||	y<0	||	y>=MapHeight)return nullptr;
 	return mapBuildings[y][x];
 }
 Building *PlayScene::HasBuildingAt(Point p){

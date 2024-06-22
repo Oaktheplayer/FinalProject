@@ -37,7 +37,8 @@ protected:
         Laser,
         Missile,
         FlameThrower,
-        MachineGun
+        MachineGun,
+        base
     };
 public:
 
@@ -45,6 +46,7 @@ public:
     int MapWidth, MapHeight;
     int buildingExist;
     int brushUsed;
+    int baseCnt;
     static const int BlockSize=64;
     float scale;
     Engine::Point center;

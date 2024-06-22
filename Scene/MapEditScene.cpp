@@ -19,6 +19,7 @@
 #include "Engine/Resources.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/Wall.hpp"
+#include "Turret/Base.hpp"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/MissileTurret.hpp"
 #include "Turret/Flamethrower.hpp"
@@ -36,6 +37,7 @@ void MapEditScene::Initialize() {
     buildingExist=0;
     brushUsed = 0;
     brush= nullptr;
+    baseCnt=0;
     AddNewObject(MapComponent = new Group());
     MapComponent->AddNewObject(TileMapGroup = new Group());
     MapComponent->AddNewObject(GroundEffectGroup = new Group());
@@ -292,6 +294,14 @@ void MapEditScene::ConstructUI() {
     btn->SetOnClickCallback(std::bind(&MapEditScene::BtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
     i++;
+    // Button 5
+    btn = new TurretButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
+                           Engine::Sprite("play/base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 0);
+    btn->SetOnClickCallback(std::bind(&MapEditScene::BtnClicked, this, 5));
+    UIGroup->AddNewControlObject(btn);
+    i++;
 
     Engine::ImageButton* Btn;
     Frame1 = new Engine::ImageButton("play/black.png", "play/black.png", x+j%4*(dx+30)-10, y+(j/4)*dx+290 , 95, 95);
@@ -346,6 +356,10 @@ void MapEditScene::BtnClicked(int id) {
         preview = new Flamethrower(0, 0,RED);
     else if (id == 4 )
         preview = new Wall(0, 0,RED);
+    else if (id == 5 && !baseCnt) {
+        baseCnt++;
+        preview = new Base(0, 0, RED);
+    }
     else preview=nullptr;
     if (!preview){
         imgTarget->Visible=false;
@@ -423,6 +437,7 @@ void MapEditScene::SaveBtnClicked(int id){
                     else if (dynamic_cast<Wall *> (mapBuildings[i][j]))data << wall;
                     else if (dynamic_cast<Flamethrower *> (mapBuildings[i][j]))data << FlameThrower;
                     else if (dynamic_cast<MissileTurret *> (mapBuildings[i][j]))data << Missile;
+                    else if (dynamic_cast<Base *> (mapBuildings[i][j]))data << base;
                     else data << None;
                 }
                 data << std::endl;

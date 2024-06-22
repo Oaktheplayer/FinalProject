@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-
+#include <math.h>
 #include "PlaneEnemy.hpp"
 #include "Engine/Collider.hpp"
 #include "Bullet/FireBullet.hpp"
