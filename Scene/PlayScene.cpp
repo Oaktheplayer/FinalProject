@@ -452,7 +452,7 @@ void PlayScene::EarnMoney(int money) {
 }
 void PlayScene::ReadMap() {
 	
-	std::string filename = std::string("Resource/map") + std::to_string(StageId*10+MapId) + ".txt";
+	std::string filename = std::string("../Resource/map") + std::to_string(StageId*10+MapId) + ".txt";
 	// Read map file.
 	char c;
 	std::vector<int> mapData;
@@ -625,11 +625,10 @@ void PlayScene::AttackModeUI(){
     i++;
 	// Button 5
     btn = new EnemyButton("play/button1.png", "play/button2.png",
-                           Engine::Sprite("play/acv_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+                           Engine::Sprite("play/acv_troop.png", x+i%4*dx-25, y+(i/4)*dx+8, 0, 0, 0, 0)
             , x+i%4*dx, y+(i/4)*dx, 10);
     btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 5));
     UIGroup->AddNewControlObject(btn);
-    i++;
 }
 void PlayScene::DefenceModeUI(){
     TurretButton* btn;

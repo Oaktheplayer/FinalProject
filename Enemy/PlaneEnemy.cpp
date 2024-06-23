@@ -33,7 +33,7 @@ void PlaneEnemy::AirTroopTargetFinding(){
 		for (auto& it : enemyGroup->GetObjects()) {
 			Engine::Point diff = it->Position - Position;
 			float	dis = diff.Magnitude();
-			std::cerr<<it->Position.x<<','<<it->Position.y<<": "<< dis<<'\n';
+			//std::cerr<<it->Position.x<<','<<it->Position.y<<": "<< dis<<'\n';
 			if (curDis==-1 || dis < curDis) {
 				Target = dynamic_cast<Unit*>(it);
 				curDis	=	dis;
@@ -42,7 +42,7 @@ void PlaneEnemy::AirTroopTargetFinding(){
 		}
 	}
 	if(Target){
-		std::cerr<<"found Target: "<<Target->Position.x<<','<<Target->Position.y<<'\n';
+		//std::cerr<<"found Target: "<<Target->Position.x<<','<<Target->Position.y<<'\n';
 				Target->lockedUnits.push_back(this);
 				lockedUnitIterator = std::prev(Target->lockedUnits.end());
 		targetPos	=	Target->Position;
@@ -83,7 +83,7 @@ bool PlaneEnemy::AirTroopUpdate(float deltaTime)
 			toEnd	=	true;
 		}else
 			targetPos=Target->Position;
-		std::cerr<<targetPos.x<<','<<targetPos.y<<'\n';
+		//std::cerr<<targetPos.x<<','<<targetPos.y<<'\n';
 	}
 	Engine::Point originRotation = Engine::Point(cos(Rotation), sin(Rotation));
 	Engine::Point targetRotation = (targetPos - Position).Normalize();
