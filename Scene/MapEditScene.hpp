@@ -56,6 +56,7 @@ public:
     float	sight_speed;
     // For everything on the map (non-UI)
     Group* TileMapGroup;
+    Group* BuildingGroup;
     Group* MapComponent;
     Group* GroundEffectGroup;
     Group* UIGroup;

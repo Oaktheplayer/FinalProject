@@ -41,6 +41,7 @@ void MapEditScene::Initialize() {
     AddNewObject(MapComponent = new Group());
     MapComponent->AddNewObject(TileMapGroup = new Group());
     MapComponent->AddNewObject(GroundEffectGroup = new Group());
+    MapComponent->AddNewObject(BuildingGroup= new Group());
     AddNewControlObject(UIGroup = new Group());
     ConstructUI();
     imgTarget = new Engine::Image("play/target.png", 0, 0);
@@ -76,15 +77,15 @@ void MapEditScene::Update(float deltaTime) {
                     mapTerrain[y][x] = CurBrushType;
                     RemoveObject(mapTerrainPtr[y][x]->GetObjectIterator());
                     if (CurBrushType == TILE_DIRT) {
-                        MapComponent->AddNewObject(
+                        TileMapGroup->AddNewObject(
                                 mapTerrainPtr[y][x] = new Engine::Image("play/dirt.png", x * BlockSize, y * BlockSize,
                                                                         BlockSize, BlockSize));
                     } else if (CurBrushType == TILE_FLOOR) {
-                        MapComponent->AddNewObject(
+                        TileMapGroup->AddNewObject(
                                 mapTerrainPtr[y][x] = new Engine::Image("play/grass.png", x * BlockSize, y * BlockSize,
                                                                         BlockSize, BlockSize));
                     } else if (CurBrushType == TILE_WATER) {
-                        MapComponent->AddNewObject(
+                        TileMapGroup->AddNewObject(
                                 mapTerrainPtr[y][x] = new Engine::Image("play/water.png", x * BlockSize, y * BlockSize,
                                                                         BlockSize, BlockSize));
                     }
@@ -124,7 +125,7 @@ void MapEditScene::OnMouseDown(int button, int mx, int my) {
     const int x = ((float)(mx-center.x)/scale + sight.x)	/BlockSize;
     const int y = ((float)(my-center.y)/scale + sight.y)	/BlockSize;
     if (x >= 0 && x < MapWidth && y >= 0 && y < MapHeight){
-        if ((button & 1) && mapBuildings[y][x]) {
+        if ((button & 1) && mapBuildings[y][x] &&!brushUsed) {
             if(dynamic_cast<Base*>(mapBuildings[y][x]))baseCnt--;
             RemoveObject(mapBuildings[y][x]->GetObjectIterator());
             mapBuildings[y][x] = nullptr;
@@ -179,7 +180,7 @@ void MapEditScene::OnMouseUp(int button, int mx, int my) {
             preview->Enabled = false;
             preview->Preview = false;
             preview->Tint = al_map_rgba(255, 255, 255, 255);
-            MapComponent->AddNewObject(preview);
+            BuildingGroup->AddNewObject(preview);
             mapBuildings[y][x] = preview;
             if (dynamic_cast<Base*>(preview))baseCnt++;
             buildingExist++;
@@ -241,7 +242,7 @@ void MapEditScene::InitializeMap() {
     mapTerrain = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
     mapTerrainPtr = std::vector<std::vector<Engine::Image*>>(MapHeight, std::vector<Engine::Image*>(MapWidth));
     mapBuildings = std::vector<std::vector<Building*>>(MapHeight, std::vector<Building*>(MapWidth));
-    std::ifstream input("Resource/map10.txt");
+    std::ifstream input("../Resource/map10.txt");
     int gameMode=0;
     char inputChar;
     int inputInt;
@@ -260,12 +261,12 @@ void MapEditScene::InitializeMap() {
             for (int j = 0; j < MapWidth; j++) {
                 input>>inputChar;
                 inputInt=inputChar-'0';
-                if (inputInt==MachineGun)MapComponent->AddNewObject(mapBuildings[i][j]=new MachineGunTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
-                else if (inputInt==Laser)MapComponent->AddNewObject(mapBuildings[i][j]=new LaserTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
-                else if (inputInt==wall)MapComponent->AddNewObject(mapBuildings[i][j]=new Wall(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
-                else if (inputInt==FlameThrower)MapComponent->AddNewObject(mapBuildings[i][j]=new Flamethrower(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
-                else if (inputInt==Missile)MapComponent->AddNewObject(mapBuildings[i][j]=new MissileTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
-                else if (inputInt==base)MapComponent->AddNewObject(mapBuildings[i][j]=new Base(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                if (inputInt==MachineGun)BuildingGroup->AddNewObject(mapBuildings[i][j]=new MachineGunTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==Laser)BuildingGroup->AddNewObject(mapBuildings[i][j]=new LaserTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==wall)BuildingGroup->AddNewObject(mapBuildings[i][j]=new Wall(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==FlameThrower)BuildingGroup->AddNewObject(mapBuildings[i][j]=new Flamethrower(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==Missile)BuildingGroup->AddNewObject(mapBuildings[i][j]=new MissileTurret(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
+                else if (inputInt==base)BuildingGroup->AddNewObject(mapBuildings[i][j]=new Base(j*BlockSize+ BlockSize / 2, i*BlockSize+ BlockSize / 2,RED));
                 if(mapBuildings[i][j])mapBuildings[i][j]->Enabled = false;
             }
         }
@@ -315,8 +316,8 @@ void MapEditScene::ConstructUI() {
     i++;
     // Button 4
     btn = new TurretButton("play/button1.png", "play/button2.png",
-                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
-                           Engine::Sprite("play/tower-base.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+                           Engine::Sprite("play/wall.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0),
+                           Engine::Sprite("play/wall.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
             , x+i%4*dx, y+(i/4)*dx, 0);
     btn->SetOnClickCallback(std::bind(&MapEditScene::BtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
@@ -442,7 +443,7 @@ void MapEditScene::ChangeBrush(int id){
 
 void MapEditScene::SaveBtnClicked(int id){
     std::cerr<<"start saving\n";
-    std::ofstream data("Resource/map10.txt");
+    std::ofstream data("../Resource/map10.txt");
     if(data.is_open()){
         data<<MapWidth<<" "<<MapHeight;
         if(buildingExist)data<<" 1"<<std::endl;
