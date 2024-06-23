@@ -85,7 +85,7 @@ void PlayScene::Initialize() {
     //SpawnGridPoint = Engine::Point(-1, 0);
 	SpawnGridPoint = Engine::Point(0, 0);
 	if(gamemode==0){
-        money=150;
+        money=300;
         ReadEnemyWave();
     }
 	mapDirection = std::vector<std::vector<char>>(MapHeight,	std::vector<char>	(MapWidth,-1));
