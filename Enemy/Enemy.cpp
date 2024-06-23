@@ -104,8 +104,10 @@ void Enemy::Update(float deltaTime) {
 								lockedUnitIterator = std::list<Unit*>::iterator();
 							}
 							Target = dynamic_cast<Unit*>(roadBlock);
-							Target->lockedUnits.push_back(this);
-							lockedUnitIterator = std::prev(Target->lockedUnits.end());
+                            if(Target) {
+                                Target->lockedUnits.push_back(this);
+                                lockedUnitIterator = std::prev(Target->lockedUnits.end());
+                            }
 							// Target	=	roadBlock;
 							// RotateHead(deltaTime);
 						}
