@@ -18,7 +18,6 @@ PlaneEnemy::PlaneEnemy(int x, int y, Team team) : Enemy("play/enemy-2.png", x, y
 }
 
 void PlaneEnemy::AirTroopTargetFinding(){
-	std::cerr<<"start Air find target\n";
 	PlayScene *scene = getPlayScene();
 
 	if (Target) {
@@ -53,15 +52,10 @@ void PlaneEnemy::AirTroopTargetFinding(){
 		targetPos=getPlayScene()->EndGridPoint*PlayScene::BlockSize+Point(PlayScene::BlockSize/2,PlayScene::BlockSize/2);
 		toEnd	=	true;
 	}
-
-	
-	//
-	std::cerr<<"end Air find target\n";
 }
 
 bool PlaneEnemy::AirTroopUpdate(float deltaTime)
 {	
-	std::cerr<<"start Update\n";
 	if (getPlayScene()->gamemode==0 && (int)abs(Position.x- (getPlayScene()->EndGridPoint.x * PlayScene::BlockSize +  PlayScene::BlockSize / 2))<4 &&
     	(int)abs(Position.y- (getPlayScene()->EndGridPoint.y * PlayScene::BlockSize +  PlayScene::BlockSize / 2))<4) {
 		// Reach end point.
@@ -119,9 +113,6 @@ bool PlaneEnemy::AirTroopUpdate(float deltaTime)
 		Velocity.x=cos(Rotation)*speed;
 		Velocity.y=sin(Rotation)*speed;
 	}
-	
-
-	std::cerr<<"end Update\n";
     return true;
 }
 
