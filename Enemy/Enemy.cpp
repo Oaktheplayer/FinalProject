@@ -50,7 +50,7 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>>& mapDistance) {
 		Engine::Point pos(x, y);
 		path		=	std::queue<Point>();
 		roadBlockQ	=	std::queue<Point>();
-		std::string	path_str = std::string(scene->AStarPathFinding(pos));
+		std::string	path_str = std::string(scene->AStarPathFinding(pos,type));
 		Point	nextp =	pos;
 		for(char i: path_str){
 			Point dir(PlayScene::directions[(int)i-'0']);

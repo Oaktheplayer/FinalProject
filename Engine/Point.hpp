@@ -70,7 +70,11 @@ namespace Engine {
 		/// </summary>
 		/// <returns>Magnitude of vector.</returns>
 		float Magnitude() const;
-		// Point operator=(const Point &p){return Point(p.x,p.y);}
+		/// <summary>
+		/// Make point act like vector and Rotate it at a certain angle.
+		/// </summary>
+		/// <returns>rotated vector.</returns>
+		Point Rotate(float theta);
 	};
 	Point operator*(const float& lhs, const Point& rhs);
 }

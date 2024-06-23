@@ -35,8 +35,15 @@ namespace Engine {
 	}
 	float Point::Magnitude() const {
 		return sqrt(MagnitudeSquared());
-	};
-	Point operator*(const float& lhs, const Point& rhs) {
+	}
+    Point Point::Rotate(float theta)
+    {
+		float cosTheta = cos(theta);
+		float sinTheta = sin(theta);
+
+        return Point(x*cosTheta-y*sinTheta,x*sinTheta+y*cosTheta);
+    };
+    Point operator*(const float& lhs, const Point& rhs) {
 		return rhs * lhs;
 	}
 }

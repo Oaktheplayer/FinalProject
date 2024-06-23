@@ -51,6 +51,7 @@ public:
 	Engine::Point SpawnGridPoint;
 	Engine::Point EndGridPoint;
 	static const std::vector<int> code;
+	int StageId=0;
 	int MapId;
 	///Defend: 0
 	///Attack: 1
@@ -120,6 +121,7 @@ public:
     bool CheckSpaceValid(int x, int y,Unit* building);
 	//std::vector<std::vector<int>> CalculateBFSDistance(bool);
 	std::string	AStarPathFinding(Engine::Point start, int flag=0);
+	bool CanPassGridPoint(int x, int y, int flag=0, bool ignoreBuilding=false);
 	int	HVal(Engine::Point A, Engine::Point B);
 	void RemoveBuilding(int x,int y);
 	Building* HasBuildingAt(int x,int y);

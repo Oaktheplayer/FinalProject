@@ -58,13 +58,11 @@ void TroopTurret::RotateTurret(float deltaTime){
 	//std::cerr<<"Facing = "<<Rotation<<'\n';
 	if(abs(radian)>0.5)return;
 	// Shoot reload.
-	if(diff.Magnitude()<=range){
-		reload -= deltaTime;
-		if (reload <= 0) {
-			// shoot.
-			reload = coolDown;
-			CreateBullet();
-		}
+	reload -= deltaTime;
+	if (reload <= 0) {
+		// shoot.
+		reload = coolDown;
+		CreateBullet();
 	}
 }
 

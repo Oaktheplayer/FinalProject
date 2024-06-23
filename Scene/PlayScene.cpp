@@ -26,6 +26,7 @@
 #include "Engine/Resources.hpp"
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
+#include "Enemy/ACV.hpp"
 #include "Enemy/TruckEnemy.hpp"
 #include "Enemy/SonicEnemy.h"
 #include "Turret/TurretButton.hpp"
@@ -222,6 +223,9 @@ Enemy* PlayScene::SpawnEnemy(int type, float x, float y, float delta){
     case 5:
         UnitGroups[RED]->AddNewObject(enemy = new SonicEnemy(x, y,RED));
         break;
+    case 6:
+        UnitGroups[RED]->AddNewObject(enemy = new ACV(x, y,RED));
+        break;
     // TODO: [CUSTOM-ENEMY]: You need to modify 'Resource/enemy1.txt', or 'Resource/enemy2.txt' to spawn the 4th enemy.
     //         The format is "[EnemyId] [TimeDelay] [Repeat]".
     // TODO: [CUSTOM-ENEMY]: Enable the creation of the enemy.
@@ -390,6 +394,12 @@ void PlayScene::OnKeyDown(int keyCode) {
 			DMUIBtnClicked(4);
 		}else
 		if(gamemode==1){AMUIBtnClicked(4);}
+	}else if (keyCode == ALLEGRO_KEY_6) {
+		if(gamemode==0){
+			// Hotkey for Wall.
+			DMUIBtnClicked(5);
+		}else
+		if(gamemode==1){AMUIBtnClicked(5);}
 	}
 	else if (keyCode == ALLEGRO_KEY_W) {
 		sight_dir.y=-1;
@@ -441,7 +451,8 @@ void PlayScene::EarnMoney(int money) {
 	UIMoney->Text = std::string("$") + std::to_string(this->money);
 }
 void PlayScene::ReadMap() {
-	std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
+	
+	std::string filename = std::string("Resource/map") + std::to_string(StageId*10+MapId) + ".txt";
 	// Read map file.
 	char c;
 	std::vector<int> mapData;
@@ -539,7 +550,7 @@ void PlayScene::ReadMap() {
 void PlayScene::ReadEnemyWave() {
     // DONE: [HACKATHON-3-BUG] (3/5): Trace the code to know how the enemies are created.
     // DONE: [HACKATHON-3-BUG] (3/5): There is a bug in these files, which let the game only spawn the first enemy, try to fix it.
-    std::string filename = std::string("Resource/enemy") + std::to_string(MapId) + ".txt";
+    std::string filename = std::string("Resource/enemy") + std::to_string(StageId*10+ MapId) + ".txt";
 	// Read enemy file.
 	float type, wait, repeat;
 	enemyWaveData.clear();
@@ -612,6 +623,13 @@ void PlayScene::AttackModeUI(){
     btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 4));
     UIGroup->AddNewControlObject(btn);
     i++;
+	// Button 5
+    btn = new EnemyButton("play/button1.png", "play/button2.png",
+                           Engine::Sprite("play/acv_troop.png", x+i%4*dx, y+(i/4)*dx, 0, 0, 0, 0)
+            , x+i%4*dx, y+(i/4)*dx, 10);
+    btn->SetOnClickCallback(std::bind(&PlayScene::AMUIBtnClicked, this, 5));
+    UIGroup->AddNewControlObject(btn);
+    i++;
 }
 void PlayScene::DefenceModeUI(){
     TurretButton* btn;
@@ -674,6 +692,8 @@ void PlayScene::AMUIBtnClicked(int id) {
         preview = new PlaneEnemy(0, 0,BLUE);
     }else if (id == 4 && money >= SonicEnemy::Price) {
         preview = new SonicEnemy(0, 0,BLUE);
+    }else if (id == 5 && money >= SonicEnemy::Price) {
+        preview = new ACV(0, 0,BLUE);
     }
     else preview=nullptr;
     if (!preview){
@@ -766,6 +786,7 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 				S.repathing	=	true;
 				Q.push(S);
 			Point next(curstate+directions[dirToken]);
+			if(!CanPassGridPoint(next.x,next.y,flag,true)) continue;
 			int g = curstate.g_cost;
 			if(dirToken>=4){
 				if(HasBuildingAt(next.x,curstate.y) || HasBuildingAt(curstate.x,next.y)) continue;
@@ -789,14 +810,17 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
 		//std::cerr<<"bruh: "<<curstate.path<<'\n';
 		for(int i=0;i<8;i++){
 			if(opd[i]==curstate.premove)	continue;
-				//TEST
-				if(curstate.repathing && i == mapDirection[curstate.y][curstate.x]) continue;
+			if(curstate.repathing && i == mapDirection[curstate.y][curstate.x]) continue;
 			Point next(curstate+directions[i]);
-			if(next.x<0 || next.x>=MapWidth || next.y<0	|| next.y>=MapHeight || mapTerrain[next.y][next.x]!=TILE_DIRT)continue;
+			if(next.x<0 || next.x>=MapWidth || next.y<0	|| next.y>=MapHeight
+			|| !CanPassGridPoint(next.x,next.y,flag,true))
+				continue;
             int g	=	curstate.g_cost;
             if(i>=4){
-                if(	mapTerrain[next.y][curstate.x]!=TILE_DIRT||	mapTerrain[curstate.y][next.x]!=TILE_DIRT
-				||  HasBuildingAt(next.x,curstate.y) || HasBuildingAt(curstate.x,next.y))continue;
+                // if(	mapTerrain[next.y][curstate.x]!=TILE_DIRT||	mapTerrain[curstate.y][next.x]!=TILE_DIRT
+				// ||  HasBuildingAt(next.x,curstate.y) || HasBuildingAt(curstate.x,next.y))
+				if(!CanPassGridPoint(next.x,curstate.y,flag)	||	!CanPassGridPoint(curstate.x,next.y,flag))
+					continue;
                 g+=14;
             }else{
                 g+=10;
@@ -818,6 +842,19 @@ std::string PlayScene::AStarPathFinding(Point start, int flag)
     	return std::string();
 	}
 	return	path_str;
+}
+
+bool PlayScene::CanPassGridPoint(int x, int y, int flag, bool ignoreBuilding)
+{
+	if(!ignoreBuilding && HasBuildingAt(x,y))	return	false;
+	if(mapTerrain[y][x]==TILE_FLOOR)			return	false;
+	
+	if((flag==Ground || flag==Amph)	&&	mapTerrain[y][x]==TILE_DIRT)
+		return	true;
+	if((flag==Water	 || flag==Amph)	&&	mapTerrain[y][x]==TILE_WATER)
+		return	true;
+
+    return false;
 }
 
 int PlayScene::HVal(Point A, Point B)
